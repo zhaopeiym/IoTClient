@@ -111,7 +111,11 @@ namespace IoTServer.Servers.ModBus
                             break;
                     }
                 }
-                catch (Exception) { }
+                catch (Exception ex)
+                {
+                    //todo
+                    throw ex;
+                }
             }
         }
     }

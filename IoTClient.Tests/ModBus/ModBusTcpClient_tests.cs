@@ -27,21 +27,21 @@ namespace IoTClient.Tests.ModBus
             short Number = 33;
             client.Write(4, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(4, stationNumber) == Number);
+            Assert.True(client.ReadInt16(4, stationNumber).Value == Number);
 
             Number = 34;
             client.Write(4, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(4, stationNumber) == Number);
+            Assert.True(client.ReadInt16(4, stationNumber).Value == Number);
 
             Number = 1;
             client.Write(12, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(12, stationNumber) == 1);
+            Assert.True(client.ReadInt16(12, stationNumber).Value == 1);
             Number = 0;
             client.Write(12, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(12, stationNumber) == 0);
+            Assert.True(client.ReadInt16(12, stationNumber).Value == 0);
         }
 
         [Fact]
@@ -52,21 +52,21 @@ namespace IoTClient.Tests.ModBus
             short Number = 33;
             client.Write(4, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(4, stationNumber) == Number);
+            Assert.True(client.ReadInt16(4, stationNumber).Value == Number);
 
             Number = 34;
             client.Write(4, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(4, stationNumber) == Number);
+            Assert.True(client.ReadInt16(4, stationNumber).Value == Number);
 
             Number = 1;
             client.Write(12, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(12, stationNumber) == 1);
+            Assert.True(client.ReadInt16(12, stationNumber).Value == 1);
             Number = 0;
             client.Write(12, Number, stationNumber);
             await Task.Delay(500);
-            Assert.True(client.ReadInt16(12, stationNumber) == 0);
+            Assert.True(client.ReadInt16(12, stationNumber).Value == 0);
 
             client.Close();
         }

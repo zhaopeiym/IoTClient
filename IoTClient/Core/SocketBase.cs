@@ -68,23 +68,15 @@ namespace IoTClient.Core
         /// <returns></returns>
         protected byte[] SocketRead(Socket socket, int receiveCount)
         {
-            try
+            byte[] receiveBytes = new byte[receiveCount];
+            int receiveFinish = 0;
+            while (receiveFinish < receiveCount)
             {
-                byte[] receiveBytes = new byte[receiveCount];
-                int receiveFinish = 0;
-                while (receiveFinish < receiveCount)
-                {
-                    // 分批读取
-                    int receiveLength = (receiveCount - receiveFinish) >= BufferSize ? BufferSize : (receiveCount - receiveFinish);
-                    receiveFinish += socket.Receive(receiveBytes, receiveFinish, receiveLength, SocketFlags.None);
-                }
-                return receiveBytes;
+                // 分批读取
+                int receiveLength = (receiveCount - receiveFinish) >= BufferSize ? BufferSize : (receiveCount - receiveFinish);
+                receiveFinish += socket.Receive(receiveBytes, receiveFinish, receiveLength, SocketFlags.None);
             }
-            catch (Exception ex)
-            {
-                socket?.Close();
-                throw ex;
-            }
+            return receiveBytes;
         }
 
     }
