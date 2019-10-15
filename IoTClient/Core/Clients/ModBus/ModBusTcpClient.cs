@@ -28,6 +28,7 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         protected override bool Connect()
         {
+            socket?.Close();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -65,7 +66,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
         /// <returns></returns>
-        public Result<byte[]> Read(ushort address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
+        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
         {
             ConnectManager();
             var readResult = new Result<byte[]>();
@@ -113,7 +114,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public Result<short> ReadInt16(ushort address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<short> ReadInt16(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode);
             var result = new Result<short>()
@@ -128,13 +129,34 @@ namespace IoTClient.Clients.ModBus
         }
 
         /// <summary>
+        /// 读取UInt16
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
+        public Result<ushort> ReadUInt16(string address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            var readResut = Read(address, stationNumber, functionCode);
+            var result = new Result<ushort>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToUInt16(readResut.Value, 0);
+            return result;
+        }
+
+        /// <summary>
         /// 读取Int32
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public Result<int> ReadInt32(ushort address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<int> ReadInt32(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 2);
             var result = new Result<int>()
@@ -149,15 +171,36 @@ namespace IoTClient.Clients.ModBus
         }
 
         /// <summary>
+        /// 读取UInt32
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
+        public Result<uint> ReadUInt32(string address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            var readResut = Read(address, stationNumber, functionCode, readLength: 2);
+            var result = new Result<uint>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToUInt32(readResut.Value, 0);
+            return result;
+        }
+
+        /// <summary>
         /// 读取Int64
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public Result<long> ReadInt64(ushort address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<long> ReadInt64(string address, byte stationNumber = 1, byte functionCode = 3)
         {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 2);
+            var readResut = Read(address, stationNumber, functionCode, readLength: 4);
             var result = new Result<long>()
             {
                 IsSucceed = readResut.IsSucceed,
@@ -170,13 +213,34 @@ namespace IoTClient.Clients.ModBus
         }
 
         /// <summary>
+        /// 读取UInt64
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
+        public Result<ulong> ReadUInt64(string address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            var readResut = Read(address, stationNumber, functionCode, readLength: 4);
+            var result = new Result<ulong>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToUInt64(readResut.Value, 0);
+            return result;
+        }
+
+        /// <summary>
         /// 读取Float
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public Result<float> ReadFloat(ushort address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<float> ReadFloat(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 2);
             var result = new Result<float>()
@@ -197,9 +261,9 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public Result<double> ReadDouble(ushort address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<double> ReadDouble(string address, byte stationNumber = 1, byte functionCode = 3)
         {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 2);
+            var readResut = Read(address, stationNumber, functionCode, readLength: 4);
             var result = new Result<double>()
             {
                 IsSucceed = readResut.IsSucceed,
@@ -218,7 +282,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public Result<bool> ReadCoil(ushort address, byte stationNumber = 1, byte functionCode = 1)
+        public Result<bool> ReadCoil(string address, byte stationNumber = 1, byte functionCode = 1)
         {
             var readResut = Read(address, stationNumber, functionCode);
             var result = new Result<bool>()
@@ -234,6 +298,7 @@ namespace IoTClient.Clients.ModBus
         #endregion
 
         #region Write 写入
+
         /// <summary>
         /// 线圈写入
         /// </summary>
@@ -241,7 +306,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="value"></param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
-        public Result Write(ushort address, bool value, byte stationNumber = 1, byte functionCode = 5)
+        public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
         {
             ConnectManager();
             var result = new Result();
@@ -249,6 +314,11 @@ namespace IoTClient.Clients.ModBus
             {
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode);
                 socket.Send(command);
+
+                //获取响应报文
+                var headBytes = SocketRead(socket, 8);
+                int length = headBytes[4] * 256 + headBytes[5] - 2;
+                SocketRead(socket, length);
             }
             catch (SocketException ex)
             {
@@ -274,17 +344,17 @@ namespace IoTClient.Clients.ModBus
         /// <summary>
         /// 写入
         /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(ushort address, short value, byte stationNumber = 1, byte functionCode = 16)
+        /// <param name="address"></param>
+        /// <param name="values"></param>
+        /// <param name="stationNumber"></param>
+        /// <param name="functionCode"></param>
+        /// <returns></returns>
+        public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
         {
             ConnectManager();
             var result = new Result();
             try
             {
-                var values = BitConverter.GetBytes(value).Reverse().ToArray();
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
                 socket.Send(command);
 
@@ -321,40 +391,10 @@ namespace IoTClient.Clients.ModBus
         /// <param name="value">写入的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
-        public Result Write(ushort address, int value, byte stationNumber = 1, byte functionCode = 16)
+        public Result Write(string address, short value, byte stationNumber = 1, byte functionCode = 16)
         {
-            ConnectManager();
-            var result = new Result();
-            try
-            {
-                var values = BitConverter.GetBytes(value).Reverse().ToArray();
-                var command = GetWriteCommand(address, values, stationNumber, functionCode);
-                socket.Send(command);
-
-                //获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                SocketRead(socket, length);
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen.Value) Dispose();
-            }
-            return result;
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
         }
 
         /// <summary>
@@ -364,40 +404,10 @@ namespace IoTClient.Clients.ModBus
         /// <param name="value">写入的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
-        public Result Write(ushort address, long value, byte stationNumber = 1, byte functionCode = 16)
+        public Result Write(string address, ushort value, byte stationNumber = 1, byte functionCode = 16)
         {
-            ConnectManager();
-            var result = new Result();
-            try
-            {
-                var values = BitConverter.GetBytes(value).Reverse().ToArray();
-                var command = GetWriteCommand(address, values, stationNumber, functionCode);
-                socket.Send(command);
-
-                //获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                SocketRead(socket, length);
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen.Value) Dispose();
-            }
-            return result;
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
         }
 
         /// <summary>
@@ -407,40 +417,10 @@ namespace IoTClient.Clients.ModBus
         /// <param name="value">写入的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
-        public Result Write(ushort address, float value, byte stationNumber = 1, byte functionCode = 16)
+        public Result Write(string address, int value, byte stationNumber = 1, byte functionCode = 16)
         {
-            ConnectManager();
-            var result = new Result();
-            try
-            {
-                var values = BitConverter.GetBytes(value).Reverse().ToArray();
-                var command = GetWriteCommand(address, values, stationNumber, functionCode);
-                socket.Send(command);
-
-                //获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                SocketRead(socket, length);
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen.Value) Dispose();
-            }
-            return result;
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
         }
 
         /// <summary>
@@ -450,40 +430,62 @@ namespace IoTClient.Clients.ModBus
         /// <param name="value">写入的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
-        public Result Write(ushort address, double value, byte stationNumber = 1, byte functionCode = 16)
+        public Result Write(string address, uint value, byte stationNumber = 1, byte functionCode = 16)
         {
-            ConnectManager();
-            var result = new Result();
-            try
-            {
-                var values = BitConverter.GetBytes(value).Reverse().ToArray();
-                var command = GetWriteCommand(address, values, stationNumber, functionCode);
-                socket.Send(command);
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
+        }
 
-                //获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                SocketRead(socket, length);
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen.Value) Dispose();
-            }
-            return result;
+        /// <summary>
+        /// 写入
+        /// </summary>
+        /// <param name="address">寄存器地址</param>
+        /// <param name="value">写入的值</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        public Result Write(string address, long value, byte stationNumber = 1, byte functionCode = 16)
+        {
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
+        }
+
+        /// <summary>
+        /// 写入
+        /// </summary>
+        /// <param name="address">寄存器地址</param>
+        /// <param name="value">写入的值</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        public Result Write(string address, ulong value, byte stationNumber = 1, byte functionCode = 16)
+        {
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
+        }
+
+        /// <summary>
+        /// 写入
+        /// </summary>
+        /// <param name="address">寄存器地址</param>
+        /// <param name="value">写入的值</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        public Result Write(string address, float value, byte stationNumber = 1, byte functionCode = 16)
+        {
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
+        }
+
+        /// <summary>
+        /// 写入
+        /// </summary>
+        /// <param name="address">寄存器地址</param>
+        /// <param name="value">写入的值</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        public Result Write(string address, double value, byte stationNumber = 1, byte functionCode = 16)
+        {
+            var values = BitConverter.GetBytes(value).Reverse().ToArray();
+            return Write(address, values, stationNumber, functionCode);
         }
         #endregion
 
@@ -497,8 +499,9 @@ namespace IoTClient.Clients.ModBus
         /// <param name="functionCode">功能码</param>
         /// <param name="length">读取长度</param>
         /// <returns></returns>
-        public byte[] GetReadCommand(ushort address, byte stationNumber, byte functionCode, ushort length)
+        public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length)
         {
+            var readAddress = ushort.Parse(address?.Trim());
             byte[] buffer = new byte[12];
             buffer[0] = 0x19;
             buffer[1] = 0xB2;//Client发出的检验信息
@@ -509,8 +512,8 @@ namespace IoTClient.Clients.ModBus
 
             buffer[6] = stationNumber;  //站号
             buffer[7] = functionCode;   //功能码
-            buffer[8] = BitConverter.GetBytes(address)[1];
-            buffer[9] = BitConverter.GetBytes(address)[0];//寄存器地址
+            buffer[8] = BitConverter.GetBytes(readAddress)[1];
+            buffer[9] = BitConverter.GetBytes(readAddress)[0];//寄存器地址
             buffer[10] = BitConverter.GetBytes(length)[1];
             buffer[11] = BitConverter.GetBytes(length)[0];//表示request 寄存器的长度(寄存器个数)
             return buffer;
@@ -524,8 +527,9 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public byte[] GetWriteCommand(ushort address, byte[] values, byte stationNumber, byte functionCode)
+        public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode)
         {
+            var writeAddress = ushort.Parse(address?.Trim());
             byte[] buffer = new byte[13 + values.Length];
             buffer[0] = 0x19;
             buffer[1] = 0xB2;//检验信息，用来验证response是否串数据了           
@@ -534,8 +538,8 @@ namespace IoTClient.Clients.ModBus
 
             buffer[6] = stationNumber; //站号
             buffer[7] = functionCode;  //功能码
-            buffer[8] = BitConverter.GetBytes(address)[1];
-            buffer[9] = BitConverter.GetBytes(address)[0];//寄存器地址
+            buffer[8] = BitConverter.GetBytes(writeAddress)[1];
+            buffer[9] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
             buffer[10] = (byte)(values.Length / 2 / 256);
             buffer[11] = (byte)(values.Length / 2 % 256);//写寄存器数量(除2是两个字节一个寄存器，寄存器16位。除以256是byte最大存储255。)              
             buffer[12] = (byte)(values.Length);          //写字节的个数
@@ -551,8 +555,9 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public byte[] GetWriteCoilCommand(ushort address, bool value, byte stationNumber, byte functionCode)
+        public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode)
         {
+            var writeAddress = ushort.Parse(address?.Trim());
             byte[] buffer = new byte[12];
             buffer[0] = 0x19;
             buffer[1] = 0xB2;//Client发出的检验信息     
@@ -561,8 +566,8 @@ namespace IoTClient.Clients.ModBus
 
             buffer[6] = stationNumber;//站号
             buffer[7] = functionCode; //功能码
-            buffer[8] = BitConverter.GetBytes(address)[1];
-            buffer[9] = BitConverter.GetBytes(address)[0];//寄存器地址
+            buffer[8] = BitConverter.GetBytes(writeAddress)[1];
+            buffer[9] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
             buffer[10] = (byte)(value ? 0xFF : 0x00);     //此处只可以是FF表示闭合00表示断开，其他数值非法
             buffer[11] = 0x00;
             return buffer;

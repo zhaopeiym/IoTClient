@@ -50,7 +50,7 @@ namespace IoTClient.Core
         {
             try
             {
-                socket?.Shutdown(SocketShutdown.Both);//正常关闭连接
+                if (socket.Connected) socket?.Shutdown(SocketShutdown.Both);//正常关闭连接
                 socket?.Close();
                 return true;
             }

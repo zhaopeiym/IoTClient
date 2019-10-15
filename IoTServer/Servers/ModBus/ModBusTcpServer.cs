@@ -11,16 +11,13 @@ namespace IoTServer.Servers.ModBus
     {
         private Socket socketServer;
         private string redisConfig;
+        private string ip;
+        private int port;
         public ModBusTcpServer(string ip, int port, string redisConfig = null)
         {
             this.redisConfig = redisConfig;
-
-            //1 创建Socket对象
-            socketServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            //2 绑定ip和端口 
-            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            socketServer.Bind(ipEndPoint);
+            this.ip = ip;
+            this.port = port;
         }
 
         /// <summary>
@@ -28,10 +25,24 @@ namespace IoTServer.Servers.ModBus
         /// </summary>
         public void Start()
         {
+            //1 创建Socket对象
+            socketServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            //2 绑定ip和端口 
+            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            socketServer.Bind(ipEndPoint);
+
             //3、开启侦听(等待客户机发出的连接),并设置最大客户端连接数为10
             socketServer.Listen(10);
 
             Task.Run(() => { Accept(socketServer); });
+        }
+
+        public void Close()
+        {
+            if (socketServer?.Connected ?? false)
+                socketServer.Shutdown(SocketShutdown.Both);
+            socketServer?.Close();
         }
 
         /// <summary>
@@ -42,9 +53,18 @@ namespace IoTServer.Servers.ModBus
         {
             while (true)
             {
-                //阻塞等待客户端连接
-                Socket newSocket = socket.Accept();
-                Task.Run(() => { Receive(newSocket); });
+                try
+                {
+                    //阻塞等待客户端连接
+                    Socket newSocket = socket.Accept();
+                    Task.Run(() => { Receive(newSocket); });
+                }
+                catch (SocketException ex)
+                {
+                    if (ex.SocketErrorCode != SocketError.Interrupted)
+                        throw ex;
+                }
+
             }
         }
 
@@ -84,6 +104,14 @@ namespace IoTServer.Servers.ModBus
 
                     switch (requetData[7])
                     {
+                        //读取线圈
+                        case 1:
+                            //TODO
+                            break;
+                        //写入线圈
+                        case 5:
+                            //TODO
+                            break;
                         //读取
                         case 3:
                             {
@@ -102,7 +130,8 @@ namespace IoTServer.Servers.ModBus
                         case 16:
                             {
                                 //TODO
-                                data.Write(requetData[9], requetData[requetData.Length - 1].ToString());
+                                var value = requetData[requetData.Length - 2] * 256 + requetData[requetData.Length - 1];
+                                data.Write(requetData[9], value.ToString());
                                 var responseData = new byte[12];
                                 Buffer.BlockCopy(requetData, 0, responseData, 0, responseData.Length);
                                 responseData[5] = 6;
@@ -111,10 +140,11 @@ namespace IoTServer.Servers.ModBus
                             break;
                     }
                 }
-                catch (Exception ex)
+                catch (SocketException ex)
                 {
                     //todo
-                    throw ex;
+                    if (ex.SocketErrorCode != SocketError.ConnectionRefused)
+                        throw ex;
                 }
             }
         }

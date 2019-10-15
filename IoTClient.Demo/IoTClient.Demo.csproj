@@ -83,16 +83,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ModBusTcp.cs">
+    <Compile Include="ModBusTcpForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ModBusTcp.Designer.cs">
-      <DependentUpon>ModBusTcp.cs</DependentUpon>
+    <Compile Include="ModBusTcpForm.Designer.cs">
+      <DependentUpon>ModBusTcpForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ModBusTcp.resx">
-      <DependentUpon>ModBusTcp.cs</DependentUpon>
+    <EmbeddedResource Include="ModBusTcpForm.resx">
+      <DependentUpon>ModBusTcpForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

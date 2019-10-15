@@ -16,7 +16,7 @@ namespace IoTClient.Demo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ModBusTcp());
+            Application.Run(new ModBusTcpForm());
         }
     }
 }
