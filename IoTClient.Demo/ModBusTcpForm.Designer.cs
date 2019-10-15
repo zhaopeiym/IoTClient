@@ -57,6 +57,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -156,7 +157,7 @@
             // 
             // txt_value
             // 
-            this.txt_value.Location = new System.Drawing.Point(447, 16);
+            this.txt_value.Location = new System.Drawing.Point(359, 15);
             this.txt_value.Name = "txt_value";
             this.txt_value.Size = new System.Drawing.Size(100, 21);
             this.txt_value.TabIndex = 12;
@@ -164,7 +165,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(400, 22);
+            this.label4.Location = new System.Drawing.Point(312, 21);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(29, 12);
             this.label4.TabIndex = 11;
@@ -172,7 +173,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(567, 15);
+            this.button4.Location = new System.Drawing.Point(479, 14);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
             this.button4.TabIndex = 10;
@@ -321,6 +322,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.checkBox1);
             this.groupBox3.Controls.Add(this.button3);
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Controls.Add(this.txt_address);
@@ -332,6 +334,16 @@
             this.groupBox3.Size = new System.Drawing.Size(656, 47);
             this.groupBox3.TabIndex = 26;
             this.groupBox3.TabStop = false;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(575, 17);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(72, 16);
+            this.checkBox1.TabIndex = 13;
+            this.checkBox1.Text = "显示报文";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // ModBusTcpForm
             // 
@@ -386,6 +398,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 

@@ -113,6 +113,11 @@ namespace IoTClient.Demo
                 txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 成功]：{result.Value}\r\n");
             else
                 txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
+            if (checkBox1.Checked)
+            {
+                txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
+                txt_content.AppendText($"[响应报文]{result.Response}\r\n");
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -143,7 +148,7 @@ namespace IoTClient.Demo
                         MessageBox.Show("请输入 True 或 False");
                         return;
                     }
-                } 
+                }
                 result = client.Write(txt_address.Text, coil, stationNumber);
             }
             else if (rd_short.Checked)
@@ -181,9 +186,14 @@ namespace IoTClient.Demo
 
 
             if (result.IsSucceed)
-                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 成功]：OK\r\n");
+                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK\r\n");
             else
                 txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
+            if (checkBox1.Checked)
+            {
+                txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
+                txt_content.AppendText($"[响应报文]{result.Response}\r\n");
+            }
         }
 
         private void ModBusTcp_Load(object sender, EventArgs e)

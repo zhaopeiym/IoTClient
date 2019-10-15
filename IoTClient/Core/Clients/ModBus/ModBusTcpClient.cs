@@ -69,42 +69,45 @@ namespace IoTClient.Clients.ModBus
         public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
         {
             ConnectManager();
-            var readResult = new Result<byte[]>();
+            var result = new Result<byte[]>();
             try
             {
                 //1 获取命令（组装报文）
                 byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //2 发送命令
                 socket.Send(command);
                 //3 获取响应报文
                 var headBytes = SocketRead(socket, 8);
                 int length = headBytes[4] * 256 + headBytes[5] - 2;
-                var result = SocketRead(socket, length);
+                var dataBytes = SocketRead(socket, length);
 
-                byte[] resultBuffer = new byte[result.Length - 1];
-                Array.Copy(result, 1, resultBuffer, 0, resultBuffer.Length);
+                byte[] resultBuffer = new byte[dataBytes.Length - 1];
+                Array.Copy(dataBytes, 1, resultBuffer, 0, resultBuffer.Length);
+
+                result.Response = string.Join(" ", headBytes.Concat(dataBytes).Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
-                readResult.Value = resultBuffer.Reverse().ToArray();
+                result.Value = resultBuffer.Reverse().ToArray();
             }
             catch (SocketException ex)
             {
-                readResult.IsSucceed = false;
+                result.IsSucceed = false;
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
-                    readResult.Err = "连接超时";
-                    readResult.ErrList.Add("连接超时");
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
-                    readResult.Err = ex.Message;
-                    readResult.ErrList.Add(ex.Message);
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
                 }
             }
             finally
             {
                 if (isAutoOpen.Value) Dispose();
             }
-            return readResult;
+            return result;
         }
 
         /// <summary>
@@ -122,6 +125,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
@@ -143,6 +148,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
@@ -164,6 +171,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
@@ -185,6 +194,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
@@ -206,6 +217,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
@@ -227,6 +240,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
@@ -248,6 +263,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
@@ -269,6 +286,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
@@ -290,6 +309,8 @@ namespace IoTClient.Clients.ModBus
                 IsSucceed = readResut.IsSucceed,
                 Err = readResut.Err,
                 ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
@@ -357,11 +378,12 @@ namespace IoTClient.Clients.ModBus
             {
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
                 socket.Send(command);
-
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //获取响应报文
                 var headBytes = SocketRead(socket, 8);
                 int length = headBytes[4] * 256 + headBytes[5] - 2;
-                SocketRead(socket, length);
+                var dataBytes = SocketRead(socket, length);
+                result.Response = string.Join(" ", headBytes.Concat(dataBytes).Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
             {

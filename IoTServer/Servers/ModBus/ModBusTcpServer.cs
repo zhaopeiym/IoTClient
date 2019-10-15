@@ -143,7 +143,8 @@ namespace IoTServer.Servers.ModBus
                 catch (SocketException ex)
                 {
                     //todo
-                    if (ex.SocketErrorCode != SocketError.ConnectionRefused)
+                    if (ex.SocketErrorCode != SocketError.ConnectionRefused ||
+                        ex.SocketErrorCode != SocketError.ConnectionReset)
                         throw ex;
                 }
             }
