@@ -356,6 +356,7 @@
             this.Controls.Add(this.txt_content);
             this.Name = "ModBusTcpForm";
             this.Text = "ModBusTcp";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ModBusTcpForm_FormClosed);
             this.Load += new System.EventHandler(this.ModBusTcp_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

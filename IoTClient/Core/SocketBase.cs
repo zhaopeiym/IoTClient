@@ -19,7 +19,7 @@ namespace IoTClient.Core
         /// <summary>
         /// 是否自动打开关闭
         /// </summary>
-        protected bool? isAutoOpen;
+        protected bool isAutoOpen = true;
         /// <summary>
         /// 打开连接
         /// </summary>
@@ -38,7 +38,7 @@ namespace IoTClient.Core
         /// <returns></returns>
         public bool Close()
         {
-            isAutoOpen = null;
+            isAutoOpen = true;
             return Dispose();
         }
 
@@ -75,6 +75,12 @@ namespace IoTClient.Core
                 // 分批读取
                 int receiveLength = (receiveCount - receiveFinish) >= BufferSize ? BufferSize : (receiveCount - receiveFinish);
                 receiveFinish += socket.Receive(receiveBytes, receiveFinish, receiveLength, SocketFlags.None);
+                if (receiveFinish == 0)
+                {
+                    if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
+                    throw new Exception("连接已断开");
+                }
             }
             return receiveBytes;
         }

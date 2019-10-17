@@ -83,6 +83,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IndexForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IndexForm.Designer.cs">
+      <DependentUpon>IndexForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ModBusTcpForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +97,15 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SiemensForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SiemensForm.Designer.cs">
+      <DependentUpon>SiemensForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="IndexForm.resx">
+      <DependentUpon>IndexForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ModBusTcpForm.resx">
       <DependentUpon>ModBusTcpForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -104,6 +119,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SiemensForm.resx">
+      <DependentUpon>SiemensForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

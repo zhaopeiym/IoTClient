@@ -35,7 +35,7 @@ namespace IoTClient.Clients.ModBus
                 socket.ReceiveTimeout = 1500;
                 socket.SendTimeout = 1500;
                 //连接
-                socket.Connect(ipAndPoint);
+                socket.Connect(ipAndPoint); 
                 return true;
             }
             catch (Exception)
@@ -44,17 +44,6 @@ namespace IoTClient.Clients.ModBus
                 socket?.Close();
                 return false;
             }
-        }
-
-        /// <summary>
-        /// 连接管理
-        /// </summary>
-        private void ConnectManager()
-        {
-            if (!isAutoOpen.HasValue) isAutoOpen = true;
-            if (isAutoOpen.Value) Connect();
-            else if (!socket.Connected)
-                Connect();
         }
 
         #region Read 读取
@@ -68,7 +57,8 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
         {
-            ConnectManager();
+            if (!socket.Connected) Connect();
+
             var result = new Result<byte[]>();
             try
             {
@@ -78,14 +68,14 @@ namespace IoTClient.Clients.ModBus
                 //2 发送命令
                 socket.Send(command);
                 //3 获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                var dataBytes = SocketRead(socket, length);
+                var headPackage = SocketRead(socket, 8);
+                int length = headPackage[4] * 256 + headPackage[5] - 2;
+                var dataPackage = SocketRead(socket, length);
 
-                byte[] resultBuffer = new byte[dataBytes.Length - 1];
-                Array.Copy(dataBytes, 1, resultBuffer, 0, resultBuffer.Length);
+                byte[] resultBuffer = new byte[dataPackage.Length - 1];
+                Array.Copy(dataPackage, 1, resultBuffer, 0, resultBuffer.Length);
 
-                result.Response = string.Join(" ", headBytes.Concat(dataBytes).Select(t => t.ToString("X2")));
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
                 result.Value = resultBuffer.Reverse().ToArray();
             }
@@ -105,7 +95,7 @@ namespace IoTClient.Clients.ModBus
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
             return result;
         }
@@ -329,7 +319,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="functionCode"></param>
         public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
         {
-            ConnectManager();
+            if (!socket.Connected) Connect();
             var result = new Result();
             try
             {
@@ -357,7 +347,7 @@ namespace IoTClient.Clients.ModBus
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
             return result;
         }
@@ -372,7 +362,8 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
         {
-            ConnectManager();
+            if (!socket.Connected) Connect();
+
             var result = new Result();
             try
             {
@@ -401,7 +392,7 @@ namespace IoTClient.Clients.ModBus
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
             return result;
         }

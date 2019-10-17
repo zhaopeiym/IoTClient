@@ -200,5 +200,10 @@ namespace IoTClient.Demo
         {
 
         }
+
+        private void ModBusTcpForm_FormClosed(object sender, FormClosedEventArgs e)
+        {            
+            //new IndexForm().Show();
+        }
     }
 }

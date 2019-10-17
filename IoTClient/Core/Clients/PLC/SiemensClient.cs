@@ -3,6 +3,8 @@ using IoTClient.Common.Enums;
 using IoTClient.Core;
 using IoTClient.Core.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -16,11 +18,18 @@ namespace IoTClient.Clients.PLC
     {
         private SiemensVersion version;
         private IPEndPoint ipAndPoint;
+        private IEnumerable<byte> dataPackage;
 
         public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint)
         {
             this.version = version;
             this.ipAndPoint = ipAndPoint;
+        }
+
+        public SiemensClient(SiemensVersion version, string ip, int port)
+        {
+            this.version = version;
+            ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
         }
 
         /// <summary>
@@ -29,9 +38,12 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         protected override bool Connect()
         {
+            socket?.Close();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
+                socket.ReceiveTimeout = 1500;
+                socket.SendTimeout = 1500;
                 //连接
                 socket.Connect(ipAndPoint);
 
@@ -49,7 +61,8 @@ namespace IoTClient.Clients.PLC
             catch (Exception ex)
             {
                 //TODO
-                socket?.Shutdown(SocketShutdown.Both);
+                if (socket?.Connected ?? false)
+                    socket?.Shutdown(SocketShutdown.Both);
                 socket?.Close();
                 return false;
             }
@@ -63,20 +76,21 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, bool value)
+        public Result Write(string address, bool value)
         {
-            if (!isAutoOpen.HasValue) isAutoOpen = true;
-            if (isAutoOpen.Value) Connect();
+            if (!socket.Connected) Connect();
+            Result result = new Result();
             try
             {
                 //兼容地址，如VD5012中的D
                 if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送写入信息
                 var arg = ConvertArg(address);
-                byte[] plccommand = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
+                byte[] command = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 try
                 {
-                    socket.Send(plccommand);
+                    socket.Send(command);
                 }
                 catch (Exception ex)
                 {
@@ -85,14 +99,29 @@ namespace IoTClient.Clients.PLC
                     throw ex;
                 }
                 //以下两次请求不能省略，不然在主动管理连接的时候会有问题
-                var dataHead = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataContent = SocketRead(socket, GetContentLength(dataHead));
-                return true;
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
+                }
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
+            return result;
         }
 
         /// <summary>
@@ -101,10 +130,10 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, byte[] data)
+        public Result Write(string address, byte[] data)
         {
-            if (!isAutoOpen.HasValue) isAutoOpen = true;
-            if (isAutoOpen.Value) Connect();
+            if (!socket.Connected) Connect();
+            Result result = new Result();
             try
             {
                 Array.Reverse(data);
@@ -112,10 +141,11 @@ namespace IoTClient.Clients.PLC
                 if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送写入信息
                 var arg = ConvertArg(address);
-                byte[] plccommand = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
+                byte[] command = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 try
                 {
-                    socket.Send(plccommand);
+                    socket.Send(command);
                 }
                 catch (Exception ex)
                 {
@@ -124,14 +154,29 @@ namespace IoTClient.Clients.PLC
                     throw ex;
                 }
                 //以下两次请求不能省略，不然在主动管理连接的时候会有问题
-                var dataHead = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataContent = SocketRead(socket, GetContentLength(dataHead));
-                return true;
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
+                }
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
+            return result;
         }
 
         /// <summary>
@@ -140,7 +185,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, byte value)
+        public Result Write(string address, byte value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -151,7 +196,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, sbyte value)
+        public Result Write(string address, sbyte value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -162,7 +207,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, ushort value)
+        public Result Write(string address, ushort value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -173,7 +218,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, short value)
+        public Result Write(string address, short value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -184,7 +229,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, uint value)
+        public Result Write(string address, uint value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -195,7 +240,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, int value)
+        public Result Write(string address, int value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -206,7 +251,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, float value)
+        public Result Write(string address, float value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -217,7 +262,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, double value)
+        public Result Write(string address, double value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -228,7 +273,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, long value)
+        public Result Write(string address, long value)
         {
             return Write(address, BitConverter.GetBytes(value));
         }
@@ -239,7 +284,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="value">值</param>
         /// <returns></returns>
-        public bool Write(string address, string value)
+        public Result Write(string address, string value)
         {
             var valueBytes = Encoding.ASCII.GetBytes(value);
             var bytes = new byte[valueBytes.Length + 1];
@@ -258,10 +303,10 @@ namespace IoTClient.Clients.PLC
         /// <param name="length"></param>
         /// <param name="isBit"></param>
         /// <returns></returns>
-        public byte[] Read(string address, ushort length, bool isBit = false)
+        public Result<byte[]> Read(string address, ushort length, bool isBit = false)
         {
-            if (!isAutoOpen.HasValue) isAutoOpen = true;
-            if (isAutoOpen.Value) Connect();
+            if (!socket.Connected) Connect();
+            var result = new Result<byte[]>();
             try
             {
                 //兼容地址，如VD5012中的D
@@ -269,14 +314,15 @@ namespace IoTClient.Clients.PLC
                     address = address.Remove(1, 1);
                 //发送读取信息
                 var arg = ConvertArg(address);
-                byte[] plccommand;
+                byte[] command;
                 if (isBit)
-                    plccommand = GetReadBitCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock);
+                    command = GetReadBitCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock);
                 else
-                    plccommand = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
+                    command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 try
                 {
-                    socket.Send(plccommand);
+                    socket.Send(command);
                 }
                 catch (Exception ex)
                 {
@@ -284,37 +330,53 @@ namespace IoTClient.Clients.PLC
                     socket?.Close();
                     throw ex;
                 }
-                var dataHead = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataContent = SocketRead(socket, GetContentLength(dataHead));
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
                 var bufferLength = length == 8 ? 8 : 4;
                 byte[] temp = new byte[bufferLength];
-                byte[] result = new byte[bufferLength];
-                Array.Copy(dataContent, dataContent.Length - bufferLength, temp, 0, bufferLength);
+                byte[] response = new byte[bufferLength];
+                Array.Copy(dataPackage, dataPackage.Length - bufferLength, temp, 0, bufferLength);
                 switch (length)
                 {
                     case 8:
-                        result[0] = temp[0 + 7];
-                        result[1] = temp[0 + 6];
-                        result[2] = temp[0 + 5];
-                        result[3] = temp[0 + 4];
-                        result[4] = temp[0 + 3];
-                        result[5] = temp[0 + 2];
-                        result[6] = temp[0 + 1];
-                        result[7] = temp[0 + 0];
+                        response[0] = temp[0 + 7];
+                        response[1] = temp[0 + 6];
+                        response[2] = temp[0 + 5];
+                        response[3] = temp[0 + 4];
+                        response[4] = temp[0 + 3];
+                        response[5] = temp[0 + 2];
+                        response[6] = temp[0 + 1];
+                        response[7] = temp[0 + 0];
                         break;
                     default:
-                        result[0] = temp[0 + 3];
-                        result[1] = temp[0 + 2];
-                        result[2] = temp[0 + 1];
-                        result[3] = temp[0 + 0];
+                        response[0] = temp[0 + 3];
+                        response[1] = temp[0 + 2];
+                        response[2] = temp[0 + 1];
+                        response[3] = temp[0 + 0];
                         break;
                 }
-                return result;
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                result.Value = response;
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
+                }
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
+            return result;
         }
 
         /// <summary>
@@ -323,10 +385,10 @@ namespace IoTClient.Clients.PLC
         /// <param name="address"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        public byte[] ReadString(string address, ushort length)
+        public Result<byte[]> ReadString(string address, ushort length)
         {
-            if (!isAutoOpen.HasValue) isAutoOpen = true;
-            if (isAutoOpen.Value) Connect();
+            if (!socket.Connected) Connect();
+            var result = new Result<byte[]>();
             try
             {
                 //兼容地址，如VD5012中的D
@@ -334,10 +396,11 @@ namespace IoTClient.Clients.PLC
                     address = address.Remove(1, 1);
                 //发送读取信息
                 var arg = ConvertArg(address);
-                byte[] plccommand = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
+                byte[] command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 try
                 {
-                    socket.Send(plccommand);
+                    socket.Send(command);
                 }
                 catch (Exception ex)
                 {
@@ -345,16 +408,32 @@ namespace IoTClient.Clients.PLC
                     socket?.Close();
                     throw ex;
                 }
-                var dataHead = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataContent = SocketRead(socket, GetContentLength(dataHead));
-                byte[] result = new byte[length];
-                Array.Copy(dataContent, dataContent.Length - length, result, 0, length);
-                return result;
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                byte[] requst = new byte[length];
+                Array.Copy(dataPackage, dataPackage.Length - length, requst, 0, length);
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                result.Value = requst;
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
+                }
             }
             finally
             {
-                if (isAutoOpen.Value) Dispose();
+                if (isAutoOpen) Dispose();
             }
+            return result;
         }
 
         /// <summary>
@@ -362,9 +441,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public bool ReadBoolean(string address)
+        public Result<bool> ReadBoolean(string address)
         {
-            return BitConverter.ToBoolean(Read(address, 4, isBit: true), 0);
+            //return BitConverter.ToBoolean(Read(address, 4, isBit: true), 0);
+            var readResut = Read(address, 4, isBit: true);
+            var result = new Result<bool>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToBoolean(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -372,9 +463,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public short ReadInt16(string address)
+        public Result<short> ReadInt16(string address)
         {
-            return BitConverter.ToInt16(Read(address, 2), 0);
+            //return BitConverter.ToInt16(Read(address, 2), 0);
+            var readResut = Read(address, 2);
+            var result = new Result<short>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToInt16(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -382,9 +485,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public ushort ReadUInt16(string address)
+        public Result<ushort> ReadUInt16(string address)
         {
-            return BitConverter.ToUInt16(Read(address, 2), 0);
+            //return BitConverter.ToUInt16(Read(address, 2), 0);
+            var readResut = Read(address, 2);
+            var result = new Result<ushort>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToUInt16(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -392,9 +507,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public int ReadInt32(string address)
+        public Result<int> ReadInt32(string address)
         {
-            return BitConverter.ToInt32(Read(address, 4), 0);
+            //return BitConverter.ToInt32(Read(address, 4), 0);
+            var readResut = Read(address, 4);
+            var result = new Result<int>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToInt32(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -402,9 +529,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public uint ReadUInt32(string address)
+        public Result<uint> ReadUInt32(string address)
         {
-            return BitConverter.ToUInt32(Read(address, 4), 0);
+            //return BitConverter.ToUInt32(Read(address, 4), 0);
+            var readResut = Read(address, 4);
+            var result = new Result<uint>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToUInt32(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -412,9 +551,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public long ReadInt64(string address)
+        public Result<long> ReadInt64(string address)
         {
-            return BitConverter.ToInt64(Read(address, 8), 0);
+            // return BitConverter.ToInt64(Read(address, 8), 0);
+            var readResut = Read(address, 8);
+            var result = new Result<long>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToInt64(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -422,9 +573,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public ulong ReadUInt64(string address)
+        public Result<ulong> ReadUInt64(string address)
         {
-            return BitConverter.ToUInt64(Read(address, 8), 0);
+            //return BitConverter.ToUInt64(Read(address, 8), 0);
+            var readResut = Read(address, 8);
+            var result = new Result<ulong>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToUInt64(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -432,9 +595,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public float ReadFloat(string address)
+        public Result<float> ReadFloat(string address)
         {
-            return BitConverter.ToSingle(Read(address, 4), 0);
+            //return BitConverter.ToSingle(Read(address, 4), 0);
+            var readResut = Read(address, 4);
+            var result = new Result<float>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToSingle(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -442,9 +617,21 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public double ReadDouble(string address)
+        public Result<double> ReadDouble(string address)
         {
-            return BitConverter.ToDouble(Read(address, 8), 0);
+            //return BitConverter.ToDouble(Read(address, 8), 0);
+            var readResut = Read(address, 8);
+            var result = new Result<double>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToDouble(readResut.Value, 0);
+            return result;
         }
 
         /// <summary>
@@ -452,11 +639,38 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <returns></returns>
-        public string ReadString(string address)
+        public Result<string> ReadString(string address)
         {
             //先获取字符串的长度
-            var length = ReadString(address, 1);
-            return Encoding.ASCII.GetString(ReadString(address, (ushort)(length[0] + 1)), 1, length[0]);
+            var readResut1 = ReadString(address, 1);
+            if (readResut1.IsSucceed)
+            {
+                var readResut2 = ReadString(address, (ushort)(readResut1.Value[0] + 1));
+                var result = new Result<string>()
+                {
+                    IsSucceed = readResut2.IsSucceed,
+                    Err = readResut2.Err,
+                    ErrList = readResut2.ErrList,
+                    Requst = readResut2.Requst,
+                    Response = readResut2.Response,
+                };
+                if (result.IsSucceed)
+                    result.Value = Encoding.ASCII.GetString(readResut2.Value, 1, readResut1.Value[0]);
+                return result;
+            }
+            else
+            {
+                var result = new Result<string>()
+                {
+                    IsSucceed = readResut1.IsSucceed,
+                    Err = readResut1.Err,
+                    ErrList = readResut1.ErrList,
+                    Requst = readResut1.Requst,
+                    Response = readResut1.Response,
+                };
+                return result;
+            }
+            //return Encoding.ASCII.GetString(, 1, length[0]);
         }
         #endregion
 
