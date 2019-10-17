@@ -35,7 +35,7 @@ namespace IoTClient.Clients.ModBus
                 socket.ReceiveTimeout = 1500;
                 socket.SendTimeout = 1500;
                 //连接
-                socket.Connect(ipAndPoint); 
+                socket.Connect(ipAndPoint);
                 return true;
             }
             catch (Exception)
@@ -57,8 +57,7 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
         {
-            if (!socket.Connected) Connect();
-
+            if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
             try
             {
@@ -319,7 +318,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="functionCode"></param>
         public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
         {
-            if (!socket.Connected) Connect();
+            if (!socket?.Connected ?? true) Connect();
             var result = new Result();
             try
             {
@@ -362,7 +361,7 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
         {
-            if (!socket.Connected) Connect();
+            if (!socket?.Connected ?? true) Connect();
 
             var result = new Result();
             try

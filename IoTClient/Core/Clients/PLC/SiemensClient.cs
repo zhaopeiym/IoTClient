@@ -78,7 +78,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, bool value)
         {
-            if (!socket.Connected) Connect();
+            if (!socket?.Connected ?? true) Connect();
             Result result = new Result();
             try
             {
@@ -132,7 +132,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, byte[] data)
         {
-            if (!socket.Connected) Connect();
+            if (!socket?.Connected ?? true) Connect();
             Result result = new Result();
             try
             {
@@ -305,7 +305,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result<byte[]> Read(string address, ushort length, bool isBit = false)
         {
-            if (!socket.Connected) Connect();
+            if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
             try
             {
@@ -387,7 +387,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result<byte[]> ReadString(string address, ushort length)
         {
-            if (!socket.Connected) Connect();
+            if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
             try
             {
