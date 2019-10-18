@@ -1,13 +1,7 @@
 ﻿using IoTClient.Clients.PLC;
 using IoTClient.Common.Enums;
+using IoTServer.Servers.PLC;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IoTClient.Demo
@@ -15,16 +9,18 @@ namespace IoTClient.Demo
     public partial class SiemensForm : Form
     {
         SiemensClient client;
+        SiemensServer server;
         public SiemensForm()
         {
             InitializeComponent();
             but_read.Enabled = false;
             but_write.Enabled = false;
+            rd_bit.Enabled = false;
         }
 
         private void SiemensForm_Load(object sender, EventArgs e)
         {
-            but_server.Enabled = false;
+            //but_server.Enabled = false;
         }
 
         private void but_open_Click(object sender, EventArgs e)
@@ -113,6 +109,7 @@ namespace IoTClient.Demo
             }
             catch (Exception ex)
             {
+                //client?.Close();
                 MessageBox.Show(ex.Message);
             }
         }
@@ -201,6 +198,21 @@ namespace IoTClient.Demo
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void but_server_Click(object sender, EventArgs e)
+        {
+            if (but_server.Text == "本地模拟服务")
+            {
+                but_server.Text = "已开启服务";
+                server = new SiemensServer(txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
+                server.Start();
+            }
+            else
+            {
+                but_server.Text = "本地模拟服务";
+                server?.Close();
             }
         }
     }

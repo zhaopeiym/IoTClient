@@ -270,3 +270,5 @@ __pycache__/
 /IoTClient.Tests/appsettings.json
 /IoTClient/自增版本号打包.ps1
 /IoTClient/version.props
+/IoTServer/version.props
+/IoTServer/自增版本号打包.ps1

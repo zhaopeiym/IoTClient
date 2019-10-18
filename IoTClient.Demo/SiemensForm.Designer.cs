@@ -93,6 +93,7 @@
             this.but_server.TabIndex = 0;
             this.but_server.Text = "本地模拟服务";
             this.but_server.UseVisualStyleBackColor = true;
+            this.but_server.Click += new System.EventHandler(this.but_server_Click);
             // 
             // but_open
             // 

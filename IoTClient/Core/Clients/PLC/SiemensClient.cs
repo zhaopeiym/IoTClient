@@ -19,17 +19,20 @@ namespace IoTClient.Clients.PLC
         private SiemensVersion version;
         private IPEndPoint ipAndPoint;
         private IEnumerable<byte> dataPackage;
+        private int timeout;
 
-        public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint)
+        public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint, int timeout = 1500)
         {
             this.version = version;
             this.ipAndPoint = ipAndPoint;
+            this.timeout = timeout;
         }
 
-        public SiemensClient(SiemensVersion version, string ip, int port)
+        public SiemensClient(SiemensVersion version, string ip, int port, int timeout = 1500)
         {
             this.version = version;
             ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
+            this.timeout = timeout;
         }
 
         /// <summary>
@@ -42,18 +45,25 @@ namespace IoTClient.Clients.PLC
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                socket.ReceiveTimeout = 1500;
-                socket.SendTimeout = 1500;
+#if DEBUG
+                //调试模式增加超时时间
+                socket.ReceiveTimeout = timeout * 100;
+                socket.SendTimeout = timeout * 100;
+#else
+                socket.ReceiveTimeout = timeout;
+                socket.SendTimeout = timeout;
+#endif
+
                 //连接
                 socket.Connect(ipAndPoint);
 
-                //第一次握手
-                socket.Send(SiemensConstant.Head1_200Smart);
+                //第一次初始化指令交互
+                socket.Send(SiemensConstant.Command1_200Smart);
                 var head1 = SocketRead(socket, SiemensConstant.InitHeadLength);
                 SocketRead(socket, GetContentLength(head1));
 
-                //第二次握手
-                socket.Send(SiemensConstant.Head2_200Smart);
+                //第二次初始化指令交互
+                socket.Send(SiemensConstant.Command2_200Smart);
                 var head2 = SocketRead(socket, SiemensConstant.InitHeadLength);
                 SocketRead(socket, GetContentLength(head2));
                 return true;
@@ -61,239 +71,11 @@ namespace IoTClient.Clients.PLC
             catch (Exception ex)
             {
                 //TODO
-                if (socket?.Connected ?? false)
-                    socket?.Shutdown(SocketShutdown.Both);
+                if (socket?.Connected ?? false) socket?.Shutdown(SocketShutdown.Both);
                 socket?.Close();
                 return false;
             }
         }
-
-        #region Write
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, bool value)
-        {
-            if (!socket?.Connected ?? true) Connect();
-            Result result = new Result();
-            try
-            {
-                //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
-                //发送写入信息
-                var arg = ConvertArg(address);
-                byte[] command = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
-                    throw ex;
-                }
-                //以下两次请求不能省略，不然在主动管理连接的时候会有问题
-                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, byte[] data)
-        {
-            if (!socket?.Connected ?? true) Connect();
-            Result result = new Result();
-            try
-            {
-                Array.Reverse(data);
-                //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
-                //发送写入信息
-                var arg = ConvertArg(address);
-                byte[] command = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
-                    throw ex;
-                }
-                //以下两次请求不能省略，不然在主动管理连接的时候会有问题
-                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, byte value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, sbyte value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, ushort value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, short value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, uint value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, int value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, float value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, double value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, long value)
-        {
-            return Write(address, BitConverter.GetBytes(value));
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        public Result Write(string address, string value)
-        {
-            var valueBytes = Encoding.ASCII.GetBytes(value);
-            var bytes = new byte[valueBytes.Length + 1];
-            bytes[0] = (byte)valueBytes.Length;
-            valueBytes.CopyTo(bytes, 1);
-            Array.Reverse(bytes);
-            return Write(address, bytes);
-        }
-        #endregion
 
         #region Read 
         /// <summary>
@@ -339,20 +121,20 @@ namespace IoTClient.Clients.PLC
                 switch (length)
                 {
                     case 8:
-                        response[0] = temp[0 + 7];
-                        response[1] = temp[0 + 6];
-                        response[2] = temp[0 + 5];
-                        response[3] = temp[0 + 4];
-                        response[4] = temp[0 + 3];
-                        response[5] = temp[0 + 2];
-                        response[6] = temp[0 + 1];
-                        response[7] = temp[0 + 0];
+                        response[0] = temp[7];
+                        response[1] = temp[6];
+                        response[2] = temp[5];
+                        response[3] = temp[4];
+                        response[4] = temp[3];
+                        response[5] = temp[2];
+                        response[6] = temp[1];
+                        response[7] = temp[0];
                         break;
                     default:
-                        response[0] = temp[0 + 3];
-                        response[1] = temp[0 + 2];
-                        response[2] = temp[0 + 1];
-                        response[3] = temp[0 + 0];
+                        response[0] = temp[3];
+                        response[1] = temp[2];
+                        response[2] = temp[1];
+                        response[3] = temp[0];
                         break;
                 }
                 result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
@@ -674,6 +456,244 @@ namespace IoTClient.Clients.PLC
         }
         #endregion
 
+        #region Write
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, bool value)
+        {
+            if (!socket?.Connected ?? true) Connect();
+            Result result = new Result();
+            try
+            {
+                //兼容地址，如VD5012中的D
+                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
+                //发送写入信息
+                var arg = ConvertArg(address);
+                byte[] command = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
+                try
+                {
+                    socket.Send(command);
+                }
+                catch (Exception ex)
+                {
+                    socket?.Shutdown(SocketShutdown.Both);
+                    socket?.Close();
+                    throw ex;
+                }
+                //以下两次请求不能省略，不然在主动管理连接的时候会有问题
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
+                }
+            }
+            finally
+            {
+                if (isAutoOpen) Dispose();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, byte[] data)
+        {
+            if (!socket?.Connected ?? true) Connect();
+            Result result = new Result();
+            try
+            {
+                Array.Reverse(data);
+                //兼容地址，如VD5012中的D
+                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
+                //发送写入信息
+                var arg = ConvertArg(address);
+                byte[] command = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
+                try
+                {
+                    socket.Send(command);
+                }
+                catch (Exception ex)
+                {
+                    socket?.Shutdown(SocketShutdown.Both);
+                    socket?.Close();
+                    throw ex;
+                }
+                //以下两次请求不能省略，不然在主动管理连接的时候会有问题
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.ErrList.Add(ex.Message);
+                }
+            }
+            finally
+            {
+                if (isAutoOpen) Dispose();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, byte value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, sbyte value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, short value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, ushort value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+         
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, int value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, uint value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+         
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, long value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, ulong value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, float value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, double value)
+        {
+            return Write(address, BitConverter.GetBytes(value));
+        }
+          
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, string value)
+        {
+            var valueBytes = Encoding.ASCII.GetBytes(value);
+            var bytes = new byte[valueBytes.Length + 1];
+            bytes[0] = (byte)valueBytes.Length;
+            valueBytes.CopyTo(bytes, 1);
+            Array.Reverse(bytes);
+            return Write(address, bytes);
+        }
+        #endregion
+
         #region private
         /// <summary>
         /// 获取区域类型代码
@@ -730,36 +750,36 @@ namespace IoTClient.Clients.PLC
         {
             byte[] command = new byte[31];
             command[0] = 0x03;
-            command[1] = 0x00;
-            command[2] = 0x00;
-            command[3] = 0x1F;
+            command[1] = 0x00;//[0][1]固定报文头
+            command[2] = (byte)(command.Length / 256);
+            command[3] = (byte)(command.Length % 256);//[2][3]整个读取请求长度为0x1F= 31 
             command[4] = 0x02;
             command[5] = 0xF0;
             command[6] = 0x80;
             command[7] = 0x32;
             command[8] = 0x01;
             command[9] = 0x00;
-            command[10] = 0x00;
+            command[10] = 0x00;//[4]-[10]固定6个字节
             command[11] = 0x00;
-            command[12] = 0x01;
+            command[12] = 0x01;//[11][12]两个字节，标识序列号，回复报文相同位置和这个完全一样；范围是0~65535
             command[13] = 0x00;
             command[14] = 0x0E;
             command[15] = 0x00;
             command[16] = 0x00;
-            command[17] = 0x04;
-            command[18] = 0x01;
+            command[17] = 0x04;//04读 05写
+            command[18] = 0x01;//读取数据块个数
             command[19] = 0x12;
             command[20] = 0x0A;
             command[21] = 0x10;
             command[22] = 0x02;
             command[23] = (byte)(length / 256);
-            command[24] = (byte)(length % 256);
+            command[24] = (byte)(length % 256);//[23][24]两个字节,访问数据的个数，以byte为单位；
             command[25] = (byte)(dbAddress / 256);
-            command[26] = (byte)(dbAddress % 256);
-            command[27] = type;
+            command[26] = (byte)(dbAddress % 256);//[25][26]DB块的编号
+            command[27] = type;//访问数据块的类型
             command[28] = (byte)(beginAddress / 256 / 256);
             command[29] = (byte)(beginAddress / 256);
-            command[30] = (byte)(beginAddress % 256);
+            command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
             return command;
         }
 
@@ -767,9 +787,9 @@ namespace IoTClient.Clients.PLC
         {
             byte[] command = new byte[31];
             command[0] = 0x03;
-            command[1] = 0x00;
+            command[1] = 0x00;//[0][1]固定报文头
             command[2] = (byte)(command.Length / 256);
-            command[3] = (byte)(command.Length % 256);
+            command[3] = (byte)(command.Length % 256);//[2][3]整个读取请求长度
             command[4] = 0x02;
             command[5] = 0xF0;
             command[6] = 0x80;
@@ -783,8 +803,8 @@ namespace IoTClient.Clients.PLC
             command[14] = (byte)((command.Length - 17) % 256);
             command[15] = 0x00;
             command[16] = 0x00;
-            command[17] = 0x04;
-            command[18] = 0x01;
+            command[17] = 0x04;//04读 05写
+            command[18] = 0x01;//读取数据块个数
             command[19] = 0x12;
             command[20] = 0x0A;
             command[21] = 0x10;
@@ -792,11 +812,11 @@ namespace IoTClient.Clients.PLC
             command[23] = 0x00;
             command[24] = 0x01;
             command[25] = (byte)(dbAddress / 256);
-            command[26] = (byte)(dbAddress % 256);
-            command[27] = type;
+            command[26] = (byte)(dbAddress % 256);//[25][26]DB块的编号
+            command[27] = type;//访问数据块的类型
             command[28] = (byte)(beginAddress / 256 / 256 % 256);
             command[29] = (byte)(beginAddress / 256 % 256);
-            command[30] = (byte)(beginAddress % 256);
+            command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
             return command;
         }
 
@@ -805,7 +825,7 @@ namespace IoTClient.Clients.PLC
             var length = 1;
             byte[] command = new byte[35 + length];
             command[0] = 0x03;
-            command[1] = 0x00;
+            command[1] = 0x00;//[0][1]固定报文头
             command[2] = (byte)((35 + length) / 256);
             command[3] = (byte)((35 + length) % 256);
             command[4] = 0x02;
@@ -821,7 +841,7 @@ namespace IoTClient.Clients.PLC
             command[14] = 0x0E;
             command[15] = (byte)((4 + length) / 256);
             command[16] = (byte)((4 + length) % 256);
-            command[17] = 0x05;
+            command[17] = 0x05;//04读 05写
             command[18] = 0x01;
             command[19] = 0x12;
             command[20] = 0x0A;
@@ -834,7 +854,7 @@ namespace IoTClient.Clients.PLC
             command[27] = type;
             command[28] = (byte)(beginAddress / 256 / 256);
             command[29] = (byte)(beginAddress / 256);
-            command[30] = (byte)(beginAddress % 256);
+            command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
             command[31] = 0x00;
             command[32] = 0x03;
             command[33] = (byte)(length / 256);
@@ -847,14 +867,14 @@ namespace IoTClient.Clients.PLC
         {
             byte[] command = new byte[35 + data.Length];
             command[0] = 0x03;
-            command[1] = 0x00;
+            command[1] = 0x00;//[0][1]固定报文头
             command[2] = (byte)((35 + data.Length) / 256);
-            command[3] = (byte)((35 + data.Length) % 256);
+            command[3] = (byte)((35 + data.Length) % 256);//[2][3]整个读取请求长度
             command[4] = 0x02;
             command[5] = 0xF0;
             command[6] = 0x80;
             command[7] = 0x32;
-            command[8] = 0x01;
+            command[8] = 0x01;//1  发送命令 3 读取命令
             command[9] = 0x00;
             command[10] = 0x00;
             command[11] = 0x00;
@@ -863,7 +883,7 @@ namespace IoTClient.Clients.PLC
             command[14] = 0x0E;
             command[15] = (byte)((4 + data.Length) / 256);
             command[16] = (byte)((4 + data.Length) % 256);
-            command[17] = 0x05;
+            command[17] = 0x05;//04读 05写
             command[18] = 0x01;
             command[19] = 0x12;
             command[20] = 0x0A;
@@ -876,7 +896,7 @@ namespace IoTClient.Clients.PLC
             command[27] = type;
             command[28] = (byte)(beginAddress / 256 / 256 % 256); ;
             command[29] = (byte)(beginAddress / 256 % 256);
-            command[30] = (byte)(beginAddress % 256);
+            command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
             command[31] = 0x00;
             command[32] = 0x04;
             command[33] = (byte)(data.Length * 8 / 256);
