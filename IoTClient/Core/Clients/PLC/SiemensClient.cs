@@ -757,7 +757,7 @@ namespace IoTClient.Clients.PLC
             command[5] = 0xF0;
             command[6] = 0x80;
             command[7] = 0x32;
-            command[8] = 0x01;
+            command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
             command[9] = 0x00;
             command[10] = 0x00;//[4]-[10]固定6个字节
             command[11] = 0x00;
@@ -794,7 +794,7 @@ namespace IoTClient.Clients.PLC
             command[5] = 0xF0;
             command[6] = 0x80;
             command[7] = 0x32;
-            command[8] = 0x01;
+            command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
             command[9] = 0x00;
             command[10] = 0x00;
             command[11] = 0x00;
@@ -827,26 +827,26 @@ namespace IoTClient.Clients.PLC
             command[0] = 0x03;
             command[1] = 0x00;//[0][1]固定报文头
             command[2] = (byte)((35 + length) / 256);
-            command[3] = (byte)((35 + length) % 256);
+            command[3] = (byte)((35 + length) % 256);//[2][3]整个读取请求长度
             command[4] = 0x02;
             command[5] = 0xF0;
             command[6] = 0x80;
             command[7] = 0x32;
-            command[8] = 0x01;
+            command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
             command[9] = 0x00;
             command[10] = 0x00;
             command[11] = 0x00;
             command[12] = 0x01;
             command[13] = 0x00;
-            command[14] = 0x0E;
+            command[14] = 0x0E;//[13][14]固定2个字节
             command[15] = (byte)((4 + length) / 256);
-            command[16] = (byte)((4 + length) % 256);
+            command[16] = (byte)((4 + length) % 256);//[15][16]写入长度+4
             command[17] = 0x05;//04读 05写
             command[18] = 0x01;
             command[19] = 0x12;
             command[20] = 0x0A;
             command[21] = 0x10;
-            command[22] = 0x01;
+            command[22] = 0x01;//写入方式，1是按位，2是按字
             command[23] = (byte)(length / 256);
             command[24] = (byte)(length % 256);
             command[25] = (byte)(dbAddress / 256);
@@ -856,9 +856,9 @@ namespace IoTClient.Clients.PLC
             command[29] = (byte)(beginAddress / 256);
             command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
             command[31] = 0x00;
-            command[32] = 0x03;
+            command[32] = 0x03;//04 byte(字节) 03bit（位）
             command[33] = (byte)(length / 256);
-            command[34] = (byte)(length % 256);
+            command[34] = (byte)(length % 256);//按位计算出的长度
             command[35] = data ? (byte)0x01 : (byte)0x00;
             return command;
         }
@@ -873,34 +873,34 @@ namespace IoTClient.Clients.PLC
             command[4] = 0x02;
             command[5] = 0xF0;
             command[6] = 0x80;
-            command[7] = 0x32;
-            command[8] = 0x01;//1  发送命令 3 读取命令
+            command[7] = 0x32;//[4]-[7]固定数据
+            command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
             command[9] = 0x00;
             command[10] = 0x00;
             command[11] = 0x00;
-            command[12] = 0x01;
+            command[12] = 0x01;//[9]-[12]标识序列号
             command[13] = 0x00;
             command[14] = 0x0E;
             command[15] = (byte)((4 + data.Length) / 256);
-            command[16] = (byte)((4 + data.Length) % 256);
+            command[16] = (byte)((4 + data.Length) % 256);//[15][16]写入长度+4
             command[17] = 0x05;//04读 05写
-            command[18] = 0x01;
+            command[18] = 0x01;//写入数据块个数
             command[19] = 0x12;
             command[20] = 0x0A;
-            command[21] = 0x10;
-            command[22] = 0x02;
+            command[21] = 0x10;//[19]-[21]固定
+            command[22] = 0x02;//写入方式，1是按位，2是按字
             command[23] = (byte)(data.Length / 256);
-            command[24] = (byte)(data.Length % 256);
+            command[24] = (byte)(data.Length % 256);//写入数据个数
             command[25] = (byte)(dbAddress / 256);
-            command[26] = (byte)(dbAddress % 256);
+            command[26] = (byte)(dbAddress % 256);//DB块的编号
             command[27] = type;
             command[28] = (byte)(beginAddress / 256 / 256 % 256); ;
             command[29] = (byte)(beginAddress / 256 % 256);
             command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
             command[31] = 0x00;
-            command[32] = 0x04;
+            command[32] = 0x04;//04 byte(字节) 03bit（位）
             command[33] = (byte)(data.Length * 8 / 256);
-            command[34] = (byte)(data.Length * 8 % 256);
+            command[34] = (byte)(data.Length * 8 % 256);//按位计算出的长度
             data.CopyTo(command, 35);
             return command;
         }

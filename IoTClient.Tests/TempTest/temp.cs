@@ -17,6 +17,8 @@ namespace IoTClient.Tests.TempTest
 
             var aa = DataConvert.StringToByteArray(str);
             var bb = DataConvert.ByteArrayToString(aa);
+
+           var bb2 =  BitConverter.GetBytes(258);
         }
     }
 }

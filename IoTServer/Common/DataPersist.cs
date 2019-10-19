@@ -71,5 +71,20 @@ namespace IoTServer.Common
         {
             Write(key.ToString(), value);
         }
+
+        /// <summary>
+        /// 清空
+        /// </summary>
+        public void Clear()
+        {
+            if (RedisPersist)
+            {
+                //TODO
+            }
+            else
+            {
+                data = new Dictionary<string, string>();
+            }
+        }
     }
 }

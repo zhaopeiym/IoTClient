@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTClient.Demo", "IoTClient
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTClient.Tests", "IoTClient.Tests\IoTClient.Tests.csproj", "{5FF4DDE3-A370-4421-9D32-5A51EB704EBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTServer", "IoTServer\IoTServer.csproj", "{83DCC2E8-3CE1-48B6-8304-FD74149AFFC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTServer", "IoTServer\IoTServer.csproj", "{83DCC2E8-3CE1-48B6-8304-FD74149AFFC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

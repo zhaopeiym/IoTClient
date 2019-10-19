@@ -12,13 +12,17 @@ namespace IoTClient.Clients.ModBus
     public class ModBusTcpClient : SocketBase
     {
         private IPEndPoint ipAndPoint;
-        public ModBusTcpClient(IPEndPoint ipAndPoint)
+        private int timeout = 1500;
+
+        public ModBusTcpClient(IPEndPoint ipAndPoint, int? timeout = null)
         {
+            if (timeout.HasValue) this.timeout = timeout.Value;
             this.ipAndPoint = ipAndPoint;
         }
 
-        public ModBusTcpClient(string ip, int port)
+        public ModBusTcpClient(string ip, int port, int? timeout = null)
         {
+            if (timeout.HasValue) this.timeout = timeout.Value;
             this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
         }
 
@@ -32,8 +36,15 @@ namespace IoTClient.Clients.ModBus
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                socket.ReceiveTimeout = 1500;
-                socket.SendTimeout = 1500;
+#if DEBUG
+                //调试模式增加超时时间
+                socket.ReceiveTimeout = timeout * 100;
+                socket.SendTimeout = timeout * 100;
+#else
+                socket.ReceiveTimeout = timeout;
+                socket.SendTimeout = timeout;
+#endif
+
                 //连接
                 socket.Connect(ipAndPoint);
                 return true;
@@ -324,11 +335,12 @@ namespace IoTClient.Clients.ModBus
             {
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode);
                 socket.Send(command);
-
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //获取响应报文
                 var headBytes = SocketRead(socket, 8);
                 int length = headBytes[4] * 256 + headBytes[5] - 2;
-                SocketRead(socket, length);
+                var dataBytes = SocketRead(socket, length);
+                result.Response = string.Join(" ", headBytes.Concat(dataBytes).Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
             {

@@ -28,46 +28,74 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.ModBusTcp = new System.Windows.Forms.TabPage();
+            this.Siemens = new System.Windows.Forms.TabPage();
+            this.modBusTcpControl1 = new IoTClient.Demo.ModBusTcpControl();
+            this.tabControl1.SuspendLayout();
+            this.ModBusTcp.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // tabControl1
             // 
-            this.button1.Location = new System.Drawing.Point(46, 94);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "ModBusTcp";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.tabControl1.Controls.Add(this.ModBusTcp);
+            this.tabControl1.Controls.Add(this.Siemens);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(894, 501);
+            this.tabControl1.TabIndex = 2;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
-            // button2
+            // ModBusTcp
             // 
-            this.button2.Location = new System.Drawing.Point(185, 94);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "S7-200Smart";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.ModBusTcp.Controls.Add(this.modBusTcpControl1);
+            this.ModBusTcp.Location = new System.Drawing.Point(4, 22);
+            this.ModBusTcp.Name = "ModBusTcp";
+            this.ModBusTcp.Padding = new System.Windows.Forms.Padding(3);
+            this.ModBusTcp.Size = new System.Drawing.Size(886, 475);
+            this.ModBusTcp.TabIndex = 0;
+            this.ModBusTcp.Text = "ModBusTcp";
+            this.ModBusTcp.UseVisualStyleBackColor = true;
+            // 
+            // Siemens
+            // 
+            this.Siemens.Location = new System.Drawing.Point(4, 22);
+            this.Siemens.Name = "Siemens";
+            this.Siemens.Padding = new System.Windows.Forms.Padding(3);
+            this.Siemens.Size = new System.Drawing.Size(886, 475);
+            this.Siemens.TabIndex = 1;
+            this.Siemens.Text = "Siemens";
+            this.Siemens.UseVisualStyleBackColor = true;
+            // 
+            // modBusTcpControl1
+            // 
+            this.modBusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.modBusTcpControl1.Location = new System.Drawing.Point(3, 3);
+            this.modBusTcpControl1.Name = "modBusTcpControl1";
+            this.modBusTcpControl1.Size = new System.Drawing.Size(880, 469);
+            this.modBusTcpControl1.TabIndex = 0;
             // 
             // IndexForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(457, 244);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(894, 501);
+            this.Controls.Add(this.tabControl1);
             this.Name = "IndexForm";
             this.Text = "IndexForm";
+            this.tabControl1.ResumeLayout(false);
+            this.ModBusTcp.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage ModBusTcp;
+        private System.Windows.Forms.TabPage Siemens;
+        private ModBusTcpControl modBusTcpControl1;
     }
 }

@@ -1,99 +1,115 @@
-﻿using IoTClient.Clients.PLC;
-using IoTClient.Common.Enums;
-using IoTServer.Servers.PLC;
+﻿using IoTClient.Clients.ModBus;
+using IoTServer.Servers.ModBus;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace IoTClient.Demo
 {
-    public partial class SiemensForm : Form
+    public partial class ModBusTcpControl : UserControl
     {
-        SiemensClient client;
-        SiemensServer server;
-        public SiemensForm()
+        ModBusTcpClient client;
+        ModBusTcpServer server;
+        public ModBusTcpControl()
         {
             InitializeComponent();
-            but_read.Enabled = false;
-            but_write.Enabled = false;            
+            Size = new Size(880, 450);
+            button3.Enabled = false;
+            button4.Enabled = false;
+            button2.Enabled = false;
+            button5.Enabled = false;
+            toolTip1.SetToolTip(button1, "开启本地ModBusTcp服务端仿真模拟服务");
+            toolTip1.SetToolTip(but_open, "点击打开连接");
         }
 
-        private void SiemensForm_Load(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            //but_server.Enabled = false;
+            server?.Close();
+            server = new ModBusTcpServer("127.0.0.1", 502);
+            server.Start();
+            button1.Enabled = false;
+            button2.Enabled = true;
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]开启仿真模拟服务\r\n");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            server?.Close();
+            button1.Enabled = true;
+            button2.Enabled = false;
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]关闭仿真模拟服务\r\n");
         }
 
         private void but_open_Click(object sender, EventArgs e)
         {
             client?.Close();
-            if (but_open.Text == "连接")
+            client = new ModBusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+            if (client.Open())
             {
-                client = new SiemensClient(SiemensVersion.S7_200Smart, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
-                if (!client.Open())
-                    MessageBox.Show("连接失败");
-                else
-                {
-                    but_open.Text = "已连接";
-                    but_read.Enabled = true;
-                    but_write.Enabled = true;
-                }
+                button3.Enabled = true;
+                button4.Enabled = true;
+                but_open.Enabled = false;
+                button5.Enabled = true;
+                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]连接成功\r\n");
             }
             else
-            {
-                but_open.Text = "连接";
-                client?.Close();
-            }
+                MessageBox.Show("连接失败");
         }
 
-        /// <summary>
-        /// 读取
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        private void button5_Click(object sender, EventArgs e)
+        {
+            client?.Close();
+            but_open.Enabled = true;
+            button5.Enabled = false;
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]连接关闭\r\n");
+        }
+
         private void button3_Click(object sender, EventArgs e)
         {
+            byte.TryParse(txt_stationNumber.Text?.Trim(), out byte stationNumber);
+            if (string.IsNullOrWhiteSpace(txt_address.Text))
+            {
+                MessageBox.Show("请输入地址");
+                return;
+            }
             try
             {
-                if (string.IsNullOrWhiteSpace(txt_address.Text))
-                {
-                    MessageBox.Show("请输入地址");
-                    return;
-                }
                 dynamic result = null;
                 if (rd_bit.Checked)
                 {
-                    result = client.ReadBoolean(txt_address.Text);
+                    result = client.ReadCoil(txt_address.Text, stationNumber);
                 }
                 else if (rd_short.Checked)
                 {
-                    result = client.ReadInt16(txt_address.Text);
+                    result = client.ReadInt16(txt_address.Text, stationNumber);
                 }
                 else if (rd_ushort.Checked)
                 {
-                    result = client.ReadUInt16(txt_address.Text);
+                    result = client.ReadUInt16(txt_address.Text, stationNumber);
                 }
                 else if (rd_int.Checked)
                 {
-                    result = client.ReadInt32(txt_address.Text);
+                    result = client.ReadInt32(txt_address.Text, stationNumber);
                 }
                 else if (rd_uint.Checked)
                 {
-                    result = client.ReadUInt32(txt_address.Text);
+                    result = client.ReadUInt32(txt_address.Text, stationNumber);
                 }
                 else if (rd_long.Checked)
                 {
-                    result = client.ReadInt64(txt_address.Text);
+                    result = client.ReadInt64(txt_address.Text, stationNumber);
                 }
                 else if (rd_ulong.Checked)
                 {
-                    result = client.ReadUInt64(txt_address.Text);
+                    result = client.ReadUInt64(txt_address.Text, stationNumber);
                 }
                 else if (rd_float.Checked)
                 {
-                    result = client.ReadFloat(txt_address.Text);
+                    result = client.ReadFloat(txt_address.Text, stationNumber);
                 }
                 else if (rd_double.Checked)
                 {
-                    result = client.ReadDouble(txt_address.Text);
+                    result = client.ReadDouble(txt_address.Text, stationNumber);
                 }
 
                 if (result.IsSucceed)
@@ -108,18 +124,13 @@ namespace IoTClient.Demo
             }
             catch (Exception ex)
             {
-                //client?.Close();
                 MessageBox.Show(ex.Message);
             }
         }
 
-        /// <summary>
-        ///  写入
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void button4_Click(object sender, EventArgs e)
         {
+            byte.TryParse(txt_stationNumber.Text?.Trim(), out byte stationNumber);
             if (string.IsNullOrWhiteSpace(txt_address.Text))
             {
                 MessageBox.Show("请输入地址");
@@ -130,9 +141,9 @@ namespace IoTClient.Demo
                 MessageBox.Show("请输入值");
                 return;
             }
-
             try
             {
+
                 dynamic result = null;
                 if (rd_bit.Checked)
                 {
@@ -148,39 +159,39 @@ namespace IoTClient.Demo
                             return;
                         }
                     }
-                    result = client.Write(txt_address.Text, coil);
+                    result = client.Write(txt_address.Text, coil, stationNumber);
                 }
                 else if (rd_short.Checked)
                 {
-                    result = client.Write(txt_address.Text, short.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, short.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_ushort.Checked)
                 {
-                    result = client.Write(txt_address.Text, ushort.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, ushort.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_int.Checked)
                 {
-                    result = client.Write(txt_address.Text, int.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, int.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_uint.Checked)
                 {
-                    result = client.Write(txt_address.Text, uint.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, uint.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_long.Checked)
                 {
-                    result = client.Write(txt_address.Text, long.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, long.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_ulong.Checked)
                 {
-                    result = client.Write(txt_address.Text, ulong.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, ulong.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_float.Checked)
                 {
-                    result = client.Write(txt_address.Text, float.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, float.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_double.Checked)
                 {
-                    result = client.Write(txt_address.Text, double.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(txt_address.Text, double.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
 
 
@@ -200,19 +211,9 @@ namespace IoTClient.Demo
             }
         }
 
-        private void but_server_Click(object sender, EventArgs e)
+        private void button6_Click(object sender, EventArgs e)
         {
-            if (but_server.Text == "本地模拟服务")
-            {
-                but_server.Text = "已开启服务";
-                server = new SiemensServer(txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
-                server.Start();
-            }
-            else
-            {
-                but_server.Text = "本地模拟服务";
-                server?.Close();
-            }
+            server?.Clear();
         }
     }
 }

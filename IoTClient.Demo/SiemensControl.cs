@@ -2,46 +2,65 @@
 using IoTClient.Common.Enums;
 using IoTServer.Servers.PLC;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace IoTClient.Demo
 {
-    public partial class SiemensForm : Form
+    public partial class SiemensControl : UserControl
     {
         SiemensClient client;
         SiemensServer server;
-        public SiemensForm()
+        public SiemensControl()
         {
             InitializeComponent();
+            Size = new Size(880, 450);
             but_read.Enabled = false;
-            but_write.Enabled = false;            
+            but_write.Enabled = false;
+            button2.Enabled = false;
+            button1.Enabled = false;
         }
 
-        private void SiemensForm_Load(object sender, EventArgs e)
+        private void but_server_Click(object sender, EventArgs e)
         {
-            //but_server.Enabled = false;
+            server?.Close();
+            server = new SiemensServer(txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
+            server.Start();
+            but_server.Enabled = false;
+            button2.Enabled = true;
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]开启仿真模拟服务\r\n");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            server?.Close();
+            but_server.Enabled = true;
+            button2.Enabled = false;
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]关闭仿真模拟服务\r\n");
         }
 
         private void but_open_Click(object sender, EventArgs e)
         {
             client?.Close();
-            if (but_open.Text == "连接")
-            {
-                client = new SiemensClient(SiemensVersion.S7_200Smart, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
-                if (!client.Open())
-                    MessageBox.Show("连接失败");
-                else
-                {
-                    but_open.Text = "已连接";
-                    but_read.Enabled = true;
-                    but_write.Enabled = true;
-                }
-            }
+            client = new SiemensClient(SiemensVersion.S7_200Smart, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
+            if (!client.Open())
+                MessageBox.Show("连接失败");
             else
             {
-                but_open.Text = "连接";
-                client?.Close();
+                but_read.Enabled = true;
+                but_write.Enabled = true;
+                but_open.Enabled = false;
+                button1.Enabled = true;
+                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]连接成功\r\n");
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            client?.Close();
+            but_open.Enabled = true;
+            button1.Enabled = false;
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]连接关闭\r\n");
         }
 
         /// <summary>
@@ -49,7 +68,7 @@ namespace IoTClient.Demo
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button3_Click(object sender, EventArgs e)
+        private void but_read_Click(object sender, EventArgs e)
         {
             try
             {
@@ -118,7 +137,7 @@ namespace IoTClient.Demo
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button4_Click(object sender, EventArgs e)
+        private void but_write_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txt_address.Text))
             {
@@ -200,19 +219,9 @@ namespace IoTClient.Demo
             }
         }
 
-        private void but_server_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
-            if (but_server.Text == "本地模拟服务")
-            {
-                but_server.Text = "已开启服务";
-                server = new SiemensServer(txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
-                server.Start();
-            }
-            else
-            {
-                but_server.Text = "本地模拟服务";
-                server?.Close();
-            }
+            server?.Clear();
         }
     }
 }
