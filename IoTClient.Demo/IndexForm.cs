@@ -1,4 +1,7 @@
-﻿using System;
+﻿using IoTServer.Common;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IoTClient.Demo
@@ -9,30 +12,29 @@ namespace IoTClient.Demo
         {
             InitializeComponent();
             StartPosition = FormStartPosition.CenterScreen;
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            //Hide();
-            //var form = new ModBusTcpForm();
-            //form.StartPosition = FormStartPosition.CenterScreen;
-            //form.ShowDialog();
-            //Show(); 
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            //Hide();
-            //var form = new SiemensForm();
-            //form.StartPosition = FormStartPosition.CenterScreen;
-            //form.ShowDialog();
-            //Show(); 
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            DataPersist.LoadData();
+            SelectedTab(tabControl1.SelectedTab);
+            Task.Run(async () =>
+            {
+                await Task.Delay(1000 * 60 * 1);//1分钟自动保存一次
+                DataPersist.SaveData();
+            });
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var tab = (sender as TabControl).SelectedTab;
-            Text = tab.Name;
+            SelectedTab(tab);
+        }
+
+        /// <summary>
+        /// 切换Tab
+        /// </summary>
+        /// <param name="tab"></param>
+        private void SelectedTab(TabPage tab)
+        {
+            Text = "IoTClient - " + tab.Name;
             if (tab.Controls.Count <= 0)
             {
                 switch (tab.Name)
@@ -49,6 +51,56 @@ namespace IoTClient.Demo
                         break;
                 }
             }
+        }
+
+        private void IndexForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DataPersist.SaveData();
+        }
+
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("https://github.com/zhaopeiym/IoTClient");
+            }
+            catch (Exception) { }
+        }
+
+        private void 博客地址ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("https://www.cnblogs.com/zhaopei/p/11651790.html");
+            }
+            catch (Exception) { }
+        }
+
+        private void toolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("https://github.com/zhaopeiym/IoTClient/issues");
+            }
+            catch (Exception) { }
+        }
+
+        private void toolStripMenuItem4_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("https://jq.qq.com/?_wv=1027&k=5bz0ne5");
+            }
+            catch (Exception) { }
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("https://github.com/zhaopeiym/IoTClient/releases");
+            }
+            catch (Exception) { }
         }
     }
 }

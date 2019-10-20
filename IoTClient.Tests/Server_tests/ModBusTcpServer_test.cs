@@ -13,8 +13,7 @@ namespace IoTClient.Tests.Server_tests
         [Fact]
         public async Task StartAsync()
         {
-            var RedisConnection = "RedisConnection".GetConfig();
-            ModBusTcpServer server = new ModBusTcpServer("LocalIP".GetConfig(), int.Parse("LocalPort".GetConfig()), RedisConnection);
+            ModBusTcpServer server = new ModBusTcpServer("LocalIP".GetConfig(), int.Parse("LocalPort".GetConfig()));
 
             server.Start();
 

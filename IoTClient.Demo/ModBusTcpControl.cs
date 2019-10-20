@@ -1,4 +1,5 @@
 ﻿using IoTClient.Clients.ModBus;
+using IoTServer.Common;
 using IoTServer.Servers.ModBus;
 using System;
 using System.Drawing;
@@ -118,8 +119,8 @@ namespace IoTClient.Demo
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
                 if (checkBox1.Checked)
                 {
-                    txt_content.AppendText($"[请求报文-读]{result.Requst}\r\n");
-                    txt_content.AppendText($"[响应报文-读]{result.Response}\r\n");
+                    txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
+                    txt_content.AppendText($"[响应报文]{result.Response}\r\n\r\n");
                 }
             }
             catch (Exception ex)
@@ -201,8 +202,8 @@ namespace IoTClient.Demo
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
                 if (checkBox1.Checked)
                 {
-                    txt_content.AppendText($"[请求报文-写]{result.Requst}\r\n");
-                    txt_content.AppendText($"[响应报文-写]{result.Response}\r\n");
+                    txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
+                    txt_content.AppendText($"[响应报文]{result.Response}\r\n\r\n");
                 }
             }
             catch (Exception ex)
@@ -213,7 +214,8 @@ namespace IoTClient.Demo
 
         private void button6_Click(object sender, EventArgs e)
         {
-            server?.Clear();
+            DataPersist.Clear();
+            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]数据清空成功\r\n\r\n");
         }
     }
 }

@@ -12,15 +12,15 @@ namespace IoTServer.Servers.ModBus
     public class ModBusTcpServer
     {
         private Socket socketServer;
-        private string redisConfig;
         private string ip;
         private int port;
         DataPersist dataPersist;
-        public ModBusTcpServer(string ip, int port, string redisConfig = null)
+        List<Socket> sockets = new List<Socket>();
+        public ModBusTcpServer(string ip, int port)
         {
-            this.redisConfig = redisConfig;
             this.ip = ip;
             this.port = port;
+            dataPersist = new DataPersist("ModBusTcpServer");
         }
 
         /// <summary>
@@ -38,8 +38,6 @@ namespace IoTServer.Servers.ModBus
             //3、开启侦听(等待客户机发出的连接),并设置最大客户端连接数为10
             socketServer.Listen(10);
 
-            dataPersist = new DataPersist(redisConfig);
-
             Task.Run(() => { Accept(socketServer); });
         }
 
@@ -50,15 +48,6 @@ namespace IoTServer.Servers.ModBus
             socketServer?.Close();
         }
 
-        /// <summary>
-        /// 清空数据
-        /// </summary>
-        public void Clear()
-        {
-            dataPersist?.Clear();
-        }
-
-        List<Socket> sockets = new List<Socket>();
         /// <summary>
         /// 客户端连接到服务端
         /// </summary>

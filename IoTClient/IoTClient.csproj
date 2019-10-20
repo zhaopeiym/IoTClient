@@ -12,7 +12,7 @@
     <Copyright>Copyright (c) 2019 擎呐科技.  All rights reserved.</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zhaopeiym/IoTClient</RepositoryUrl>
-    <PackageTags>IoT,物联网,PLC,modbus,Bacnet</PackageTags>
+    <PackageTags>IoT,物联网,PLC,ModBus,Bacnet</PackageTags>
     <PackageIconUrl>https://user-images.githubusercontent.com/5820324/66972725-12bccf80-f0c8-11e9-9468-3cfc57915dc9.png</PackageIconUrl>
   </PropertyGroup>
 

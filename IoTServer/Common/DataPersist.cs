@@ -1,24 +1,22 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Talk.Redis;
 
 namespace IoTServer.Common
 {
     public class DataPersist
     {
-        /// <summary>
-        /// 是否使用redis对数据持久化，否则存内存
-        /// </summary>
-        private bool RedisPersist = true;
-        RedisManager redisManager;
+        string prefix;
         static Dictionary<string, string> data = new Dictionary<string, string>();
 
-        public DataPersist(string redisConfig)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefix">前缀</param> 
+        public DataPersist(string prefix)
         {
-            RedisPersist = !string.IsNullOrWhiteSpace(redisConfig);
-            if (RedisPersist)
-                redisManager = new RedisManager(1, redisConfig);
+            this.prefix = $"iot_{prefix}_";
         }
 
         /// <summary>
@@ -28,12 +26,8 @@ namespace IoTServer.Common
         /// <returns></returns>
         public string Read(string key)
         {
-            key = "iot_" + key;
-            if (RedisPersist)
-            {
-                return redisManager.GetString(key);
-            }
-            else if (data.Keys.Contains(key))
+            key = prefix + key;
+            if (data.Keys.Contains(key))
             {
                 return data[key];
             }
@@ -52,12 +46,8 @@ namespace IoTServer.Common
         /// <param name="value"></param>
         public void Write(string key, string value)
         {
-            key = "iot_" + key;
-            if (RedisPersist)
-            {
-                redisManager.Set(key, value);
-            }
-            else if (data.Keys.Contains(key))
+            key = prefix + key;
+            if (data.Keys.Contains(key))
             {
                 data[key] = value;
             }
@@ -75,16 +65,46 @@ namespace IoTServer.Common
         /// <summary>
         /// 清空
         /// </summary>
-        public void Clear()
+        public static void Clear()
         {
-            if (RedisPersist)
+            data = new Dictionary<string, string>();
+        }
+
+        /// <summary>
+        /// 保存数据
+        /// </summary>
+        public static void SaveData()
+        {
+            var path = @"C:\IoTClient";
+            var filePath = path + @"\IoTClient.Data";
+            var dataString = JsonConvert.SerializeObject(data);
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             {
-                //TODO
+                using (StreamWriter sw = new StreamWriter(fileStream))
+                {
+                    sw.Write(dataString);
+                }
             }
+        }
+
+        /// <summary>
+        /// 初始化加载数据
+        /// </summary>
+        public static void LoadData()
+        {
+            var dataString = string.Empty;
+            var path = @"C:\IoTClient";
+            var filePath = path + @"\IoTClient.Data";
+            if (File.Exists(filePath))
+                dataString = File.ReadAllText(filePath);
             else
             {
-                data = new Dictionary<string, string>();
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+                File.SetAttributes(path, FileAttributes.Hidden);
             }
+            if (!string.IsNullOrWhiteSpace(dataString))
+                data = JsonConvert.DeserializeObject<Dictionary<string, string>>(dataString);
         }
     }
 }

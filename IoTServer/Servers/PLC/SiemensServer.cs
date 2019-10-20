@@ -14,17 +14,15 @@ namespace IoTServer.Servers.PLC
     public class SiemensServer
     {
         private Socket socketServer;
-        private string redisConfig;
         private string ip;
         private int port;
         List<Socket> sockets = new List<Socket>();
         DataPersist dataPersist;
-        public SiemensServer(string ip, int port, string redisConfig = null)
+        public SiemensServer(string ip, int port)
         {
-            this.redisConfig = redisConfig;
             this.ip = ip;
             this.port = port;
-            dataPersist = new DataPersist(redisConfig);
+            dataPersist = new DataPersist("SiemensServer");
         }
 
         /// <summary>
@@ -40,7 +38,7 @@ namespace IoTServer.Servers.PLC
             socketServer.Bind(ipEndPoint);
 
             //3、开启侦听(等待客户机发出的连接),并设置最大客户端连接数为10
-            socketServer.Listen(10); 
+            socketServer.Listen(10);
 
             Task.Run(() => { Accept(socketServer); });
         }
@@ -51,15 +49,7 @@ namespace IoTServer.Servers.PLC
                 socketServer.Shutdown(SocketShutdown.Both);
             socketServer?.Close();
         }
-
-        /// <summary>
-        /// 清空数据
-        /// </summary>
-        public void Clear()
-        {
-            dataPersist?.Clear();
-        }
-
+        
         /// <summary>
         /// 客户端连接到服务端
         /// </summary>

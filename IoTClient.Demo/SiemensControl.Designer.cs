@@ -57,8 +57,8 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.txt_content = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.txt_content = new System.Windows.Forms.TextBox();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -252,7 +252,7 @@
             // 
             // but_server
             // 
-            this.but_server.Location = new System.Drawing.Point(654, 20);
+            this.but_server.Location = new System.Drawing.Point(658, 20);
             this.but_server.Name = "but_server";
             this.but_server.Size = new System.Drawing.Size(99, 23);
             this.but_server.TabIndex = 0;
@@ -305,7 +305,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(759, 20);
+            this.button2.Location = new System.Drawing.Point(763, 20);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 7;
@@ -341,6 +341,16 @@
             this.groupBox1.TabIndex = 32;
             this.groupBox1.TabStop = false;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(762, 20);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 24;
+            this.button3.Text = "清空数据";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // txt_content
             // 
             this.txt_content.Location = new System.Drawing.Point(13, 165);
@@ -349,16 +359,6 @@
             this.txt_content.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txt_content.Size = new System.Drawing.Size(855, 272);
             this.txt_content.TabIndex = 31;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(759, 20);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 24;
-            this.button3.Text = "清空数据";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // SiemensControl
             // 
