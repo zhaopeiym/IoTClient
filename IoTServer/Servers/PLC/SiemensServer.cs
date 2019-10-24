@@ -18,7 +18,7 @@ namespace IoTServer.Servers.PLC
         private int port;
         List<Socket> sockets = new List<Socket>();
         DataPersist dataPersist;
-        public SiemensServer(string ip, int port)
+        public SiemensServer(int port, string ip = null)
         {
             this.ip = ip;
             this.port = port;
@@ -34,7 +34,8 @@ namespace IoTServer.Servers.PLC
             socketServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             //2 绑定ip和端口 
-            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            var ipaddress = string.IsNullOrWhiteSpace(ip) ? IPAddress.Any : IPAddress.Parse(ip);
+            IPEndPoint ipEndPoint = new IPEndPoint(ipaddress, port);
             socketServer.Bind(ipEndPoint);
 
             //3、开启侦听(等待客户机发出的连接),并设置最大客户端连接数为10
@@ -49,7 +50,7 @@ namespace IoTServer.Servers.PLC
                 socketServer.Shutdown(SocketShutdown.Both);
             socketServer?.Close();
         }
-        
+
         /// <summary>
         /// 客户端连接到服务端
         /// </summary>

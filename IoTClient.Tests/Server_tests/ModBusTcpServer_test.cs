@@ -13,7 +13,7 @@ namespace IoTClient.Tests.Server_tests
         [Fact]
         public async Task StartAsync()
         {
-            ModBusTcpServer server = new ModBusTcpServer("LocalIP".GetConfig(), int.Parse("LocalPort".GetConfig()));
+            ModBusTcpServer server = new ModBusTcpServer(int.Parse("LocalPort".GetConfig()));
 
             server.Start();
 
