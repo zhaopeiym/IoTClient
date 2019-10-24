@@ -17,6 +17,7 @@ namespace IoTClient.Demo
         public BACnetControl()
         {
             InitializeComponent();
+            txt_msgList.ScrollBars = ScrollBars.Vertical;
             Size = new Size(880, 450);
         }
         private static List<BacNode> devicesList = new List<BacNode>();
@@ -57,7 +58,7 @@ namespace IoTClient.Demo
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            textBox1.Text = string.Empty;
+            txt_msgList.Text = string.Empty;
             Task.Run(() =>
             {
                 Log("准备扫描...");
@@ -253,7 +254,7 @@ namespace IoTClient.Demo
         {
             BeginInvoke(new Action(() =>
             {
-                textBox1.AppendText($"[{DateTime.Now.ToString("HH:mm:ss")}]:{str} \r\n");
+                txt_msgList.AppendText($"[{DateTime.Now.ToString("HH:mm:ss")}]:{str} \r\n");
             }));
         }
 
@@ -261,7 +262,7 @@ namespace IoTClient.Demo
         {
             BeginInvoke(new Action(() =>
             {
-                textBox1.AppendText($"[{DateTime.Now.ToString("HH:mm:ss")}] {str} \r\n");
+                txt_msgList.AppendText($"[{DateTime.Now.ToString("HH:mm:ss")}] {str} \r\n");
             }));
         }
 

@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txt_msgList = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -53,14 +53,14 @@
             this.listBox1.Size = new System.Drawing.Size(115, 377);
             this.listBox1.TabIndex = 0;
             // 
-            // textBox1
+            // txt_msgList
             // 
-            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox1.Location = new System.Drawing.Point(3, 17);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(741, 377);
-            this.textBox1.TabIndex = 1;
+            this.txt_msgList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txt_msgList.Location = new System.Drawing.Point(3, 17);
+            this.txt_msgList.Multiline = true;
+            this.txt_msgList.Name = "txt_msgList";
+            this.txt_msgList.Size = new System.Drawing.Size(741, 377);
+            this.txt_msgList.TabIndex = 1;
             // 
             // button3
             // 
@@ -136,7 +136,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.textBox1);
+            this.groupBox2.Controls.Add(this.txt_msgList);
             this.groupBox2.Location = new System.Drawing.Point(130, 38);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(747, 397);
@@ -170,7 +170,7 @@
         #endregion
 
         private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txt_msgList;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
