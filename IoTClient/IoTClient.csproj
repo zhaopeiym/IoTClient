@@ -16,9 +16,21 @@
     <PackageIconUrl>https://user-images.githubusercontent.com/5820324/66972725-12bccf80-f0c8-11e9-9468-3cfc57915dc9.png</PackageIconUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>IoTClient\IoTClient.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Folder Include="Core\Clients\Bacnet\" />
-    <Folder Include="Interfaces\" />
+    <Compile Remove="Interfaces\**" />
+    <Compile Remove="IoTClient\**" />
+    <EmbeddedResource Remove="Interfaces\**" />
+    <EmbeddedResource Remove="IoTClient\**" />
+    <None Remove="Interfaces\**" />
+    <None Remove="IoTClient\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Clients\Bacnet\" />
   </ItemGroup>
 
   <ItemGroup>

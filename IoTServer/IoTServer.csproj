@@ -15,6 +15,16 @@
     <PackageIconUrl>https://user-images.githubusercontent.com/5820324/66972725-12bccf80-f0c8-11e9-9468-3cfc57915dc9.png</PackageIconUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>IoTServer\IoTServer.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IoTServer\**" />
+    <EmbeddedResource Remove="IoTServer\**" />
+    <None Remove="IoTServer\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="Common\ConfigurationManager.cs" />
   </ItemGroup>

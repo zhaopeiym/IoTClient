@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>IoTServer</name>
+    </assembly>
+    <members>
+        <member name="M:IoTServer.Common.DataPersist.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="prefix">前缀</param> 
+        </member>
+        <member name="M:IoTServer.Common.DataPersist.Read(System.String)">
+            <summary>
+            读
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTServer.Common.DataPersist.Write(System.String,System.String)">
+            <summary>
+            写
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:IoTServer.Common.DataPersist.Clear">
+            <summary>
+            清空
+            </summary>
+        </member>
+        <member name="M:IoTServer.Common.DataPersist.SaveData">
+            <summary>
+            保存数据
+            </summary>
+        </member>
+        <member name="M:IoTServer.Common.DataPersist.LoadData">
+            <summary>
+            初始化加载数据
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Accept(System.Net.Sockets.Socket)">
+            <summary>
+            客户端连接到服务端
+            </summary>
+            <param name="socket"></param>
+        </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Receive(System.Net.Sockets.Socket)">
+            <summary>
+            接收客户端发送的消息
+            </summary>
+            <param name="newSocket"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.SiemensServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.SiemensServer.Accept(System.Net.Sockets.Socket)">
+            <summary>
+            客户端连接到服务端
+            </summary>
+            <param name="socket"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.SiemensServer.Receive(System.Net.Sockets.Socket)">
+            <summary>
+            接收客户端发送的消息
+            </summary>
+            <param name="newSocket"></param>
+        </member>
+    </members>
+</doc>

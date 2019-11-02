@@ -5,13 +5,15 @@ VisualStudioVersion = 16.0.29318.209
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTClient", "IoTClient\IoTClient.csproj", "{DBB31F80-60BC-48E4-A2C6-07E6A8C8048F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{CD6D0005-7B67-4599-9BF2-7255E135B6C6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CD6D0005-7B67-4599-9BF2-7255E135B6C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTClient.Demo", "IoTClient.Demo\IoTClient.Demo.csproj", "{B1C73EE0-6F67-4DB0-BBAF-EFAFD62457CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTClient.Tool", "IoTClient.Tool\IoTClient.Tool.csproj", "{B1C73EE0-6F67-4DB0-BBAF-EFAFD62457CD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTClient.Tests", "IoTClient.Tests\IoTClient.Tests.csproj", "{5FF4DDE3-A370-4421-9D32-5A51EB704EBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTServer", "IoTServer\IoTServer.csproj", "{83DCC2E8-3CE1-48B6-8304-FD74149AFFC3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5B13731F-26D7-42F9-A89C-FDE006B94DEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,7 +42,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{B1C73EE0-6F67-4DB0-BBAF-EFAFD62457CD} = {CD6D0005-7B67-4599-9BF2-7255E135B6C6}
+		{B1C73EE0-6F67-4DB0-BBAF-EFAFD62457CD} = {5B13731F-26D7-42F9-A89C-FDE006B94DEC}
 		{5FF4DDE3-A370-4421-9D32-5A51EB704EBA} = {CD6D0005-7B67-4599-9BF2-7255E135B6C6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

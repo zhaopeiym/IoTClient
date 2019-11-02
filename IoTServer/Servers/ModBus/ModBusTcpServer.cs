@@ -36,7 +36,7 @@ namespace IoTServer.Servers.ModBus
             IPEndPoint ipEndPoint = new IPEndPoint(ipaddress, port);
             socketServer.Bind(ipEndPoint);
 
-            //3、开启侦听(等待客户机发出的连接),并设置最大客户端连接数为10
+            //3、开启侦听(等待客户机发出的连接),并设置最大客户k端连接数为10
             socketServer.Listen(10);
 
             Task.Run(() => { Accept(socketServer); });
