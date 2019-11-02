@@ -182,8 +182,8 @@
             // 
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(87, 21);
-            this.toolStripMenuItem1.Text = "测试版 0.0.3";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
+            this.toolStripMenuItem1.Text = "版本 0.0.3";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // IndexForm

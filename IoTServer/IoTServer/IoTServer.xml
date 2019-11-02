@@ -39,9 +39,31 @@
             初始化加载数据
             </summary>
         </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.Stop">
+            <summary>
+            停止服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.DataReceived(System.Object,System.IO.Ports.SerialDataReceivedEventArgs)">
+            <summary>
+            接收数据回调用
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
         <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Start">
             <summary>
             启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Stop">
+            <summary>
+            停止服务
             </summary>
         </member>
         <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Accept(System.Net.Sockets.Socket)">
@@ -59,6 +81,11 @@
         <member name="M:IoTServer.Servers.PLC.SiemensServer.Start">
             <summary>
             启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.SiemensServer.Stop">
+            <summary>
+            停止服务
             </summary>
         </member>
         <member name="M:IoTServer.Servers.PLC.SiemensServer.Accept(System.Net.Sockets.Socket)">

@@ -1,4 +1,5 @@
 ﻿using IoTClient.Core;
+using IoTClient.Models;
 using System;
 using System.Linq;
 using System.Net;
@@ -73,8 +74,9 @@ namespace IoTClient.Clients.ModBus
             var result = new Result<byte[]>();
             try
             {
+                var chenkHead = GetCheckHead(functionCode);
                 //1 获取命令（组装报文）
-                byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength);
+                byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //2 发送命令
                 socket.Send(command);
@@ -82,13 +84,17 @@ namespace IoTClient.Clients.ModBus
                 var headPackage = SocketRead(socket, 8);
                 int length = headPackage[4] * 256 + headPackage[5] - 2;
                 var dataPackage = SocketRead(socket, length);
-
                 byte[] resultBuffer = new byte[dataPackage.Length - 1];
                 Array.Copy(dataPackage, 1, resultBuffer, 0, resultBuffer.Length);
-
                 result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
                 result.Value = resultBuffer.Reverse().ToArray();
+                if (chenkHead[0] != headPackage[0] || chenkHead[1] != headPackage[1])
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果校验失败";
+                    result.ErrList.Add("响应结果校验失败");
+                }
             }
             catch (SocketException ex)
             {
@@ -319,6 +325,29 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
         }
+
+        /// <summary>
+        /// 读取离散
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="stationNumber"></param>
+        /// <param name="functionCode"></param>
+        /// <returns></returns>
+        public Result<bool> ReadDiscrete(string address, byte stationNumber = 1, byte functionCode = 2)
+        {
+            var readResut = Read(address, stationNumber, functionCode);
+            var result = new Result<bool>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToBoolean(readResut.Value, 0);
+            return result;
+        }
         #endregion
 
         #region Write 写入
@@ -336,14 +365,21 @@ namespace IoTClient.Clients.ModBus
             var result = new Result();
             try
             {
-                var command = GetWriteCoilCommand(address, value, stationNumber, functionCode);
+                var chenkHead = GetCheckHead(functionCode);
+                var command = GetWriteCoilCommand(address, value, stationNumber, functionCode, chenkHead);
                 socket.Send(command);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                var dataBytes = SocketRead(socket, length);
-                result.Response = string.Join(" ", headBytes.Concat(dataBytes).Select(t => t.ToString("X2")));
+                var headPackage = SocketRead(socket, 8);
+                int length = headPackage[4] * 256 + headPackage[5] - 2;
+                var dataPackage = SocketRead(socket, length);
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                if (chenkHead[0] != headPackage[0] || chenkHead[1] != headPackage[1])
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果校验失败";
+                    result.ErrList.Add("响应结果校验失败");
+                }
             }
             catch (SocketException ex)
             {
@@ -383,14 +419,21 @@ namespace IoTClient.Clients.ModBus
             var result = new Result();
             try
             {
-                var command = GetWriteCommand(address, values, stationNumber, functionCode);
+                var chenkHead = GetCheckHead(functionCode);
+                var command = GetWriteCommand(address, values, stationNumber, functionCode, chenkHead);
                 socket.Send(command);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //获取响应报文
-                var headBytes = SocketRead(socket, 8);
-                int length = headBytes[4] * 256 + headBytes[5] - 2;
-                var dataBytes = SocketRead(socket, length);
-                result.Response = string.Join(" ", headBytes.Concat(dataBytes).Select(t => t.ToString("X2")));
+                var headPackage = SocketRead(socket, 8);
+                int length = headPackage[4] * 256 + headPackage[5] - 2;
+                var dataPackage = SocketRead(socket, length);
+                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                if (chenkHead[0] != headPackage[0] || chenkHead[1] != headPackage[1])
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果校验失败";
+                    result.ErrList.Add("响应结果校验失败");
+                }
             }
             catch (SocketException ex)
             {
@@ -523,6 +566,16 @@ namespace IoTClient.Clients.ModBus
         #region 获取命令
 
         /// <summary>
+        /// 获取随机校验头
+        /// </summary>
+        /// <returns></returns>
+        private byte[] GetCheckHead(int seed)
+        {
+            var random = new Random(DateTime.Now.Millisecond + seed);
+            return new byte[] { (byte)random.Next(255), (byte)random.Next(255) };
+        }
+
+        /// <summary>
         /// 获取读取命令
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
@@ -530,12 +583,12 @@ namespace IoTClient.Clients.ModBus
         /// <param name="functionCode">功能码</param>
         /// <param name="length">读取长度</param>
         /// <returns></returns>
-        public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length)
+        public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length, byte[] check = null)
         {
             var readAddress = ushort.Parse(address?.Trim());
             byte[] buffer = new byte[12];
-            buffer[0] = 0x19;
-            buffer[1] = 0xB2;//Client发出的检验信息
+            buffer[0] = check?[0] ?? 0x19;
+            buffer[1] = check?[1] ?? 0xB2;//Client发出的检验信息
             buffer[2] = 0x00;
             buffer[3] = 0x00;//表示tcp/ip 的协议的modbus的协议
             buffer[4] = 0x00;
@@ -558,12 +611,12 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode)
+        public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode, byte[] check = null)
         {
             var writeAddress = ushort.Parse(address?.Trim());
             byte[] buffer = new byte[13 + values.Length];
-            buffer[0] = 0x19;
-            buffer[1] = 0xB2;//检验信息，用来验证response是否串数据了           
+            buffer[0] = check?[0] ?? 0x19;
+            buffer[1] = check?[1] ?? 0xB2;//检验信息，用来验证response是否串数据了           
             buffer[4] = BitConverter.GetBytes(7 + values.Length)[1];
             buffer[5] = BitConverter.GetBytes(7 + values.Length)[0];//表示的是header handle后面还有多长的字节
 
@@ -586,12 +639,12 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode)
+        public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode, byte[] check = null)
         {
             var writeAddress = ushort.Parse(address?.Trim());
             byte[] buffer = new byte[12];
-            buffer[0] = 0x19;
-            buffer[1] = 0xB2;//Client发出的检验信息     
+            buffer[0] = check?[0] ?? 0x19;
+            buffer[1] = check?[1] ?? 0xB2;//Client发出的检验信息     
             buffer[4] = 0x00;
             buffer[5] = 0x06;//表示的是该字节以后的字节长度
 

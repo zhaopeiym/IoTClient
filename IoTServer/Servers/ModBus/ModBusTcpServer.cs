@@ -42,7 +42,10 @@ namespace IoTServer.Servers.ModBus
             Task.Run(() => { Accept(socketServer); });
         }
 
-        public void Close()
+        /// <summary>
+        /// 停止服务
+        /// </summary>
+        public void Stop()
         {
             if (socketServer?.Connected ?? false)
                 socketServer.Shutdown(SocketShutdown.Both);
@@ -148,7 +151,6 @@ namespace IoTServer.Servers.ModBus
                         //读取
                         case 3:
                             {
-
                                 var value = dataPersist.Read(address);// 数据存在 8、9                            
                                 var bytes = JsonConvert.DeserializeObject<byte[]>(value);
                                 if (bytes == null)

@@ -31,7 +31,7 @@ namespace IoTClient.Tool
 
         private void but_server_Click(object sender, EventArgs e)
         {
-            server?.Close();
+            server?.Stop();
             server = new SiemensServer(int.Parse(txt_port.Text.Trim()));
             server.Start();
             but_server.Enabled = false;
@@ -41,7 +41,7 @@ namespace IoTClient.Tool
 
         private void button2_Click(object sender, EventArgs e)
         {
-            server?.Close();
+            server?.Stop();
             but_server.Enabled = true;
             button2.Enabled = false;
             txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]关闭仿真模拟服务\r\n");

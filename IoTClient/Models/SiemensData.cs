@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace IoTClient.Core.Models
+﻿namespace IoTClient.Core.Models
 {
     public class SiemensData
     {

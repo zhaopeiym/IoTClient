@@ -44,7 +44,10 @@ namespace IoTServer.Servers.PLC
             Task.Run(() => { Accept(socketServer); });
         }
 
-        public void Close()
+        /// <summary>
+        /// 停止服务
+        /// </summary>
+        public void Stop()
         {
             if (socketServer?.Connected ?? false)
                 socketServer.Shutdown(SocketShutdown.Both);

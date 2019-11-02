@@ -149,6 +149,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadDiscrete(System.String,System.Byte,System.Byte)">
+            <summary>
+            读取离散
+            </summary>
+            <param name="address"></param>
+            <param name="stationNumber"></param>
+            <param name="functionCode"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
             <summary>
             线圈写入
@@ -379,6 +388,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadDiscrete(System.String,System.Byte,System.Byte)">
+            <summary>
+            读取离散
+            </summary>
+            <param name="address"></param>
+            <param name="stationNumber"></param>
+            <param name="functionCode"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
             <summary>
             线圈写入
@@ -470,7 +488,13 @@
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
         </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetReadCommand(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetCheckHead(System.Int32)">
+            <summary>
+            获取随机校验头
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetReadCommand(System.String,System.Byte,System.Byte,System.UInt16,System.Byte[])">
             <summary>
             获取读取命令
             </summary>
@@ -480,7 +504,7 @@
             <param name="length">读取长度</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetWriteCommand(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetWriteCommand(System.String,System.Byte[],System.Byte,System.Byte,System.Byte[])">
             <summary>
             获取写入命令
             </summary>
@@ -490,7 +514,7 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetWriteCoilCommand(System.String,System.Boolean,System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.GetWriteCoilCommand(System.String,System.Boolean,System.Byte,System.Byte,System.Byte[])">
             <summary>
             获取线圈写入命令
             </summary>
@@ -805,42 +829,42 @@
             西门子S7-200Smar
             </summary>
         </member>
-        <member name="T:IoTClient.Core.Result">
+        <member name="T:IoTClient.Models.Result">
             <summary>
             请求结果
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Result.IsSucceed">
+        <member name="P:IoTClient.Models.Result.IsSucceed">
             <summary>
             是否成功
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Result.Err">
+        <member name="P:IoTClient.Models.Result.Err">
             <summary>
             异常消息
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Result.ErrList">
+        <member name="P:IoTClient.Models.Result.ErrList">
             <summary>
             异常集合
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Result.Requst">
+        <member name="P:IoTClient.Models.Result.Requst">
             <summary>
             请求报文
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Result.Response">
+        <member name="P:IoTClient.Models.Result.Response">
             <summary>
             响应报文
             </summary>
         </member>
-        <member name="T:IoTClient.Core.Result`1">
+        <member name="T:IoTClient.Models.Result`1">
             <summary>
             请求结果
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Result`1.Value">
+        <member name="P:IoTClient.Models.Result`1.Value">
             <summary>
             数据结果
             </summary>

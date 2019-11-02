@@ -3,10 +3,14 @@
 QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
 
 # Demo效果图   
-![image](https://user-images.githubusercontent.com/5820324/67485072-f27aab00-f69b-11e9-9219-0a0ccb4caae0.png)  
+![image](https://user-images.githubusercontent.com/5820324/68068792-1a50c980-fd94-11e9-9ad6-3c8cf683cf6d.png)  
 
-![image](https://user-images.githubusercontent.com/5820324/67485248-3e2d5480-f69c-11e9-8dea-0ef5ebc3369c.png)  
+![image](https://user-images.githubusercontent.com/5820324/68068801-305e8a00-fd94-11e9-9745-98afa11c968e.png)  
 
-![image](https://user-images.githubusercontent.com/5820324/67485565-e3482d00-f69c-11e9-99b1-e86d3c78fcec.png)  
+![image](https://user-images.githubusercontent.com/5820324/68068805-3c4a4c00-fd94-11e9-899e-cec0b4b70fa8.png)  
 
-![image](https://user-images.githubusercontent.com/5820324/67488504-86e80c00-f6a2-11e9-9612-7d92aebb2394.png)  
+![image](https://user-images.githubusercontent.com/5820324/68068874-bf6ba200-fd94-11e9-817d-62ed251e258f.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/68068818-63a11900-fd94-11e9-932e-fa0bd5941861.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/68068890-e75b0580-fd94-11e9-9370-b914e5af9590.png)  

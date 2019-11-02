@@ -40,6 +40,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.button6 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.rd_discrete = new System.Windows.Forms.RadioButton();
             this.rd_float = new System.Windows.Forms.RadioButton();
             this.rd_double = new System.Windows.Forms.RadioButton();
             this.rd_short = new System.Windows.Forms.RadioButton();
@@ -58,13 +59,15 @@
             this.txt_dataBit = new System.Windows.Forms.TextBox();
             this.cb_portNameSend = new System.Windows.Forms.ComboBox();
             this.but_close = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.but_server_close = new System.Windows.Forms.Button();
+            this.but_server_open = new System.Windows.Forms.Button();
             this.but_open = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.txt_stationNumber = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.cb_portNameSend_server = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -104,7 +107,7 @@
             this.but_write.TabIndex = 10;
             this.but_write.Text = "写入";
             this.but_write.UseVisualStyleBackColor = true;
-            this.but_write.Click += new System.EventHandler(this.butWrite_Click);
+            this.but_write.Click += new System.EventHandler(this.but_write_Click);
             // 
             // txt_value
             // 
@@ -158,6 +161,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.rd_discrete);
             this.groupBox1.Controls.Add(this.button6);
             this.groupBox1.Controls.Add(this.rd_float);
             this.groupBox1.Controls.Add(this.rd_double);
@@ -174,10 +178,20 @@
             this.groupBox1.TabIndex = 32;
             this.groupBox1.TabStop = false;
             // 
+            // rd_discrete
+            // 
+            this.rd_discrete.AutoSize = true;
+            this.rd_discrete.Location = new System.Drawing.Point(64, 23);
+            this.rd_discrete.Name = "rd_discrete";
+            this.rd_discrete.Size = new System.Drawing.Size(47, 16);
+            this.rd_discrete.TabIndex = 24;
+            this.rd_discrete.Text = "离散";
+            this.rd_discrete.UseVisualStyleBackColor = true;
+            // 
             // rd_float
             // 
             this.rd_float.AutoSize = true;
-            this.rd_float.Location = new System.Drawing.Point(436, 23);
+            this.rd_float.Location = new System.Drawing.Point(486, 23);
             this.rd_float.Name = "rd_float";
             this.rd_float.Size = new System.Drawing.Size(53, 16);
             this.rd_float.TabIndex = 22;
@@ -187,7 +201,7 @@
             // rd_double
             // 
             this.rd_double.AutoSize = true;
-            this.rd_double.Location = new System.Drawing.Point(495, 23);
+            this.rd_double.Location = new System.Drawing.Point(545, 23);
             this.rd_double.Name = "rd_double";
             this.rd_double.Size = new System.Drawing.Size(59, 16);
             this.rd_double.TabIndex = 23;
@@ -198,7 +212,7 @@
             // 
             this.rd_short.AutoSize = true;
             this.rd_short.Checked = true;
-            this.rd_short.Location = new System.Drawing.Point(70, 23);
+            this.rd_short.Location = new System.Drawing.Point(120, 23);
             this.rd_short.Name = "rd_short";
             this.rd_short.Size = new System.Drawing.Size(53, 16);
             this.rd_short.TabIndex = 6;
@@ -219,7 +233,7 @@
             // rd_ulong
             // 
             this.rd_ulong.AutoSize = true;
-            this.rd_ulong.Location = new System.Drawing.Point(374, 23);
+            this.rd_ulong.Location = new System.Drawing.Point(424, 23);
             this.rd_ulong.Name = "rd_ulong";
             this.rd_ulong.Size = new System.Drawing.Size(53, 16);
             this.rd_ulong.TabIndex = 21;
@@ -229,7 +243,7 @@
             // rd_ushort
             // 
             this.rd_ushort.AutoSize = true;
-            this.rd_ushort.Location = new System.Drawing.Point(129, 23);
+            this.rd_ushort.Location = new System.Drawing.Point(179, 23);
             this.rd_ushort.Name = "rd_ushort";
             this.rd_ushort.Size = new System.Drawing.Size(59, 16);
             this.rd_ushort.TabIndex = 17;
@@ -239,7 +253,7 @@
             // rd_long
             // 
             this.rd_long.AutoSize = true;
-            this.rd_long.Location = new System.Drawing.Point(315, 23);
+            this.rd_long.Location = new System.Drawing.Point(365, 23);
             this.rd_long.Name = "rd_long";
             this.rd_long.Size = new System.Drawing.Size(47, 16);
             this.rd_long.TabIndex = 20;
@@ -249,7 +263,7 @@
             // rd_int
             // 
             this.rd_int.AutoSize = true;
-            this.rd_int.Location = new System.Drawing.Point(194, 23);
+            this.rd_int.Location = new System.Drawing.Point(244, 23);
             this.rd_int.Name = "rd_int";
             this.rd_int.Size = new System.Drawing.Size(41, 16);
             this.rd_int.TabIndex = 18;
@@ -259,7 +273,7 @@
             // rd_uint
             // 
             this.rd_uint.AutoSize = true;
-            this.rd_uint.Location = new System.Drawing.Point(253, 23);
+            this.rd_uint.Location = new System.Drawing.Point(303, 23);
             this.rd_uint.Name = "rd_uint";
             this.rd_uint.Size = new System.Drawing.Size(47, 16);
             this.rd_uint.TabIndex = 19;
@@ -268,7 +282,7 @@
             // 
             // txt_baudRate
             // 
-            this.txt_baudRate.Location = new System.Drawing.Point(131, 19);
+            this.txt_baudRate.Location = new System.Drawing.Point(127, 19);
             this.txt_baudRate.Name = "txt_baudRate";
             this.txt_baudRate.Size = new System.Drawing.Size(42, 21);
             this.txt_baudRate.TabIndex = 5;
@@ -286,14 +300,16 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.cb_portNameSend_server);
+            this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.txt_stopBit);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.txt_dataBit);
             this.groupBox2.Controls.Add(this.cb_portNameSend);
             this.groupBox2.Controls.Add(this.but_close);
-            this.groupBox2.Controls.Add(this.button2);
-            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.but_server_close);
+            this.groupBox2.Controls.Add(this.but_server_open);
             this.groupBox2.Controls.Add(this.but_open);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.txt_stationNumber);
@@ -309,7 +325,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(253, 23);
+            this.label7.Location = new System.Drawing.Point(250, 23);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(41, 12);
             this.label7.TabIndex = 21;
@@ -317,7 +333,7 @@
             // 
             // txt_stopBit
             // 
-            this.txt_stopBit.Location = new System.Drawing.Point(296, 19);
+            this.txt_stopBit.Location = new System.Drawing.Point(292, 19);
             this.txt_stopBit.Name = "txt_stopBit";
             this.txt_stopBit.Size = new System.Drawing.Size(24, 21);
             this.txt_stopBit.TabIndex = 22;
@@ -326,7 +342,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(178, 24);
+            this.label6.Location = new System.Drawing.Point(176, 24);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(41, 12);
             this.label6.TabIndex = 19;
@@ -334,7 +350,7 @@
             // 
             // txt_dataBit
             // 
-            this.txt_dataBit.Location = new System.Drawing.Point(219, 20);
+            this.txt_dataBit.Location = new System.Drawing.Point(217, 20);
             this.txt_dataBit.Name = "txt_dataBit";
             this.txt_dataBit.Size = new System.Drawing.Size(24, 21);
             this.txt_dataBit.TabIndex = 20;
@@ -343,14 +359,14 @@
             // cb_portNameSend
             // 
             this.cb_portNameSend.FormattingEnabled = true;
-            this.cb_portNameSend.Location = new System.Drawing.Point(35, 20);
+            this.cb_portNameSend.Location = new System.Drawing.Point(34, 20);
             this.cb_portNameSend.Name = "cb_portNameSend";
             this.cb_portNameSend.Size = new System.Drawing.Size(47, 20);
             this.cb_portNameSend.TabIndex = 18;
             // 
             // but_close
             // 
-            this.but_close.Location = new System.Drawing.Point(419, 19);
+            this.but_close.Location = new System.Drawing.Point(466, 19);
             this.but_close.Name = "but_close";
             this.but_close.Size = new System.Drawing.Size(75, 23);
             this.but_close.TabIndex = 17;
@@ -360,25 +376,27 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(768, 19);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 16;
-            this.button2.Text = "关闭服务";
-            this.button2.UseVisualStyleBackColor = true;
+            this.but_server_close.Location = new System.Drawing.Point(768, 19);
+            this.but_server_close.Name = "button2";
+            this.but_server_close.Size = new System.Drawing.Size(75, 23);
+            this.but_server_close.TabIndex = 16;
+            this.but_server_close.Text = "关闭服务";
+            this.but_server_close.UseVisualStyleBackColor = true;
+            this.but_server_close.Click += new System.EventHandler(this.but_close_server_Click);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(663, 19);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(99, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "本地模拟服务";
-            this.button1.UseVisualStyleBackColor = true;
+            this.but_server_open.Location = new System.Drawing.Point(665, 19);
+            this.but_server_open.Name = "button1";
+            this.but_server_open.Size = new System.Drawing.Size(99, 23);
+            this.but_server_open.TabIndex = 0;
+            this.but_server_open.Text = "本地模拟服务";
+            this.but_server_open.UseVisualStyleBackColor = true;
+            this.but_server_open.Click += new System.EventHandler(this.but_open_server_Click);
             // 
             // but_open
             // 
-            this.but_open.Location = new System.Drawing.Point(338, 18);
+            this.but_open.Location = new System.Drawing.Point(385, 18);
             this.but_open.Name = "but_open";
             this.but_open.Size = new System.Drawing.Size(75, 23);
             this.but_open.TabIndex = 1;
@@ -389,7 +407,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(528, 23);
+            this.label5.Location = new System.Drawing.Point(324, 23);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(29, 12);
             this.label5.TabIndex = 15;
@@ -397,9 +415,9 @@
             // 
             // txt_stationNumber
             // 
-            this.txt_stationNumber.Location = new System.Drawing.Point(563, 19);
+            this.txt_stationNumber.Location = new System.Drawing.Point(353, 19);
             this.txt_stationNumber.Name = "txt_stationNumber";
-            this.txt_stationNumber.Size = new System.Drawing.Size(35, 21);
+            this.txt_stationNumber.Size = new System.Drawing.Size(25, 21);
             this.txt_stationNumber.TabIndex = 14;
             this.txt_stationNumber.Text = "1";
             // 
@@ -415,11 +433,28 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(90, 24);
+            this.label2.Location = new System.Drawing.Point(86, 24);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(41, 12);
             this.label2.TabIndex = 4;
             this.label2.Text = "波特率";
+            // 
+            // cb_portNameSend_server
+            // 
+            this.cb_portNameSend_server.FormattingEnabled = true;
+            this.cb_portNameSend_server.Location = new System.Drawing.Point(614, 21);
+            this.cb_portNameSend_server.Name = "cb_portNameSend_server";
+            this.cb_portNameSend_server.Size = new System.Drawing.Size(47, 20);
+            this.cb_portNameSend_server.TabIndex = 24;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(587, 25);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(29, 12);
+            this.label8.TabIndex = 23;
+            this.label8.Text = "端口";
             // 
             // ModBusRtuControl
             // 
@@ -468,8 +503,8 @@
         private System.Windows.Forms.TextBox txt_content;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button but_close;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button but_server_close;
+        private System.Windows.Forms.Button but_server_open;
         private System.Windows.Forms.Button but_open;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txt_stationNumber;
@@ -480,5 +515,8 @@
         private System.Windows.Forms.TextBox txt_stopBit;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txt_dataBit;
+        private System.Windows.Forms.RadioButton rd_discrete;
+        private System.Windows.Forms.ComboBox cb_portNameSend_server;
+        private System.Windows.Forms.Label label8;
     }
 }

@@ -61,6 +61,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txt_content = new System.Windows.Forms.TextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.rd_discrete = new System.Windows.Forms.RadioButton();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -187,6 +188,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.rd_discrete);
             this.groupBox1.Controls.Add(this.button6);
             this.groupBox1.Controls.Add(this.rd_float);
             this.groupBox1.Controls.Add(this.rd_double);
@@ -216,7 +218,7 @@
             // rd_float
             // 
             this.rd_float.AutoSize = true;
-            this.rd_float.Location = new System.Drawing.Point(436, 23);
+            this.rd_float.Location = new System.Drawing.Point(486, 23);
             this.rd_float.Name = "rd_float";
             this.rd_float.Size = new System.Drawing.Size(53, 16);
             this.rd_float.TabIndex = 22;
@@ -226,7 +228,7 @@
             // rd_double
             // 
             this.rd_double.AutoSize = true;
-            this.rd_double.Location = new System.Drawing.Point(495, 23);
+            this.rd_double.Location = new System.Drawing.Point(545, 23);
             this.rd_double.Name = "rd_double";
             this.rd_double.Size = new System.Drawing.Size(59, 16);
             this.rd_double.TabIndex = 23;
@@ -237,7 +239,7 @@
             // 
             this.rd_short.AutoSize = true;
             this.rd_short.Checked = true;
-            this.rd_short.Location = new System.Drawing.Point(70, 23);
+            this.rd_short.Location = new System.Drawing.Point(120, 23);
             this.rd_short.Name = "rd_short";
             this.rd_short.Size = new System.Drawing.Size(53, 16);
             this.rd_short.TabIndex = 6;
@@ -258,7 +260,7 @@
             // rd_ulong
             // 
             this.rd_ulong.AutoSize = true;
-            this.rd_ulong.Location = new System.Drawing.Point(374, 23);
+            this.rd_ulong.Location = new System.Drawing.Point(424, 23);
             this.rd_ulong.Name = "rd_ulong";
             this.rd_ulong.Size = new System.Drawing.Size(53, 16);
             this.rd_ulong.TabIndex = 21;
@@ -268,7 +270,7 @@
             // rd_ushort
             // 
             this.rd_ushort.AutoSize = true;
-            this.rd_ushort.Location = new System.Drawing.Point(129, 23);
+            this.rd_ushort.Location = new System.Drawing.Point(179, 23);
             this.rd_ushort.Name = "rd_ushort";
             this.rd_ushort.Size = new System.Drawing.Size(59, 16);
             this.rd_ushort.TabIndex = 17;
@@ -278,7 +280,7 @@
             // rd_long
             // 
             this.rd_long.AutoSize = true;
-            this.rd_long.Location = new System.Drawing.Point(315, 23);
+            this.rd_long.Location = new System.Drawing.Point(365, 23);
             this.rd_long.Name = "rd_long";
             this.rd_long.Size = new System.Drawing.Size(47, 16);
             this.rd_long.TabIndex = 20;
@@ -288,7 +290,7 @@
             // rd_int
             // 
             this.rd_int.AutoSize = true;
-            this.rd_int.Location = new System.Drawing.Point(194, 23);
+            this.rd_int.Location = new System.Drawing.Point(244, 23);
             this.rd_int.Name = "rd_int";
             this.rd_int.Size = new System.Drawing.Size(41, 16);
             this.rd_int.TabIndex = 18;
@@ -298,7 +300,7 @@
             // rd_uint
             // 
             this.rd_uint.AutoSize = true;
-            this.rd_uint.Location = new System.Drawing.Point(253, 23);
+            this.rd_uint.Location = new System.Drawing.Point(303, 23);
             this.rd_uint.Name = "rd_uint";
             this.rd_uint.Size = new System.Drawing.Size(47, 16);
             this.rd_uint.TabIndex = 19;
@@ -382,6 +384,16 @@
             this.txt_content.Size = new System.Drawing.Size(855, 272);
             this.txt_content.TabIndex = 27;
             // 
+            // radioButton1
+            // 
+            this.rd_discrete.AutoSize = true;
+            this.rd_discrete.Location = new System.Drawing.Point(64, 23);
+            this.rd_discrete.Name = "radioButton1";
+            this.rd_discrete.Size = new System.Drawing.Size(47, 16);
+            this.rd_discrete.TabIndex = 24;
+            this.rd_discrete.Text = "离散";
+            this.rd_discrete.UseVisualStyleBackColor = true;
+            // 
             // ModBusTcpControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -437,5 +449,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.RadioButton rd_discrete;
     }
 }

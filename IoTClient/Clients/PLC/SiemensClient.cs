@@ -2,6 +2,7 @@
 using IoTClient.Common.Enums;
 using IoTClient.Core;
 using IoTClient.Core.Models;
+using IoTClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,5 +1,4 @@
 ﻿using IoTClient.Clients.ModBus;
-using IoTServer.Common;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;

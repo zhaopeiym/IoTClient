@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTClient.Models;
+using System;
 using System.Net.Sockets;
 
 namespace IoTClient.Core

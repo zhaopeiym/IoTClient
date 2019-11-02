@@ -32,7 +32,7 @@ namespace IoTClient.Tool
 
         private void button1_Click(object sender, EventArgs e)
         {
-            server?.Close();
+            server?.Stop();
             server = new ModBusTcpServer(502);
             server.Start();
             button1.Enabled = false;
@@ -42,7 +42,7 @@ namespace IoTClient.Tool
 
         private void button2_Click(object sender, EventArgs e)
         {
-            server?.Close();
+            server?.Stop();
             button1.Enabled = true;
             button2.Enabled = false;
             txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]关闭仿真模拟服务\r\n");
@@ -119,6 +119,10 @@ namespace IoTClient.Tool
                 else if (rd_double.Checked)
                 {
                     result = client.ReadDouble(txt_address.Text, stationNumber);
+                }
+                else if (rd_discrete.Checked)
+                {
+                    result = client.ReadDiscrete(txt_address.Text, stationNumber);
                 }
 
                 if (result.IsSucceed)
@@ -202,7 +206,11 @@ namespace IoTClient.Tool
                 {
                     result = client.Write(txt_address.Text, double.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
-
+                else if (rd_discrete.Checked)
+                {
+                    txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]离散类型只读\r\n");
+                    return;
+                }
 
                 if (result.IsSucceed)
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK\r\n");

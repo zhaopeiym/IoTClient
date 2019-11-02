@@ -1,5 +1,5 @@
 ﻿using IoTClient.Common.Helpers;
-using IoTClient.Core;
+using IoTClient.Models;
 using System;
 using System.IO.Ports;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace IoTClient.Clients.ModBus
         /// 获取设备上的COM端口集合
         /// </summary>
         /// <returns></returns>
-        public string[] GetPortNames()
+        public static string[] GetPortNames()
         {
             return SerialPort.GetPortNames();
         }
@@ -138,6 +138,19 @@ namespace IoTClient.Clients.ModBus
 
                 //3 获取响应报文
                 var responsePackage = SerialPortRead(serialPort);
+                if (!responsePackage.Any())
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果为空，请检查是否连上了服务端";
+                    return result;
+                }
+                else if (!CRC16.CheckCRC16(responsePackage))
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果CRC16验证失败";
+                    return result;
+                }
+
                 byte[] resultData = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultData, 0, resultData.Length);
 
@@ -363,7 +376,30 @@ namespace IoTClient.Clients.ModBus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
-        } 
+        }
+
+        /// <summary>
+        /// 读取离散
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="stationNumber"></param>
+        /// <param name="functionCode"></param>
+        /// <returns></returns>
+        public Result<bool> ReadDiscrete(string address, byte stationNumber = 1, byte functionCode = 2)
+        {
+            var readResut = Read(address, stationNumber, functionCode);
+            var result = new Result<bool>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = BitConverter.ToBoolean(readResut.Value, 0);
+            return result;
+        }
         #endregion
 
         #region Write 写入
@@ -385,10 +421,16 @@ namespace IoTClient.Clients.ModBus
                 serialPort.Write(commandCRC16, 0, commandCRC16.Length);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 //3 获取响应报文
-                var dataPackage = SerialPortRead(serialPort);
-                byte[] resultBuffer = new byte[dataPackage.Length - 2];
-                Array.Copy(dataPackage, 0, resultBuffer, 0, resultBuffer.Length);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+                var responsePackage = SerialPortRead(serialPort);
+                if (!CRC16.CheckCRC16(responsePackage))
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果CRC16验证失败";
+                    return result;
+                }
+                byte[] resultBuffer = new byte[responsePackage.Length - 2];
+                Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
+                result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
             }
             catch (Exception ex)
             {
@@ -424,10 +466,16 @@ namespace IoTClient.Clients.ModBus
                 serialPort.Write(commandCRC16, 0, commandCRC16.Length);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 //3 获取响应报文
-                var dataPackage = SerialPortRead(serialPort);
-                byte[] resultBuffer = new byte[dataPackage.Length - 2];
-                Array.Copy(dataPackage, 0, resultBuffer, 0, resultBuffer.Length);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+                var responsePackage = SerialPortRead(serialPort);
+                if (!CRC16.CheckCRC16(responsePackage))
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果CRC16验证失败";
+                    return result;
+                }
+                byte[] resultBuffer = new byte[responsePackage.Length - 2];
+                Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
+                result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
             }
             catch (Exception ex)
             {
