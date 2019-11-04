@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Clients\PLC\OmronFinsClient.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Clients\Bacnet\" />
   </ItemGroup>
 

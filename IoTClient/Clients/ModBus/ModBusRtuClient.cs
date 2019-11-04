@@ -112,6 +112,21 @@ namespace IoTClient.Clients.ModBus
             return Dispose();
         }
 
+        #region 发送报文，并获取响应报文
+        /// <summary>
+        /// 发送报文，并获取响应报文
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public byte[] SendPackage(byte[] command)
+        {
+            //发送命令
+            serialPort.Write(command, 0, command.Length);
+            //获取响应报文
+            return SerialPortRead(serialPort);
+        }
+        #endregion
+
         #region  Read 读取
         /// <summary>
         /// 读取数据
@@ -128,16 +143,13 @@ namespace IoTClient.Clients.ModBus
             var result = new Result<byte[]>();
             try
             {
-                //1 获取命令（组装报文）
+                //获取命令（组装报文）
                 byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength);
-
-                //2 发送命令
                 var commandCRC16 = CRC16.GetCRC16(command);
-                serialPort.Write(commandCRC16, 0, commandCRC16.Length);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
 
-                //3 获取响应报文
-                var responsePackage = SerialPortRead(serialPort);
+                //发送命令并获取响应报文
+                var responsePackage = SendPackage(commandCRC16);
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
@@ -418,10 +430,9 @@ namespace IoTClient.Clients.ModBus
             {
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode);
                 var commandCRC16 = CRC16.GetCRC16(command);
-                serialPort.Write(commandCRC16, 0, commandCRC16.Length);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
-                //3 获取响应报文
-                var responsePackage = SerialPortRead(serialPort);
+                //发送命令并获取响应报文
+                var responsePackage = SendPackage(commandCRC16);
                 if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
@@ -463,10 +474,8 @@ namespace IoTClient.Clients.ModBus
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
 
                 var commandCRC16 = CRC16.GetCRC16(command);
-                serialPort.Write(commandCRC16, 0, commandCRC16.Length);
-                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
-                //3 获取响应报文
-                var responsePackage = SerialPortRead(serialPort);
+                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));              
+                var responsePackage = SendPackage(commandCRC16);
                 if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;

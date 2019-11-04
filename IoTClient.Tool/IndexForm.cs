@@ -51,8 +51,16 @@ namespace IoTClient.Tool
                         //设置上次选择的tab
                         tabControl1.SelectedTab = item;
                     }
+                    //还未实现，先隐藏
+                    else if (item.Name == "OmronFinsTcp")
+                    {
+                        tabControl1.TabPages.Remove(item);
+                    }
+                    //加载用户控件
+                    SelectedTab(item);
                 }
             }
+            //切换到上次选择的Tab
             SelectedTab(tabControl1.SelectedTab);
             #endregion
 
@@ -75,7 +83,7 @@ namespace IoTClient.Tool
         /// <param name="tab"></param>
         private void SelectedTab(TabPage tab)
         {
-            Text = "IoTClient Tool - " + tab.Name;
+            Text = "IoTClient Tool - " + tab.Text?.Trim();
             SaveTabName(tab.Name);
             if (tab.Controls.Count <= 0)
             {
@@ -105,6 +113,16 @@ namespace IoTClient.Tool
                         var ports = new PortsControl();
                         ports.Dock = DockStyle.Fill;
                         tab.Controls.Add(ports);
+                        break;
+                    case "MitsubishiMC":
+                        var mitsubishiMC = new MitsubishiMCControl();
+                        mitsubishiMC.Dock = DockStyle.Fill;
+                        tab.Controls.Add(mitsubishiMC);
+                        break;
+                    case "OmronFinsTcp":
+                        var omronFinsTcp = new OmronFinsTcpControl();
+                        omronFinsTcp.Dock = DockStyle.Fill;
+                        tab.Controls.Add(omronFinsTcp);
                         break;
                 }
             }

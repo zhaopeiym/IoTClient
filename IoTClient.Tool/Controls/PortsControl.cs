@@ -82,9 +82,16 @@ namespace IoTClient.Tool.Controls
 
         private void butwrite_Click(object sender, EventArgs e)
         {
-            serialPort.Encoding = encoding;
-            serialPort.Write(txt_msg.Text);
-            AppendText($"[发送数据]{txt_msg.Text}");
+            try
+            {
+                serialPort.Encoding = encoding;
+                serialPort.Write(txt_msg.Text);
+                AppendText($"[发送数据]{txt_msg.Text}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void butclose_Click(object sender, EventArgs e)

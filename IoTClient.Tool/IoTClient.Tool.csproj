@@ -110,11 +110,23 @@
     <Compile Include="Controls\BACnetControl.Designer.cs">
       <DependentUpon>BACnetControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MitsubishiMCControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MitsubishiMCControl.Designer.cs">
+      <DependentUpon>MitsubishiMCControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ModBusRtuControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\ModBusRtuControl.Designer.cs">
       <DependentUpon>ModBusRtuControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\OmronFinsTcpControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\OmronFinsTcpControl.Designer.cs">
+      <DependentUpon>OmronFinsTcpControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\PortsControl.cs">
       <SubType>UserControl</SubType>
@@ -157,8 +169,14 @@
     <EmbeddedResource Include="Controls\BACnetControl.resx">
       <DependentUpon>BACnetControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MitsubishiMCControl.resx">
+      <DependentUpon>MitsubishiMCControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\ModBusRtuControl.resx">
       <DependentUpon>ModBusRtuControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\OmronFinsTcpControl.resx">
+      <DependentUpon>OmronFinsTcpControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PortsControl.resx">
       <DependentUpon>PortsControl.cs</DependentUpon>

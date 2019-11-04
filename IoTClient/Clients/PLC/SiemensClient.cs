@@ -37,7 +37,7 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 连接
+        /// 打开长连接
         /// </summary>
         /// <returns></returns>
         protected override Result Connect()
@@ -79,6 +79,21 @@ namespace IoTClient.Clients.PLC
             }
         }
 
+        #region 发送报文，并获取响应报文
+        /// <summary>
+        /// 发送报文，并获取响应报文
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public byte[] SendPackage(byte[] command)
+        {
+            socket.Send(command);
+            var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+            var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+            return headPackage.Concat(dataPackage).ToArray();
+        }
+        #endregion
+
         #region Read 
         /// <summary>
         /// 读取数据
@@ -104,18 +119,8 @@ namespace IoTClient.Clients.PLC
                 else
                     command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
-                    throw ex;
-                }
-                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                //发送命令 并获取响应报文
+                var dataPackage = SendPackage(command);
                 var bufferLength = length == 8 ? 8 : 4;
                 byte[] temp = new byte[bufferLength];
                 byte[] response = new byte[bufferLength];
@@ -139,7 +144,7 @@ namespace IoTClient.Clients.PLC
                         response[3] = temp[0];
                         break;
                 }
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 result.Value = response;
             }
             catch (SocketException ex)
@@ -148,15 +153,15 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
+                    result.ErrList.Add("连接超时"); 
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
             }
             finally
             {
@@ -184,21 +189,13 @@ namespace IoTClient.Clients.PLC
                 var arg = ConvertArg(address);
                 byte[] command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
-                    throw ex;
-                }
-                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                //socket.Send(command);
+                //var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                //var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                var dataPackage = SendPackage(command);
                 byte[] requst = new byte[length];
                 Array.Copy(dataPackage, dataPackage.Length - length, requst, 0, length);
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 result.Value = requst;
             }
             catch (SocketException ex)
@@ -207,15 +204,15 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
+                    result.ErrList.Add("连接超时"); 
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
             }
             finally
             {
@@ -481,21 +478,9 @@ namespace IoTClient.Clients.PLC
                 //发送写入信息
                 var arg = ConvertArg(address);
                 byte[] command = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
-                    throw ex;
-                }
-                //以下两次请求不能省略，不然在主动管理连接的时候会有问题
-                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));      
+                var dataPackage = SendPackage(command);                 
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
             {
@@ -504,14 +489,14 @@ namespace IoTClient.Clients.PLC
                 {
                     result.Err = "连接超时";
                     result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
             }
             finally
             {
@@ -538,21 +523,9 @@ namespace IoTClient.Clients.PLC
                 //发送写入信息
                 var arg = ConvertArg(address);
                 byte[] command = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
-                    throw ex;
-                }
-                //以下两次请求不能省略，不然在主动管理连接的时候会有问题
-                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));                
+                var dataPackage = SendPackage(command);
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
             {
@@ -560,15 +533,15 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
+                    result.ErrList.Add("连接超时"); 
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
             }
             finally
             {

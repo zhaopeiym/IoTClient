@@ -87,7 +87,7 @@ namespace IoTServer.Servers.ModBus
                             var bytes = JsonConvert.DeserializeObject<byte[]>(value);
                             if (bytes == null)
                             {
-                                var length = requetData[requetData.Length - 4] * 256 + requetData[requetData.Length - 5];
+                                var length = requetData[4] * 256 + requetData[5];
                                 bytes = new byte[length * 2];
                             }
                             var dataHead = new byte[] { 1, 3, (byte)bytes.Length };

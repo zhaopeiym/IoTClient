@@ -1,8 +1,11 @@
 ﻿using IoTClient.Clients.ModBus;
+using IoTClient.Common.Helpers;
+using IoTServer.Common;
 using IoTServer.Servers.ModBus;
 using System;
 using System.Drawing;
 using System.IO.Ports;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace IoTClient.Tool.Controls
@@ -23,10 +26,28 @@ namespace IoTClient.Tool.Controls
             groupBox3.Location = new Point(13, 105);
             groupBox3.Size = new Size(855, 50);
             txt_content.Location = new Point(13, 160);
+
+            lab_address.Location = new Point(9, 22);
+            txt_address.Location = new Point(39, 18);
+            txt_address.Size = new Size(88, 21);
+            but_read.Location = new Point(132, 17);
+
+            lab_value.Location = new Point(227, 22);
+            txt_value.Location = new Point(249, 18);
+            txt_value.Size = new Size(74, 21);
+            but_write.Location = new Point(328, 17);
+
+            txt_dataPackage.Location = new Point(430, 18);
+            txt_dataPackage.Size = new Size(186, 21);
+            but_sendData.Location = new Point(620, 17);
+
+            chb_show_package.Location = new Point(776, 19);
+
             but_read.Enabled = false;
             but_write.Enabled = false;
             but_server_close.Enabled = false;
             but_close.Enabled = false;
+            but_sendData.Enabled = false;
             UpdatePortNames();
             cb_portNameSend.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_portNameSend_server.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -65,6 +86,7 @@ namespace IoTClient.Tool.Controls
                     but_write.Enabled = true;
                     but_open.Enabled = false;
                     but_close.Enabled = true;
+                    but_sendData.Enabled = true;
                     AppendText("连接成功");
                 }
                 else
@@ -88,6 +110,7 @@ namespace IoTClient.Tool.Controls
             but_open.Enabled = true;
             but_close.Enabled = false;
             cb_portNameSend.Enabled = true;
+            but_sendData.Enabled = false;
         }
 
         /// <summary>
@@ -151,7 +174,7 @@ namespace IoTClient.Tool.Controls
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 成功]：{result.Value}\r\n");
                 else
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
-                if (checkBox1.Checked)
+                if (chb_show_package.Checked)
                 {
                     txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
                     txt_content.AppendText($"[响应报文]{result.Response}\r\n\r\n");
@@ -244,7 +267,7 @@ namespace IoTClient.Tool.Controls
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK\r\n");
                 else
                     txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {address?.Trim()} 失败]：{result.Err}\r\n");
-                if (checkBox1.Checked)
+                if (chb_show_package.Checked)
                 {
                     txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
                     txt_content.AppendText($"[响应报文]{result.Response}\r\n\r\n");
@@ -295,6 +318,46 @@ namespace IoTClient.Tool.Controls
             but_server_open.Enabled = true;
             but_server_close.Enabled = false;
             cb_portNameSend_server.Enabled = true;
+        }
+
+        /// <summary>
+        /// 清空数据
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void but_clear_data_Click(object sender, EventArgs e)
+        {
+            DataPersist.Clear();
+            AppendText($"数据清空成功\r\n");
+        } 
+
+        private void but_sendData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(txt_dataPackage.Text))
+                {
+                    MessageBox.Show("请输入要发送的报文");
+                    return;
+                }
+                var dataPackageString = txt_dataPackage.Text.Replace(" ", "");
+                if (dataPackageString.Length % 2 != 0)
+                {
+                    MessageBox.Show("请输入正确的的报文");
+                    return;
+                }
+
+                var dataPackage = DataConvert.StringToByteArray(txt_dataPackage.Text?.Trim(), false);
+                var msg = client.SendPackage(dataPackage);
+                AppendText($"[请求报文]{string.Join(" ", dataPackage.Select(t => t.ToString("X2")))}\r");
+                AppendText($"[响应报文]{string.Join(" ", msg.Select(t => t.ToString("X2")))}\r\n");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                client.Close();
+                client.Open();
+            }
         }
 
         private void AppendText(string content)

@@ -1,20 +1,18 @@
 ﻿using IoTClient.Clients.PLC;
-using IoTClient.Common.Enums;
 using IoTClient.Common.Helpers;
-using IoTServer.Common;
 using IoTServer.Servers.PLC;
 using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace IoTClient.Tool
+namespace IoTClient.Tool.Controls
 {
-    public partial class SiemensControl : UserControl
+    public partial class MitsubishiMCControl : UserControl
     {
-        SiemensClient client;
-        SiemensServer server;
-        public SiemensControl()
+        private MitsubishiClient client;
+        private MitsubishiServer server;
+        public MitsubishiMCControl()
         {
             InitializeComponent();
             Size = new Size(880, 450);
@@ -49,39 +47,12 @@ namespace IoTClient.Tool
             but_sendData.Enabled = false;
         }
 
-        private void but_server_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                server?.Stop();
-                server = new SiemensServer(int.Parse(txt_port.Text.Trim()));
-                server.Start();
-                but_server.Enabled = false;
-                but_close_server.Enabled = true;
-                but_sendData.Enabled = true;
-                AppendText($"开启仿真模拟服务");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void but_close_server_Click(object sender, EventArgs e)
-        {
-            server?.Stop();
-            but_server.Enabled = true;
-            but_close_server.Enabled = false;
-            but_sendData.Enabled = false;
-            AppendText($"关闭仿真模拟服务");
-        }
-
         private void but_open_Click(object sender, EventArgs e)
         {
             try
             {
                 client?.Close();
-                client = new SiemensClient(SiemensVersion.S7_200Smart, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
+                client = new MitsubishiClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
                 var result = client.Open();
                 if (!result.IsSucceed)
                     MessageBox.Show($"连接失败：{result.Err}");
@@ -91,6 +62,7 @@ namespace IoTClient.Tool
                     but_write.Enabled = true;
                     but_open.Enabled = false;
                     but_close.Enabled = true;
+                    but_sendData.Enabled = true;
                     AppendText($"连接成功");
                 }
             }
@@ -105,14 +77,18 @@ namespace IoTClient.Tool
             client?.Close();
             but_open.Enabled = true;
             but_close.Enabled = false;
+            but_sendData.Enabled = false;
             AppendText($"连接关闭");
         }
 
-        /// <summary>
-        /// 读取
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        private void AppendText(string content)
+        {
+            txt_content.Invoke((Action)(() =>
+            {
+                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
+            }));
+        }
+
         private void but_read_Click(object sender, EventArgs e)
         {
             try
@@ -172,18 +148,13 @@ namespace IoTClient.Tool
             }
             catch (Exception ex)
             {
-                //client?.Close();
                 MessageBox.Show(ex.Message);
             }
         }
 
-        /// <summary>
-        ///  写入
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void but_write_Click(object sender, EventArgs e)
         {
+
             if (string.IsNullOrWhiteSpace(txt_address.Text))
             {
                 MessageBox.Show("请输入地址");
@@ -264,11 +235,22 @@ namespace IoTClient.Tool
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void but_server_Click(object sender, EventArgs e)
         {
-            DataPersist.Clear();
-            AppendText($"数据清空成功\r\n");
-        } 
+            try
+            {
+                server?.Stop();
+                server = new MitsubishiServer(int.Parse(txt_port.Text.Trim()));
+                server.Start();
+                but_server.Enabled = false;
+                but_close_server.Enabled = true;
+                AppendText($"开启仿真模拟服务");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         private void but_sendData_Click(object sender, EventArgs e)
         {
@@ -299,12 +281,12 @@ namespace IoTClient.Tool
             }
         }
 
-        private void AppendText(string content)
+        private void but_close_server_Click(object sender, EventArgs e)
         {
-            txt_content.Invoke((Action)(() =>
-            {
-                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
-            }));
+            server?.Stop();
+            but_server.Enabled = true;
+            but_close_server.Enabled = false;
+            AppendText($"关闭仿真模拟服务");
         }
     }
 }

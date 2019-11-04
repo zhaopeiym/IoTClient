@@ -31,13 +31,15 @@
             this.components = new System.ComponentModel.Container();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.but_read = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lab_address = new System.Windows.Forms.Label();
             this.txt_address = new System.Windows.Forms.TextBox();
             this.but_write = new System.Windows.Forms.Button();
             this.txt_value = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.but_sendData = new System.Windows.Forms.Button();
+            this.txt_dataPackage = new System.Windows.Forms.TextBox();
+            this.chb_show_package = new System.Windows.Forms.CheckBox();
+            this.lab_value = new System.Windows.Forms.Label();
             this.rd_float = new System.Windows.Forms.RadioButton();
             this.rd_double = new System.Windows.Forms.RadioButton();
             this.rd_short = new System.Windows.Forms.RadioButton();
@@ -54,8 +56,8 @@
             this.txt_ip = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.but_close_server = new System.Windows.Forms.Button();
+            this.but_close = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button3 = new System.Windows.Forms.Button();
             this.txt_content = new System.Windows.Forms.TextBox();
@@ -66,7 +68,7 @@
             // 
             // but_read
             // 
-            this.but_read.Location = new System.Drawing.Point(178, 14);
+            this.but_read.Location = new System.Drawing.Point(129, 16);
             this.but_read.Name = "but_read";
             this.but_read.Size = new System.Drawing.Size(75, 23);
             this.but_read.TabIndex = 7;
@@ -74,25 +76,25 @@
             this.but_read.UseVisualStyleBackColor = true;
             this.but_read.Click += new System.EventHandler(this.but_read_Click);
             // 
-            // label3
+            // lab_address
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 22);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 12);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "地址";
+            this.lab_address.AutoSize = true;
+            this.lab_address.Location = new System.Drawing.Point(9, 22);
+            this.lab_address.Name = "lab_address";
+            this.lab_address.Size = new System.Drawing.Size(29, 12);
+            this.lab_address.TabIndex = 8;
+            this.lab_address.Text = "地址";
             // 
             // txt_address
             // 
             this.txt_address.Location = new System.Drawing.Point(42, 16);
             this.txt_address.Name = "txt_address";
-            this.txt_address.Size = new System.Drawing.Size(121, 21);
+            this.txt_address.Size = new System.Drawing.Size(81, 21);
             this.txt_address.TabIndex = 9;
             // 
             // but_write
             // 
-            this.but_write.Location = new System.Drawing.Point(451, 14);
+            this.but_write.Location = new System.Drawing.Point(319, 17);
             this.but_write.Name = "but_write";
             this.but_write.Size = new System.Drawing.Size(75, 23);
             this.but_write.TabIndex = 10;
@@ -102,44 +104,63 @@
             // 
             // txt_value
             // 
-            this.txt_value.Location = new System.Drawing.Point(335, 15);
+            this.txt_value.Location = new System.Drawing.Point(238, 17);
             this.txt_value.Name = "txt_value";
-            this.txt_value.Size = new System.Drawing.Size(100, 21);
+            this.txt_value.Size = new System.Drawing.Size(75, 21);
             this.txt_value.TabIndex = 12;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.checkBox1);
+            this.groupBox3.Controls.Add(this.but_sendData);
+            this.groupBox3.Controls.Add(this.txt_dataPackage);
+            this.groupBox3.Controls.Add(this.chb_show_package);
             this.groupBox3.Controls.Add(this.but_read);
-            this.groupBox3.Controls.Add(this.label3);
+            this.groupBox3.Controls.Add(this.lab_address);
             this.groupBox3.Controls.Add(this.txt_address);
             this.groupBox3.Controls.Add(this.but_write);
             this.groupBox3.Controls.Add(this.txt_value);
-            this.groupBox3.Controls.Add(this.label4);
+            this.groupBox3.Controls.Add(this.lab_value);
             this.groupBox3.Location = new System.Drawing.Point(13, 111);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(855, 47);
             this.groupBox3.TabIndex = 34;
             this.groupBox3.TabStop = false;
             // 
-            // checkBox1
+            // but_sendData
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(776, 17);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(72, 16);
-            this.checkBox1.TabIndex = 13;
-            this.checkBox1.Text = "显示报文";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.but_sendData.Location = new System.Drawing.Point(682, 15);
+            this.but_sendData.Name = "but_sendData";
+            this.but_sendData.Size = new System.Drawing.Size(75, 23);
+            this.but_sendData.TabIndex = 16;
+            this.but_sendData.Text = "发送报文";
+            this.but_sendData.UseVisualStyleBackColor = true;
+            this.but_sendData.Click += new System.EventHandler(this.but_sendData_Click);
             // 
-            // label4
+            // txt_dataPackage
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(312, 19);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(17, 12);
-            this.label4.TabIndex = 11;
-            this.label4.Text = "值";
+            this.txt_dataPackage.Location = new System.Drawing.Point(490, 16);
+            this.txt_dataPackage.Name = "txt_dataPackage";
+            this.txt_dataPackage.Size = new System.Drawing.Size(186, 21);
+            this.txt_dataPackage.TabIndex = 17;
+            // 
+            // chb_show_package
+            // 
+            this.chb_show_package.AutoSize = true;
+            this.chb_show_package.Location = new System.Drawing.Point(776, 17);
+            this.chb_show_package.Name = "chb_show_package";
+            this.chb_show_package.Size = new System.Drawing.Size(72, 16);
+            this.chb_show_package.TabIndex = 13;
+            this.chb_show_package.Text = "显示报文";
+            this.chb_show_package.UseVisualStyleBackColor = true;
+            // 
+            // lab_value
+            // 
+            this.lab_value.AutoSize = true;
+            this.lab_value.Location = new System.Drawing.Point(215, 21);
+            this.lab_value.Name = "lab_value";
+            this.lab_value.Size = new System.Drawing.Size(17, 12);
+            this.lab_value.TabIndex = 11;
+            this.lab_value.Text = "值";
             // 
             // rd_float
             // 
@@ -289,8 +310,8 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.button2);
-            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.but_close_server);
+            this.groupBox2.Controls.Add(this.but_close);
             this.groupBox2.Controls.Add(this.but_server);
             this.groupBox2.Controls.Add(this.but_open);
             this.groupBox2.Controls.Add(this.txt_ip);
@@ -303,25 +324,25 @@
             this.groupBox2.TabIndex = 33;
             this.groupBox2.TabStop = false;
             // 
-            // button2
+            // but_close_server
             // 
-            this.button2.Location = new System.Drawing.Point(763, 18);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 7;
-            this.button2.Text = "关闭服务";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.but_close_server.Location = new System.Drawing.Point(763, 18);
+            this.but_close_server.Name = "but_close_server";
+            this.but_close_server.Size = new System.Drawing.Size(75, 23);
+            this.but_close_server.TabIndex = 7;
+            this.but_close_server.Text = "关闭服务";
+            this.but_close_server.UseVisualStyleBackColor = true;
+            this.but_close_server.Click += new System.EventHandler(this.but_close_server_Click);
             // 
-            // button1
+            // but_close
             // 
-            this.button1.Location = new System.Drawing.Point(319, 18);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "关闭";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.but_close.Location = new System.Drawing.Point(319, 18);
+            this.but_close.Name = "but_close";
+            this.but_close.Size = new System.Drawing.Size(75, 23);
+            this.but_close.TabIndex = 6;
+            this.but_close.Text = "关闭";
+            this.but_close.UseVisualStyleBackColor = true;
+            this.but_close.Click += new System.EventHandler(this.but_close_Click);
             // 
             // groupBox1
             // 
@@ -386,13 +407,13 @@
 
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button but_read;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lab_address;
         private System.Windows.Forms.TextBox txt_address;
         private System.Windows.Forms.Button but_write;
         private System.Windows.Forms.TextBox txt_value;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox chb_show_package;
+        private System.Windows.Forms.Label lab_value;
         private System.Windows.Forms.RadioButton rd_float;
         private System.Windows.Forms.RadioButton rd_double;
         private System.Windows.Forms.RadioButton rd_short;
@@ -411,8 +432,10 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox txt_content;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button but_close;
+        private System.Windows.Forms.Button but_close_server;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button but_sendData;
+        private System.Windows.Forms.TextBox txt_dataPackage;
     }
 }

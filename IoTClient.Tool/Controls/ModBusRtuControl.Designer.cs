@@ -31,13 +31,15 @@
             this.components = new System.ComponentModel.Container();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.but_read = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lab_address = new System.Windows.Forms.Label();
             this.txt_address = new System.Windows.Forms.TextBox();
             this.but_write = new System.Windows.Forms.Button();
             this.txt_value = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.but_sendData = new System.Windows.Forms.Button();
+            this.txt_dataPackage = new System.Windows.Forms.TextBox();
+            this.chb_show_package = new System.Windows.Forms.CheckBox();
+            this.lab_value = new System.Windows.Forms.Label();
             this.button6 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rd_discrete = new System.Windows.Forms.RadioButton();
@@ -53,6 +55,8 @@
             this.txt_baudRate = new System.Windows.Forms.TextBox();
             this.txt_content = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cb_portNameSend_server = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.txt_stopBit = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -66,8 +70,6 @@
             this.txt_stationNumber = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.cb_portNameSend_server = new System.Windows.Forms.ComboBox();
-            this.label8 = new System.Windows.Forms.Label();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -75,7 +77,7 @@
             // 
             // but_read
             // 
-            this.but_read.Location = new System.Drawing.Point(183, 14);
+            this.but_read.Location = new System.Drawing.Point(133, 18);
             this.but_read.Name = "but_read";
             this.but_read.Size = new System.Drawing.Size(75, 23);
             this.but_read.TabIndex = 7;
@@ -83,25 +85,25 @@
             this.but_read.UseVisualStyleBackColor = true;
             this.but_read.Click += new System.EventHandler(this.but_read_Click);
             // 
-            // label3
+            // lab_address
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 22);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 12);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "地址";
+            this.lab_address.AutoSize = true;
+            this.lab_address.Location = new System.Drawing.Point(9, 22);
+            this.lab_address.Name = "lab_address";
+            this.lab_address.Size = new System.Drawing.Size(29, 12);
+            this.lab_address.TabIndex = 8;
+            this.lab_address.Text = "地址";
             // 
             // txt_address
             // 
-            this.txt_address.Location = new System.Drawing.Point(43, 16);
+            this.txt_address.Location = new System.Drawing.Point(39, 17);
             this.txt_address.Name = "txt_address";
-            this.txt_address.Size = new System.Drawing.Size(121, 21);
+            this.txt_address.Size = new System.Drawing.Size(88, 21);
             this.txt_address.TabIndex = 9;
             // 
             // but_write
             // 
-            this.but_write.Location = new System.Drawing.Point(479, 14);
+            this.but_write.Location = new System.Drawing.Point(337, 20);
             this.but_write.Name = "but_write";
             this.but_write.Size = new System.Drawing.Size(75, 23);
             this.but_write.TabIndex = 10;
@@ -111,44 +113,63 @@
             // 
             // txt_value
             // 
-            this.txt_value.Location = new System.Drawing.Point(359, 15);
+            this.txt_value.Location = new System.Drawing.Point(256, 20);
             this.txt_value.Name = "txt_value";
-            this.txt_value.Size = new System.Drawing.Size(100, 21);
+            this.txt_value.Size = new System.Drawing.Size(74, 21);
             this.txt_value.TabIndex = 12;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.checkBox1);
+            this.groupBox3.Controls.Add(this.but_sendData);
+            this.groupBox3.Controls.Add(this.txt_dataPackage);
+            this.groupBox3.Controls.Add(this.chb_show_package);
             this.groupBox3.Controls.Add(this.but_read);
-            this.groupBox3.Controls.Add(this.label3);
+            this.groupBox3.Controls.Add(this.lab_address);
             this.groupBox3.Controls.Add(this.txt_address);
             this.groupBox3.Controls.Add(this.but_write);
             this.groupBox3.Controls.Add(this.txt_value);
-            this.groupBox3.Controls.Add(this.label4);
+            this.groupBox3.Controls.Add(this.lab_value);
             this.groupBox3.Location = new System.Drawing.Point(13, 114);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(855, 47);
             this.groupBox3.TabIndex = 34;
             this.groupBox3.TabStop = false;
             // 
-            // checkBox1
+            // but_sendData
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(771, 19);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(72, 16);
-            this.checkBox1.TabIndex = 13;
-            this.checkBox1.Text = "显示报文";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.but_sendData.Location = new System.Drawing.Point(616, 20);
+            this.but_sendData.Name = "but_sendData";
+            this.but_sendData.Size = new System.Drawing.Size(75, 23);
+            this.but_sendData.TabIndex = 16;
+            this.but_sendData.Text = "发送报文";
+            this.but_sendData.UseVisualStyleBackColor = true;
+            this.but_sendData.Click += new System.EventHandler(this.but_sendData_Click);
             // 
-            // label4
+            // txt_dataPackage
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(331, 19);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(17, 12);
-            this.label4.TabIndex = 11;
-            this.label4.Text = "值";
+            this.txt_dataPackage.Location = new System.Drawing.Point(424, 21);
+            this.txt_dataPackage.Name = "txt_dataPackage";
+            this.txt_dataPackage.Size = new System.Drawing.Size(186, 21);
+            this.txt_dataPackage.TabIndex = 17;
+            // 
+            // chb_show_package
+            // 
+            this.chb_show_package.AutoSize = true;
+            this.chb_show_package.Location = new System.Drawing.Point(771, 19);
+            this.chb_show_package.Name = "chb_show_package";
+            this.chb_show_package.Size = new System.Drawing.Size(72, 16);
+            this.chb_show_package.TabIndex = 13;
+            this.chb_show_package.Text = "显示报文";
+            this.chb_show_package.UseVisualStyleBackColor = true;
+            // 
+            // lab_value
+            // 
+            this.lab_value.AutoSize = true;
+            this.lab_value.Location = new System.Drawing.Point(228, 24);
+            this.lab_value.Name = "lab_value";
+            this.lab_value.Size = new System.Drawing.Size(17, 12);
+            this.lab_value.TabIndex = 11;
+            this.lab_value.Text = "值";
             // 
             // button6
             // 
@@ -158,6 +179,7 @@
             this.button6.TabIndex = 18;
             this.button6.Text = "清空数据";
             this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.but_clear_data_Click);
             // 
             // groupBox1
             // 
@@ -322,6 +344,23 @@
             this.groupBox2.TabIndex = 33;
             this.groupBox2.TabStop = false;
             // 
+            // cb_portNameSend_server
+            // 
+            this.cb_portNameSend_server.FormattingEnabled = true;
+            this.cb_portNameSend_server.Location = new System.Drawing.Point(614, 21);
+            this.cb_portNameSend_server.Name = "cb_portNameSend_server";
+            this.cb_portNameSend_server.Size = new System.Drawing.Size(47, 20);
+            this.cb_portNameSend_server.TabIndex = 24;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(587, 25);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(29, 12);
+            this.label8.TabIndex = 23;
+            this.label8.Text = "端口";
+            // 
             // label7
             // 
             this.label7.AutoSize = true;
@@ -374,20 +413,20 @@
             this.but_close.UseVisualStyleBackColor = true;
             this.but_close.Click += new System.EventHandler(this.butClose_Click);
             // 
-            // button2
+            // but_server_close
             // 
             this.but_server_close.Location = new System.Drawing.Point(768, 19);
-            this.but_server_close.Name = "button2";
+            this.but_server_close.Name = "but_server_close";
             this.but_server_close.Size = new System.Drawing.Size(75, 23);
             this.but_server_close.TabIndex = 16;
             this.but_server_close.Text = "关闭服务";
             this.but_server_close.UseVisualStyleBackColor = true;
             this.but_server_close.Click += new System.EventHandler(this.but_close_server_Click);
             // 
-            // button1
+            // but_server_open
             // 
             this.but_server_open.Location = new System.Drawing.Point(665, 19);
-            this.but_server_open.Name = "button1";
+            this.but_server_open.Name = "but_server_open";
             this.but_server_open.Size = new System.Drawing.Size(99, 23);
             this.but_server_open.TabIndex = 0;
             this.but_server_open.Text = "本地模拟服务";
@@ -439,23 +478,6 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "波特率";
             // 
-            // cb_portNameSend_server
-            // 
-            this.cb_portNameSend_server.FormattingEnabled = true;
-            this.cb_portNameSend_server.Location = new System.Drawing.Point(614, 21);
-            this.cb_portNameSend_server.Name = "cb_portNameSend_server";
-            this.cb_portNameSend_server.Size = new System.Drawing.Size(47, 20);
-            this.cb_portNameSend_server.TabIndex = 24;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(587, 25);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(29, 12);
-            this.label8.TabIndex = 23;
-            this.label8.Text = "端口";
-            // 
             // ModBusRtuControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -481,13 +503,13 @@
 
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button but_read;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lab_address;
         private System.Windows.Forms.TextBox txt_address;
         private System.Windows.Forms.Button but_write;
         private System.Windows.Forms.TextBox txt_value;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox chb_show_package;
+        private System.Windows.Forms.Label lab_value;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton rd_float;
@@ -518,5 +540,7 @@
         private System.Windows.Forms.RadioButton rd_discrete;
         private System.Windows.Forms.ComboBox cb_portNameSend_server;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button but_sendData;
+        private System.Windows.Forms.TextBox txt_dataPackage;
     }
 }

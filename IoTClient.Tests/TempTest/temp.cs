@@ -12,10 +12,12 @@ namespace IoTClient.Tests.TempTest
         [Fact]
         public void test()
         {
-            var str = "03 00 00 1D 02 F0 80 32 03 00 00 00 01 00 02 00 1F 00 00 04 01 FF 04 00 04 00 00 00 00";
+            var str = "0300 00 1D";
             //var b = str.Split(" ").Select(t => Convert.ToByte(t, 16)).ToArray();
 
             var aa = DataConvert.StringToByteArray(str);
+            var aa2 = DataConvert.StringToByteArray(str,false);
+
             var bb = DataConvert.ByteArrayToString(aa);
 
            var bb2 =  BitConverter.GetBytes(258);

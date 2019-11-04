@@ -1,8 +1,10 @@
 ﻿using IoTClient.Clients.ModBus;
+using IoTClient.Common.Helpers;
 using IoTServer.Common;
 using IoTServer.Servers.ModBus;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace IoTClient.Tool
@@ -22,22 +24,47 @@ namespace IoTClient.Tool
             groupBox3.Location = new Point(13, 105);
             groupBox3.Size = new Size(855, 50);
             txt_content.Location = new Point(13, 160);
-            button3.Enabled = false;
-            button4.Enabled = false;
+
+            lab_address.Location = new Point(9, 22);
+            txt_address.Location = new Point(39, 18);
+            txt_address.Size = new Size(88, 21);
+            but_read.Location = new Point(132, 17);
+
+            lab_value.Location = new Point(227, 22);
+            txt_value.Location = new Point(249, 18);
+            txt_value.Size = new Size(74, 21);
+            but_write.Location = new Point(328, 17);
+
+            txt_dataPackage.Location = new Point(430, 18);
+            txt_dataPackage.Size = new Size(186, 21);
+            but_sendData.Location = new Point(620, 17);
+
+            chb_show_package.Location = new Point(776, 19);
+
+            but_read.Enabled = false;
+            but_write.Enabled = false;
             button2.Enabled = false;
-            button5.Enabled = false;
+            but_close.Enabled = false;
+            but_sendData.Enabled = false;
             toolTip1.SetToolTip(button1, "开启本地ModBusTcp服务端仿真模拟服务");
             toolTip1.SetToolTip(but_open, "点击打开连接");
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            server?.Stop();
-            server = new ModBusTcpServer(502);
-            server.Start();
-            button1.Enabled = false;
-            button2.Enabled = true;
-            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]开启仿真模拟服务\r\n");
+            try
+            {
+                server?.Stop();
+                server = new ModBusTcpServer(502);
+                server.Start();
+                button1.Enabled = false;
+                button2.Enabled = true;
+                AppendText($"开启仿真模拟服务");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -45,32 +72,41 @@ namespace IoTClient.Tool
             server?.Stop();
             button1.Enabled = true;
             button2.Enabled = false;
-            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]关闭仿真模拟服务\r\n");
+            AppendText($"关闭仿真模拟服务");
         }
 
         private void but_open_Click(object sender, EventArgs e)
         {
-            client?.Close();
-            client = new ModBusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
-            var result = client.Open();
-            if (result.IsSucceed)
+            try
             {
-                button3.Enabled = true;
-                button4.Enabled = true;
-                but_open.Enabled = false;
-                button5.Enabled = true;
-                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]连接成功\r\n");
+                client?.Close();
+                client = new ModBusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                var result = client.Open();
+                if (result.IsSucceed)
+                {
+                    but_read.Enabled = true;
+                    but_write.Enabled = true;
+                    but_open.Enabled = false;
+                    but_close.Enabled = true;
+                    but_sendData.Enabled = true;
+                    AppendText($"连接成功");
+                }
+                else
+                    MessageBox.Show($"连接失败：{result.Err}");
             }
-            else
-                MessageBox.Show($"连接失败：{result.Err}");
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void but_close_Click(object sender, EventArgs e)
         {
             client?.Close();
             but_open.Enabled = true;
-            button5.Enabled = false;
-            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]连接关闭\r\n");
+            but_close.Enabled = false;
+            but_sendData.Enabled = false;
+            AppendText($"连接关闭");
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -126,13 +162,13 @@ namespace IoTClient.Tool
                 }
 
                 if (result.IsSucceed)
-                    txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 成功]：{result.Value}\r\n");
+                    AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
                 else
-                    txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
-                if (checkBox1.Checked)
+                    AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                if (chb_show_package.Checked)
                 {
-                    txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
-                    txt_content.AppendText($"[响应报文]{result.Response}\r\n\r\n");
+                    AppendText($"[请求报文]{result.Requst}");
+                    AppendText($"[响应报文]{result.Response}\r\n");
                 }
             }
             catch (Exception ex)
@@ -208,18 +244,18 @@ namespace IoTClient.Tool
                 }
                 else if (rd_discrete.Checked)
                 {
-                    txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]离散类型只读\r\n");
+                    AppendText($"离散类型只读");
                     return;
                 }
 
                 if (result.IsSucceed)
-                    txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK\r\n");
+                    AppendText($"[写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
-                    txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}][写入 {txt_address.Text?.Trim()} 失败]：{result.Err}\r\n");
-                if (checkBox1.Checked)
+                    AppendText($"[写入 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                if (chb_show_package.Checked)
                 {
-                    txt_content.AppendText($"[请求报文]{result.Requst}\r\n");
-                    txt_content.AppendText($"[响应报文]{result.Response}\r\n\r\n");
+                    AppendText($"[请求报文]{result.Requst}");
+                    AppendText($"[响应报文]{result.Response}\r\n");
                 }
             }
             catch (Exception ex)
@@ -231,7 +267,44 @@ namespace IoTClient.Tool
         private void button6_Click(object sender, EventArgs e)
         {
             DataPersist.Clear();
-            txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]数据清空成功\r\n\r\n");
+            AppendText($"数据清空成功\r\n");
+        }
+
+        private void but_sendData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(txt_dataPackage.Text))
+                {
+                    MessageBox.Show("请输入要发送的报文");
+                    return;
+                }
+                var dataPackageString = txt_dataPackage.Text.Replace(" ", "");
+                if (dataPackageString.Length % 2 != 0)
+                {
+                    MessageBox.Show("请输入正确的的报文");
+                    return;
+                }
+
+                var dataPackage = DataConvert.StringToByteArray(txt_dataPackage.Text?.Trim(), false);
+                var msg = client.SendPackage(dataPackage);
+                AppendText($"[请求报文]{string.Join(" ", dataPackage.Select(t => t.ToString("X2")))}");
+                AppendText($"[响应报文]{string.Join(" ", msg.Select(t => t.ToString("X2")))}\r\n");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                client.Close();
+                client.Open();
+            }
+        }
+
+        private void AppendText(string content)
+        {
+            txt_content.Invoke((Action)(() =>
+            {
+                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
+            }));
         }
     }
 }

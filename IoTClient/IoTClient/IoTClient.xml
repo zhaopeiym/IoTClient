@@ -58,6 +58,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.SendPackage(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
             <summary>
             读取数据
@@ -297,6 +304,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.SendPackage(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
             <summary>
             读取数据
@@ -524,6 +538,250 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="T:IoTClient.Clients.PLC.MitsubishiClient">
+            <summary>
+            三菱plc 客户端
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="ip"></param>
+            <param name="port"></param>
+            <param name="timeout"></param>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Connect">
+            <summary>
+            打开长连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.SendPackage(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Read(System.String,System.UInt16,System.Boolean)">
+            <summary>
+            读取数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="length"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadBoolean(System.String)">
+            <summary>
+            读取Boolean
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadInt16(System.String)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadUInt16(System.String)">
+            <summary>
+            读取UInt16
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadInt32(System.String)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadUInt32(System.String)">
+            <summary>
+            读取UInt32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadInt64(System.String)">
+            <summary>
+            读取Int64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadUInt64(System.String)">
+            <summary>
+            读取UInt64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadFloat(System.String)">
+            <summary>
+            读取Float
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadDouble(System.String)">
+            <summary>
+            读取Double
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Boolean)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address"></param>
+            <param name="data"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Byte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.SByte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Int16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.UInt16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Int32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.UInt32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Int64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.UInt64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Single)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Double)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.String)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetReadCommand(System.Int32,System.Byte,System.UInt16,System.Boolean)">
+            <summary>
+            获取读取命令
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="typeCode"></param>
+            <param name="length"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetWriteCommand(System.Int32,System.Byte,System.Byte[],System.Boolean)">
+            <summary>
+            获取写入命令
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="typeCode"></param>
+            <param name="data"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetContentLength(System.Byte[])">
+            <summary>
+            获取内容长度
+            </summary>
+            <param name="head"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertAddress(System.String)">
+            <summary>
+            地址转换
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetBeingAddress(System.String)">
+            <summary>
+            获取地址
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTClient.Clients.PLC.SiemensClient">
             <summary>
             西门子客户端
@@ -531,8 +789,15 @@
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Connect">
             <summary>
-            连接
+            打开长连接
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.SendPackage(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.String,System.UInt16,System.Boolean)">
@@ -792,11 +1057,12 @@
             <param name="byteArray"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Common.Helpers.DataConvert.StringToByteArray(System.String)">
+        <member name="M:IoTClient.Common.Helpers.DataConvert.StringToByteArray(System.String,System.Boolean)">
             <summary>
             16进制字符串转字节数组
             </summary>
             <param name="str"></param>
+            <param name="strict">严格模式（严格按两个字母间隔一个空格）</param>
             <returns></returns>
         </member>
         <member name="F:IoTClient.Common.Constants.SiemensConstant.InitHeadLength">
@@ -827,6 +1093,159 @@
         <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200Smart">
             <summary>
             西门子S7-200Smar
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.MitsubishiMCData">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCData.BeginAddress">
+            <summary>
+            开始地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCData.MitsubishiMCType">
+            <summary>
+            数据类型
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.MitsubishiMCType">
+            <summary>
+            三菱PLC数据类型
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.MitsubishiMCType.#ctor(System.Byte,System.Byte,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="code">数据类型的代号</param>
+            <param name="type">0或1，默认为0</param> 
+            <param name="format">十进制或十六进制</param>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCType.TypeCode">
+            <summary>
+            类型的代号值
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCType.DataType">
+            <summary>
+            0代表按字，1代表按位
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCType.Format">
+            <summary>
+            10进制或16进制
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.X">
+            <summary>
+            X输入继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.Y">
+            <summary>
+            Y输出继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.M">
+            <summary>
+            M中间继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.D">
+            <summary>
+            D数据寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.W">
+            <summary>
+            W链接寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.L">
+            <summary>
+            L锁存继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.F">
+            <summary>
+            F报警器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.V">
+            <summary>
+            V边沿继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.B">
+            <summary>
+            B链接继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.R">
+            <summary>
+            R文件寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.S">
+            <summary>
+            S步进继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.Z">
+            <summary>
+            变址寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.TN">
+            <summary>
+            定时器的当前值
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.TS">
+            <summary>
+            定时器的触点
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.TC">
+            <summary>
+            定时器的线圈
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.SS">
+            <summary>
+            累计定时器的触点
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.SC">
+            <summary>
+            累计定时器的线圈
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.SN">
+            <summary>
+            累计定时器的当前值
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.CN">
+            <summary>
+            计数器的当前值
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.CS">
+            <summary>
+            计数器的触点
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.CC">
+            <summary>
+            计数器的线圈
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.ZR">
+            <summary>
+            文件寄存器ZR区
             </summary>
         </member>
         <member name="T:IoTClient.Models.Result">

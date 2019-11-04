@@ -55,7 +55,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cb_encoding);
             this.groupBox1.Controls.Add(this.cb_checkBit);
+            this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.cb_stopBit);
             this.groupBox1.Controls.Add(this.label4);
@@ -67,7 +69,7 @@
             this.groupBox1.Controls.Add(this.cb_portNameSend);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(151, 151);
+            this.groupBox1.Size = new System.Drawing.Size(279, 102);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "设置";
@@ -75,7 +77,7 @@
             // cb_checkBit
             // 
             this.cb_checkBit.FormattingEnabled = true;
-            this.cb_checkBit.Location = new System.Drawing.Point(48, 124);
+            this.cb_checkBit.Location = new System.Drawing.Point(190, 46);
             this.cb_checkBit.Name = "cb_checkBit";
             this.cb_checkBit.Size = new System.Drawing.Size(83, 20);
             this.cb_checkBit.TabIndex = 10;
@@ -83,7 +85,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 127);
+            this.label5.Location = new System.Drawing.Point(148, 49);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(41, 12);
             this.label5.TabIndex = 9;
@@ -92,7 +94,7 @@
             // cb_stopBit
             // 
             this.cb_stopBit.FormattingEnabled = true;
-            this.cb_stopBit.Location = new System.Drawing.Point(48, 98);
+            this.cb_stopBit.Location = new System.Drawing.Point(190, 20);
             this.cb_stopBit.Name = "cb_stopBit";
             this.cb_stopBit.Size = new System.Drawing.Size(83, 20);
             this.cb_stopBit.TabIndex = 8;
@@ -100,7 +102,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 102);
+            this.label4.Location = new System.Drawing.Point(148, 24);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(41, 12);
             this.label4.TabIndex = 7;
@@ -143,11 +145,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 24);
+            this.label1.Location = new System.Drawing.Point(7, 24);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(29, 12);
+            this.label1.Size = new System.Drawing.Size(41, 12);
             this.label1.TabIndex = 1;
-            this.label1.Text = "端口";
+            this.label1.Text = "端  口";
             // 
             // cb_portNameSend
             // 
@@ -159,7 +161,7 @@
             // 
             // but_open
             // 
-            this.but_open.Location = new System.Drawing.Point(625, 23);
+            this.but_open.Location = new System.Drawing.Point(30, 19);
             this.but_open.Name = "but_open";
             this.but_open.Size = new System.Drawing.Size(75, 23);
             this.but_open.TabIndex = 11;
@@ -171,15 +173,15 @@
             // 
             this.groupBox2.Controls.Add(this.but_close);
             this.groupBox2.Controls.Add(this.but_open);
-            this.groupBox2.Location = new System.Drawing.Point(160, 3);
+            this.groupBox2.Location = new System.Drawing.Point(288, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(717, 102);
+            this.groupBox2.Size = new System.Drawing.Size(589, 54);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             // 
             // but_close
             // 
-            this.but_close.Location = new System.Drawing.Point(625, 64);
+            this.but_close.Location = new System.Drawing.Point(111, 19);
             this.but_close.Name = "but_close";
             this.but_close.Size = new System.Drawing.Size(75, 23);
             this.but_close.TabIndex = 12;
@@ -190,28 +192,26 @@
             // txt_content
             // 
             this.txt_content.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txt_content.Location = new System.Drawing.Point(3, 160);
+            this.txt_content.Location = new System.Drawing.Point(3, 111);
             this.txt_content.Multiline = true;
             this.txt_content.Name = "txt_content";
-            this.txt_content.Size = new System.Drawing.Size(874, 278);
+            this.txt_content.Size = new System.Drawing.Size(874, 327);
             this.txt_content.TabIndex = 13;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.cb_encoding);
-            this.groupBox3.Controls.Add(this.label6);
             this.groupBox3.Controls.Add(this.txt_msg);
             this.groupBox3.Controls.Add(this.button2);
-            this.groupBox3.Location = new System.Drawing.Point(160, 105);
+            this.groupBox3.Location = new System.Drawing.Point(288, 56);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(717, 49);
+            this.groupBox3.Size = new System.Drawing.Size(589, 49);
             this.groupBox3.TabIndex = 14;
             this.groupBox3.TabStop = false;
             // 
             // cb_encoding
             // 
             this.cb_encoding.FormattingEnabled = true;
-            this.cb_encoding.Location = new System.Drawing.Point(41, 18);
+            this.cb_encoding.Location = new System.Drawing.Point(190, 72);
             this.cb_encoding.Name = "cb_encoding";
             this.cb_encoding.Size = new System.Drawing.Size(83, 20);
             this.cb_encoding.TabIndex = 12;
@@ -220,22 +220,22 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(9, 21);
+            this.label6.Location = new System.Drawing.Point(148, 76);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(29, 12);
+            this.label6.Size = new System.Drawing.Size(41, 12);
             this.label6.TabIndex = 11;
-            this.label6.Text = "编码";
+            this.label6.Text = "编  码";
             // 
             // txt_msg
             // 
-            this.txt_msg.Location = new System.Drawing.Point(168, 18);
+            this.txt_msg.Location = new System.Drawing.Point(30, 18);
             this.txt_msg.Name = "txt_msg";
             this.txt_msg.Size = new System.Drawing.Size(240, 21);
             this.txt_msg.TabIndex = 1;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(414, 16);
+            this.button2.Location = new System.Drawing.Point(276, 16);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 0;

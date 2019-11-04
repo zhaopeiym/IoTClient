@@ -43,6 +43,8 @@
             this.toolStripMenuItemBlogPath = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.MitsubishiMC = new System.Windows.Forms.TabPage();
+            this.OmronFinsTcp = new System.Windows.Forms.TabPage();
             this.tabControl1.SuspendLayout();
             this.ModBusTcp.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -53,8 +55,10 @@
             this.tabControl1.Controls.Add(this.ModBusTcp);
             this.tabControl1.Controls.Add(this.ModBusRtu);
             this.tabControl1.Controls.Add(this.Siemens);
+            this.tabControl1.Controls.Add(this.MitsubishiMC);
+            this.tabControl1.Controls.Add(this.OmronFinsTcp);
             this.tabControl1.Controls.Add(this.BACnet);
-            this.tabControl1.Controls.Add(this.Ports);
+            this.tabControl1.Controls.Add(this.Ports); 
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.tabControl1.Location = new System.Drawing.Point(0, 27);
             this.tabControl1.Name = "tabControl1";
@@ -101,6 +105,26 @@
             this.Siemens.TabIndex = 1;
             this.Siemens.Text = "西门子S7-200Smar";
             this.Siemens.UseVisualStyleBackColor = true;
+            // 
+            // MitsubishiMC
+            // 
+            this.MitsubishiMC.Location = new System.Drawing.Point(4, 22);
+            this.MitsubishiMC.Name = "MitsubishiMC";
+            this.MitsubishiMC.Padding = new System.Windows.Forms.Padding(3);
+            this.MitsubishiMC.Size = new System.Drawing.Size(886, 448);
+            this.MitsubishiMC.TabIndex = 5;
+            this.MitsubishiMC.Text = " 三菱MC ";
+            this.MitsubishiMC.UseVisualStyleBackColor = true;
+            // 
+            // OmronFinsTcp
+            // 
+            this.OmronFinsTcp.Location = new System.Drawing.Point(4, 22);
+            this.OmronFinsTcp.Name = "OmronFinsTcp";
+            this.OmronFinsTcp.Padding = new System.Windows.Forms.Padding(3);
+            this.OmronFinsTcp.Size = new System.Drawing.Size(886, 448);
+            this.OmronFinsTcp.TabIndex = 6;
+            this.OmronFinsTcp.Text = "欧姆龙FinsTcp";
+            this.OmronFinsTcp.UseVisualStyleBackColor = true;
             // 
             // BACnet
             // 
@@ -183,8 +207,8 @@
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
-            this.toolStripMenuItem1.Text = "版本 0.0.3";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.toolStripMenuItem1.Text = "版本 0.2.1";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);           
             // 
             // IndexForm
             // 
@@ -224,5 +248,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.TabPage Ports;
         private System.Windows.Forms.TabPage ModBusRtu;
+        private System.Windows.Forms.TabPage MitsubishiMC;
+        private System.Windows.Forms.TabPage OmronFinsTcp;
     }
 }

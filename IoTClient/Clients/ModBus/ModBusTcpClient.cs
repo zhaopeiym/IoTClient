@@ -59,6 +59,24 @@ namespace IoTClient.Clients.ModBus
             }
         }
 
+        #region 发送报文，并获取响应报文
+        /// <summary>
+        /// 发送报文，并获取响应报文
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public byte[] SendPackage(byte[] command)
+        {
+            //发送命令
+            socket.Send(command);
+            //获取响应报文
+            var headPackage = SocketRead(socket, 8);
+            int length = headPackage[4] * 256 + headPackage[5] - 2;
+            var dataPackage = SocketRead(socket, length);
+            return headPackage.Concat(dataPackage).ToArray();
+        } 
+        #endregion
+
         #region Read 读取
         /// <summary>
         /// 读取数据
@@ -78,18 +96,14 @@ namespace IoTClient.Clients.ModBus
                 //1 获取命令（组装报文）
                 byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                //2 发送命令
-                socket.Send(command);
-                //3 获取响应报文
-                var headPackage = SocketRead(socket, 8);
-                int length = headPackage[4] * 256 + headPackage[5] - 2;
-                var dataPackage = SocketRead(socket, length);
-                byte[] resultBuffer = new byte[dataPackage.Length - 1];
-                Array.Copy(dataPackage, 1, resultBuffer, 0, resultBuffer.Length);
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
+                //获取响应报文
+                var dataPackage = SendPackage(command);
+                byte[] resultBuffer = new byte[dataPackage.Length - 9];
+                Array.Copy(dataPackage, 9, resultBuffer, 0, resultBuffer.Length);
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
                 result.Value = resultBuffer.Reverse().ToArray();
-                if (chenkHead[0] != headPackage[0] || chenkHead[1] != headPackage[1])
+                if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
@@ -367,14 +381,10 @@ namespace IoTClient.Clients.ModBus
             {
                 var chenkHead = GetCheckHead(functionCode);
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode, chenkHead);
-                socket.Send(command);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                //获取响应报文
-                var headPackage = SocketRead(socket, 8);
-                int length = headPackage[4] * 256 + headPackage[5] - 2;
-                var dataPackage = SocketRead(socket, length);
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
-                if (chenkHead[0] != headPackage[0] || chenkHead[1] != headPackage[1])
+                var dataPackage = SendPackage(command);
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+                if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
@@ -421,14 +431,10 @@ namespace IoTClient.Clients.ModBus
             {
                 var chenkHead = GetCheckHead(functionCode);
                 var command = GetWriteCommand(address, values, stationNumber, functionCode, chenkHead);
-                socket.Send(command);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                //获取响应报文
-                var headPackage = SocketRead(socket, 8);
-                int length = headPackage[4] * 256 + headPackage[5] - 2;
-                var dataPackage = SocketRead(socket, length);
-                result.Response = string.Join(" ", headPackage.Concat(dataPackage).Select(t => t.ToString("X2")));
-                if (chenkHead[0] != headPackage[0] || chenkHead[1] != headPackage[1])
+                var dataPackage = SendPackage(command);
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+                if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
