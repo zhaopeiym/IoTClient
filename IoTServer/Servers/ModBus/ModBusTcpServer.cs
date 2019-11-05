@@ -120,17 +120,17 @@ namespace IoTServer.Servers.ModBus
                     byte[] responseData1 = new byte[8];
                     //复制请求报文中的报文头
                     Buffer.BlockCopy(requetData, 0, responseData1, 0, responseData1.Length);
-                    var address = requetData[8] * 256 + requetData[9];
+                    var addressKey = $"{requetData[6]}-{requetData[8] * 256 + requetData[9]}";
                     switch (requetData[7])
                     {
                         //读取线圈
                         case 1:
                             {
-                                var value = dataPersist.Read(address);// 数据存在 8、9                            
+                                var value = dataPersist.Read(addressKey + "-Coil");// 数据存在 8、9                            
                                 var bytes = JsonConvert.DeserializeObject<byte[]>(value);
+                                if (bytes == null) bytes = new byte[2];
                                 //当前位置到最后的长度
                                 responseData1[5] = (byte)(2 + bytes.Length);
-                                //TODO
                                 byte[] responseData2 = new byte[2] { bytes[1], bytes[0] };
                                 var responseData = responseData1.Concat(responseData2).ToArray();
                                 newSocket.Send(responseData);
@@ -141,7 +141,7 @@ namespace IoTServer.Servers.ModBus
                             {
                                 var value = new byte[2];
                                 Buffer.BlockCopy(requetData, 10, value, 0, value.Length);
-                                dataPersist.Write(address, JsonConvert.SerializeObject(value));
+                                dataPersist.Write(addressKey + "-Coil", JsonConvert.SerializeObject(value));
                                 var responseData = new byte[10];
                                 Buffer.BlockCopy(requetData, 0, responseData, 0, responseData.Length);
                                 responseData[5] = 4;//后面的长度
@@ -151,7 +151,7 @@ namespace IoTServer.Servers.ModBus
                         //读取
                         case 3:
                             {
-                                var value = dataPersist.Read(address);// 数据存在 8、9                            
+                                var value = dataPersist.Read(addressKey);// 数据存在 8、9                            
                                 var bytes = JsonConvert.DeserializeObject<byte[]>(value);
                                 if (bytes == null)
                                 {
@@ -172,10 +172,22 @@ namespace IoTServer.Servers.ModBus
                             {
                                 var value = new byte[requetData[12]];
                                 Buffer.BlockCopy(requetData, 13, value, 0, value.Length);
-                                dataPersist.Write(address, JsonConvert.SerializeObject(value));
+                                dataPersist.Write(addressKey, JsonConvert.SerializeObject(value));
                                 var responseData = new byte[12];
                                 Buffer.BlockCopy(requetData, 0, responseData, 0, responseData.Length);
                                 responseData[5] = 6;//后面的长度
+                                newSocket.Send(responseData);
+                            }
+                            break;
+                        //读离散
+                        case 2:
+                            {
+                                //只返回false
+                                var bytes = new byte[2];
+                                //当前位置到最后的长度
+                                responseData1[5] = (byte)(2 + bytes.Length);
+                                byte[] responseData2 = new byte[2] { bytes[1], bytes[0] };
+                                var responseData = responseData1.Concat(responseData2).ToArray();
                                 newSocket.Send(responseData);
                             }
                             break;
