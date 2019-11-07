@@ -116,6 +116,12 @@
     <Compile Include="Controls\MitsubishiMCControl.Designer.cs">
       <DependentUpon>MitsubishiMCControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ModBusAsciiControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ModBusAsciiControl.Designer.cs">
+      <DependentUpon>ModBusAsciiControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ModBusRtuControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -133,6 +139,12 @@
     </Compile>
     <Compile Include="Controls\PortsControl.Designer.cs">
       <DependentUpon>PortsControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SiemensS7_300Control.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SiemensS7_300Control.Designer.cs">
+      <DependentUpon>SiemensS7_300Control.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\BacNode.cs" />
     <Compile Include="Model\BacProperty.cs" />
@@ -172,6 +184,9 @@
     <EmbeddedResource Include="Controls\MitsubishiMCControl.resx">
       <DependentUpon>MitsubishiMCControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ModBusAsciiControl.resx">
+      <DependentUpon>ModBusAsciiControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\ModBusRtuControl.resx">
       <DependentUpon>ModBusRtuControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -180,6 +195,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PortsControl.resx">
       <DependentUpon>PortsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SiemensS7_300Control.resx">
+      <DependentUpon>SiemensS7_300Control.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="IndexForm.resx">
       <DependentUpon>IndexForm.cs</DependentUpon>

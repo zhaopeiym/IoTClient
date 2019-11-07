@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace IoTClient.Common.Helpers
 {
@@ -45,6 +46,69 @@ namespace IoTClient.Common.Helpers
                 }
                 return list.ToArray();
             }
+        }
+
+        /// <summary>
+        /// Asciis字符串数组字符串装字节数组
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="strict"></param>
+        /// <returns></returns>
+        public static byte[] AsciiStringToByteArray(string str, bool strict = true)
+        {
+            if (string.IsNullOrWhiteSpace(str) || str.Trim().Replace(" ", "").Length % 2 != 0)
+                throw new ArgumentException("请传入有效的参数");
+
+            if (strict)
+            {
+                List<string> stringList = new List<string>();
+                foreach (var item in str.Split(' '))
+                {
+                    stringList.Add(((char)(Convert.ToByte(item, 16))).ToString());
+                }
+                return StringToByteArray(string.Join("", stringList), false);
+            }
+            else
+            {
+                str = str.Trim().Replace(" ", "");
+                var stringList = new List<string>();
+                for (int i = 0; i < str.Length; i++)
+                {
+                    var stringAscii = str[i].ToString() + str[++i].ToString();
+                    stringList.Add(((char)Convert.ToByte(stringAscii, 16)).ToString());
+                }
+                return StringToByteArray(string.Join("", stringList), false);
+            }
+        }
+
+        /// <summary>
+        /// Asciis数组字符串装字节数组
+        /// 如：30 31 =》 00 01
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static byte[] AsciiArrayToByteArray(byte[] str)
+        {
+            if (!str?.Any() ?? true)
+                throw new ArgumentException("请传入有效的参数");
+
+            List<string> stringList = new List<string>();
+            foreach (var item in str)
+            {
+                stringList.Add(((char)item).ToString());
+            }
+            return StringToByteArray(string.Join("", stringList), false);
+        }
+
+        /// <summary>
+        /// 字节数组转换成Ascii字节数组
+        /// 如：00 01 => 30 31
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static byte[] ByteArrayToAsciiArray(byte[] str)
+        {
+            return Encoding.ASCII.GetBytes(string.Join("", str.Select(t => t.ToString("X2"))));
         }
     }
 }

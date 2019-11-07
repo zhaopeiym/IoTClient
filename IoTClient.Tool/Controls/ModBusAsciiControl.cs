@@ -1,20 +1,24 @@
-﻿using IoTClient.Clients.ModBus;
-using IoTClient.Common.Helpers;
-using IoTServer.Common;
-using IoTServer.Servers.ModBus;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
-using System.IO.Ports;
+using System.Data;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using IoTServer.Servers.ModBus;
+using IoTClient.Clients.ModBus;
+using System.IO.Ports;
+using IoTClient.Common.Helpers;
 
 namespace IoTClient.Tool.Controls
 {
-    public partial class ModBusRtuControl : UserControl
+    public partial class ModBusAsciiControl : UserControl
     {
-        private ModBusRtuClient client;
-        private ModBusRtuServer server;
-        public ModBusRtuControl()
+        private ModBusAsciiServer server;
+        private ModBusAsciiClient client;
+        public ModBusAsciiControl()
         {
             InitializeComponent();
 
@@ -63,10 +67,40 @@ namespace IoTClient.Tool.Controls
         }
 
         /// <summary>
-        /// 打开连接
+        /// 开启仿真服务
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        private void but_server_open_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var PortName = cb_portNameSend_server.Text.ToString();
+                var BaudRate = int.Parse(txt_baudRate.Text.ToString());
+                var DataBits = int.Parse(txt_dataBit.Text.ToString());
+                var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
+                server?.Stop();
+                server = new ModBusAsciiServer(PortName, BaudRate, DataBits, StopBits);
+                server.Start();
+                AppendText("开启仿真服务");
+                but_server_open.Enabled = false;
+                but_server_close.Enabled = true;
+                cb_portNameSend_server.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void AppendText(string content)
+        {
+            txt_content.Invoke((Action)(() =>
+            {
+                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
+            }));
+        }
+
         private void but_open_Click(object sender, EventArgs e)
         {
             try
@@ -76,7 +110,7 @@ namespace IoTClient.Tool.Controls
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
                 client?.Close();
-                client = new ModBusRtuClient(PortName, BaudRate, DataBits, StopBits);
+                client = new ModBusAsciiClient(PortName, BaudRate, DataBits, StopBits);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -98,26 +132,15 @@ namespace IoTClient.Tool.Controls
             }
         }
 
-        /// <summary>
-        /// 关闭连接
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void butClose_Click(object sender, EventArgs e)
+        private void but_server_close_Click(object sender, EventArgs e)
         {
-            client?.Close();
-            AppendText("关闭连接");
-            but_open.Enabled = true;
-            but_close.Enabled = false;
-            cb_portNameSend.Enabled = true;
-            but_sendData.Enabled = false;
+            server?.Stop();
+            AppendText("关闭仿真服务");
+            but_server_open.Enabled = true;
+            but_server_close.Enabled = false;
+            cb_portNameSend_server.Enabled = true;
         }
 
-        /// <summary>
-        /// 读数据
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void but_read_Click(object sender, EventArgs e)
         {
             byte.TryParse(txt_stationNumber.Text?.Trim(), out byte stationNumber);
@@ -186,11 +209,6 @@ namespace IoTClient.Tool.Controls
             }
         }
 
-        /// <summary>
-        /// 写数据
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void but_write_Click(object sender, EventArgs e)
         {
             var address = txt_address.Text?.Trim();
@@ -266,7 +284,7 @@ namespace IoTClient.Tool.Controls
                 if (result.IsSucceed)
                     AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
-                    AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}");
+                    AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}\r\n");
                 if (chb_show_package.Checked)
                 {
                     AppendText($"[请求报文]{result.Requst}");
@@ -277,58 +295,6 @@ namespace IoTClient.Tool.Controls
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        /// <summary>
-        /// 启动仿真服务
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void but_open_server_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var PortName = cb_portNameSend_server.Text.ToString();
-                var BaudRate = int.Parse(txt_baudRate.Text.ToString());
-                var DataBits = int.Parse(txt_dataBit.Text.ToString());
-                var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
-                server?.Stop();
-                server = new ModBusRtuServer(PortName, BaudRate, DataBits, StopBits);
-                server.Start();
-                AppendText("开启仿真服务");
-                but_server_open.Enabled = false;
-                but_server_close.Enabled = true;
-                cb_portNameSend_server.Enabled = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// 关闭仿真服务
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void but_close_server_Click(object sender, EventArgs e)
-        {
-            server?.Stop();
-            AppendText("关闭仿真服务");
-            but_server_open.Enabled = true;
-            but_server_close.Enabled = false;
-            cb_portNameSend_server.Enabled = true;
-        }
-
-        /// <summary>
-        /// 清空数据
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void but_clear_data_Click(object sender, EventArgs e)
-        {
-            DataPersist.Clear();
-            AppendText($"数据清空成功\r\n");
         }
 
         private void but_sendData_Click(object sender, EventArgs e)
@@ -360,12 +326,12 @@ namespace IoTClient.Tool.Controls
             }
         }
 
-        private void AppendText(string content)
-        {
-            txt_content.Invoke((Action)(() =>
-            {
-                txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
-            }));
-        }
+        //private void AppendText(string content)
+        //{
+        //    txt_content.Invoke((Action)(() =>
+        //    {
+        //        txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
+        //    }));
+        //}
     }
 }

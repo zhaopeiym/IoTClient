@@ -9,10 +9,11 @@ using System.Threading;
 namespace IoTClient.Clients.ModBus
 {
     /// <summary>
-    /// ModBusTcp协议客户端
+    /// ModBusAscii
     /// </summary>
-    public class ModBusRtuClient
+    public class ModBusAsciiClient
     {
+
         /// <summary>
         /// 串行端口对象
         /// </summary>
@@ -29,7 +30,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="baudRate">波特率</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
-        public ModBusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits)
+        public ModBusAsciiClient(string portName, int baudRate, int dataBits, StopBits stopBits)
         {
             if (serialPort == null) serialPort = new SerialPort();
             serialPort.PortName = portName;
@@ -145,27 +146,36 @@ namespace IoTClient.Clients.ModBus
             {
                 //获取命令（组装报文）
                 byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength);
-                var commandCRC16 = CRC16.GetCRC16(command);
-                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
+                var commandLRC = DataConvert.ByteArrayToAsciiArray(LRC.GetLRC(command));
+
+                var finalCommand = new byte[commandLRC.Length + 3];
+                Buffer.BlockCopy(commandLRC, 0, finalCommand, 1, commandLRC.Length);
+                finalCommand[0] = 0x3A;
+                finalCommand[finalCommand.Length - 2] = 0x0D;
+                finalCommand[finalCommand.Length - 1] = 0x0A;
+
+                result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
 
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(commandCRC16);
+                var responsePackage = SendPackage(finalCommand);
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空，请检查是否连上了服务端";
                     return result;
                 }
-                else if (!CRC16.CheckCRC16(responsePackage))
+
+                byte[] resultLRC = new byte[responsePackage.Length - 3];
+                Array.Copy(responsePackage, 1, resultLRC, 0, resultLRC.Length);
+                var resultByte = DataConvert.AsciiArrayToByteArray(resultLRC);
+                if (!LRC.CheckLRC(resultByte))
                 {
                     result.IsSucceed = false;
-                    result.Err = "响应结果CRC16验证失败";
+                    result.Err = "响应结果LRC验证失败";
                     return result;
-                }
-
-                byte[] resultData = new byte[responsePackage.Length - 2];
-                Array.Copy(responsePackage, 0, resultData, 0, resultData.Length);
-
+                } 
+                var resultData = new byte[resultByte[2]];
+                Buffer.BlockCopy(resultByte, 3, resultData, 0, resultData.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
                 result.Value = resultData.Reverse().ToArray();
@@ -429,18 +439,28 @@ namespace IoTClient.Clients.ModBus
             try
             {
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode);
-                var commandCRC16 = CRC16.GetCRC16(command);
-                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
+               
+                var commandAscii = DataConvert.ByteArrayToAsciiArray(LRC.GetLRC(command)); 
+                var finalCommand = new byte[commandAscii.Length + 3];
+                Buffer.BlockCopy(commandAscii, 0, finalCommand, 1, commandAscii.Length);
+                finalCommand[0] = 0x3A;
+                finalCommand[finalCommand.Length - 2] = 0x0D;
+                finalCommand[finalCommand.Length - 1] = 0x0A;
+
+                result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(commandCRC16);
-                if (!CRC16.CheckCRC16(responsePackage))
+                var responsePackage = SendPackage(finalCommand);
+                 
+                byte[] resultLRC = new byte[responsePackage.Length - 3];
+                Array.Copy(responsePackage, 1, resultLRC, 0, resultLRC.Length);
+                var resultByte = DataConvert.AsciiArrayToByteArray(resultLRC);
+                if (!LRC.CheckLRC(resultByte))
                 {
                     result.IsSucceed = false;
-                    result.Err = "响应结果CRC16验证失败";
+                    result.Err = "响应结果LRC验证失败";
                     return result;
                 }
-                byte[] resultBuffer = new byte[responsePackage.Length - 2];
-                Buffer.BlockCopy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
+
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
             }
             catch (Exception ex)
@@ -473,17 +493,26 @@ namespace IoTClient.Clients.ModBus
             {
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
 
-                var commandCRC16 = CRC16.GetCRC16(command);
-                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));              
-                var responsePackage = SendPackage(commandCRC16);
-                if (!CRC16.CheckCRC16(responsePackage))
+                var commandAscii = DataConvert.ByteArrayToAsciiArray(LRC.GetLRC(command));
+                var finalCommand = new byte[commandAscii.Length + 3];
+                Buffer.BlockCopy(commandAscii, 0, finalCommand, 1, commandAscii.Length);
+                finalCommand[0] = 0x3A;
+                finalCommand[finalCommand.Length - 2] = 0x0D;
+                finalCommand[finalCommand.Length - 1] = 0x0A;
+
+                result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
+                var responsePackage = SendPackage(finalCommand);
+
+                byte[] resultLRC = new byte[responsePackage.Length - 3];
+                Array.Copy(responsePackage, 1, resultLRC, 0, resultLRC.Length);
+                var resultByte = DataConvert.AsciiArrayToByteArray(resultLRC);
+                if (!LRC.CheckLRC(resultByte))
                 {
                     result.IsSucceed = false;
-                    result.Err = "响应结果CRC16验证失败";
+                    result.Err = "响应结果LRC验证失败";
                     return result;
                 }
-                byte[] resultBuffer = new byte[responsePackage.Length - 2];
-                Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
+
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
             }
             catch (Exception ex)

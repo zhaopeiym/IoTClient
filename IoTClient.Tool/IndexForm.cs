@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -99,10 +98,20 @@ namespace IoTClient.Tool
                         modBusRtu.Dock = DockStyle.Fill;
                         tab.Controls.Add(modBusRtu);
                         break;
+                    case "ModBusAscii":
+                        var modBusAscii = new ModBusAsciiControl();
+                        modBusAscii.Dock = DockStyle.Fill;
+                        tab.Controls.Add(modBusAscii);
+                        break;
                     case "Siemens":
                         var siemens = new SiemensControl();
                         siemens.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemens);
+                        break;
+                    case "SiemensS7300":
+                        var siemensS7_300 = new SiemensS7_300Control();
+                        siemensS7_300.Dock = DockStyle.Fill;
+                        tab.Controls.Add(siemensS7_300);
                         break;
                     case "BACnet":
                         var bacnet = new BACnetControl();
