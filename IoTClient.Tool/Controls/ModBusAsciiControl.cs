@@ -55,6 +55,9 @@ namespace IoTClient.Tool.Controls
             UpdatePortNames();
             cb_portNameSend.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_portNameSend_server.DropDownStyle = ComboBoxStyle.DropDownList;
+            cb_parity.SelectedIndex = 0;
+            cb_parity.DropDownStyle = ComboBoxStyle.DropDownList;
+            cb_baudRate.SelectedIndex = 2;
         }
 
         /// <summary>
@@ -76,11 +79,12 @@ namespace IoTClient.Tool.Controls
             try
             {
                 var PortName = cb_portNameSend_server.Text.ToString();
-                var BaudRate = int.Parse(txt_baudRate.Text.ToString());
+                var BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
+                var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 server?.Stop();
-                server = new ModBusAsciiServer(PortName, BaudRate, DataBits, StopBits);
+                server = new ModBusAsciiServer(PortName, BaudRate, DataBits, StopBits, parity);
                 server.Start();
                 AppendText("开启仿真服务");
                 but_server_open.Enabled = false;
@@ -106,7 +110,7 @@ namespace IoTClient.Tool.Controls
             try
             {
                 var PortName = cb_portNameSend.Text.ToString();
-                var BaudRate = int.Parse(txt_baudRate.Text.ToString());
+                var BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
                 client?.Close();
@@ -324,6 +328,16 @@ namespace IoTClient.Tool.Controls
                 client.Close();
                 client.Open();
             }
+        }
+
+        private void but_close_Click(object sender, EventArgs e)
+        {
+            client?.Close();
+            AppendText("关闭连接");
+            but_open.Enabled = true;
+            but_close.Enabled = false;
+            cb_portNameSend.Enabled = true;
+            but_sendData.Enabled = false;
         }
 
         //private void AppendText(string content)

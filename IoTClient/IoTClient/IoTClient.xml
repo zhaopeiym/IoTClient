@@ -308,7 +308,7 @@
             是否自动打开关闭
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits)">
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity)">
             <summary>
             构造函数
             </summary>
@@ -1397,9 +1397,29 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="T:IoTClient.Common.Constants.SiemensConstant">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="F:IoTClient.Common.Constants.SiemensConstant.InitHeadLength">
             <summary>
             Head头读取长度
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1">
+            <summary>
+            第一次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_300">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2">
+            <summary>
+            第二次初始化指令交互报文
             </summary>
         </member>
         <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_200Smart">
@@ -1425,6 +1445,11 @@
         <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200Smart">
             <summary>
             西门子S7-200Smar
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_300">
+            <summary>
+            西门子S7-300
             </summary>
         </member>
         <member name="T:IoTClient.Models.MitsubishiMCData">

@@ -21,5 +21,10 @@ namespace IoTClient.Common.Enums
         /// </summary>
         [Description("西门子S7-200Smar")]
         S7_200Smart = 1,
+        /// <summary>
+        /// 西门子S7-300
+        /// </summary>
+        [Description("西门子S7-300")]
+        S7_300 = 2,
     }
 }

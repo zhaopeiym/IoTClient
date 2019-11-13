@@ -57,13 +57,25 @@ namespace IoTClient.Clients.PLC
                 //连接
                 socket.Connect(ipAndPoint);
 
+                var Command1 = SiemensConstant.Command1;
+                var Command2 = SiemensConstant.Command2;
+                if (version == SiemensVersion.S7_200Smart)
+                {
+                    Command1 = SiemensConstant.Command1_200Smart;
+                    Command2 = SiemensConstant.Command2_200Smart;
+                }
+                else if (version == SiemensVersion.S7_300)
+                {
+                    Command1 = SiemensConstant.Command1_300;
+                }
+
                 //第一次初始化指令交互
-                socket.Send(SiemensConstant.Command1_200Smart);
+                socket.Send(Command1);
                 var head1 = SocketRead(socket, SiemensConstant.InitHeadLength);
                 SocketRead(socket, GetContentLength(head1));
 
                 //第二次初始化指令交互
-                socket.Send(SiemensConstant.Command2_200Smart);
+                socket.Send(Command2);
                 var head2 = SocketRead(socket, SiemensConstant.InitHeadLength);
                 SocketRead(socket, GetContentLength(head2));
                 return result;
@@ -153,7 +165,7 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时"); 
+                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
@@ -204,7 +216,7 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时"); 
+                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
@@ -478,8 +490,8 @@ namespace IoTClient.Clients.PLC
                 //发送写入信息
                 var arg = ConvertArg(address);
                 byte[] command = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));      
-                var dataPackage = SendPackage(command);                 
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
+                var dataPackage = SendPackage(command);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
@@ -523,7 +535,7 @@ namespace IoTClient.Clients.PLC
                 //发送写入信息
                 var arg = ConvertArg(address);
                 byte[] command = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));                
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var dataPackage = SendPackage(command);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
@@ -533,7 +545,7 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时"); 
+                    result.ErrList.Add("连接超时");
                 }
                 else
                 {

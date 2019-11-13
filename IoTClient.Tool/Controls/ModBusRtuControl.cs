@@ -51,6 +51,9 @@ namespace IoTClient.Tool.Controls
             UpdatePortNames();
             cb_portNameSend.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_portNameSend_server.DropDownStyle = ComboBoxStyle.DropDownList;
+            cb_parity.SelectedIndex = 0;
+            cb_parity.DropDownStyle = ComboBoxStyle.DropDownList;
+            cb_baudRate.SelectedIndex = 2;
         }
 
         /// <summary>
@@ -72,11 +75,12 @@ namespace IoTClient.Tool.Controls
             try
             {
                 var PortName = cb_portNameSend.Text.ToString();
-                var BaudRate = int.Parse(txt_baudRate.Text.ToString());
+                var BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
+                var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 client?.Close();
-                client = new ModBusRtuClient(PortName, BaudRate, DataBits, StopBits);
+                client = new ModBusRtuClient(PortName, BaudRate, DataBits, StopBits, parity);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -289,7 +293,7 @@ namespace IoTClient.Tool.Controls
             try
             {
                 var PortName = cb_portNameSend_server.Text.ToString();
-                var BaudRate = int.Parse(txt_baudRate.Text.ToString());
+                var BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
                 server?.Stop();

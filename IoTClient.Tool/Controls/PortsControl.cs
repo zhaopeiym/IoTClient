@@ -21,7 +21,7 @@ namespace IoTClient.Tool.Controls
         int[] DataBitArr = new int[] { 8, 7, 6, 5 };
         int[] StopBitArr = new int[] { 1, 2, 3 };
         string[] Encodings = new string[] { "ASCII", "UTF8", "UTF32", "UTF7", "Unicode" };
-        object[] CheckBitArr = new object[] { "None" };
+        object[] CheckBitArr = new object[] { "None", "Odd", "Even" };
         Encoding encoding = Encoding.ASCII;
         public PortsControl()
         {
@@ -32,13 +32,13 @@ namespace IoTClient.Tool.Controls
             cb_baudRate.DataSource = BaudRateArr;
             cb_dataBit.DataSource = DataBitArr;
             cb_stopBit.DataSource = StopBitArr;
-            cb_checkBit.DataSource = CheckBitArr;
+            cb_parity.DataSource = CheckBitArr;
             cb_encoding.DataSource = Encodings;
 
             cb_portNameSend.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_encoding.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_stopBit.DropDownStyle = ComboBoxStyle.DropDownList;
-            cb_checkBit.DropDownStyle = ComboBoxStyle.DropDownList;
+            cb_parity.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_dataBit.DropDownStyle = ComboBoxStyle.DropDownList;
 
             SetEncoding();
@@ -58,10 +58,12 @@ namespace IoTClient.Tool.Controls
         {
             try
             {
+                var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 serialPort.PortName = cb_portNameSend.Text.ToString();
                 serialPort.BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 serialPort.DataBits = int.Parse(cb_dataBit.Text.ToString());
                 serialPort.StopBits = (StopBits)int.Parse(cb_stopBit.Text.ToString());
+                serialPort.Parity = parity;
                 serialPort.ReadTimeout = 1000;//1秒
                 serialPort.Open();
                 but_close.Enabled = true;
@@ -69,7 +71,7 @@ namespace IoTClient.Tool.Controls
                 cb_baudRate.Enabled = false;
                 cb_dataBit.Enabled = false;
                 cb_stopBit.Enabled = false;
-                cb_checkBit.Enabled = false;
+                cb_parity.Enabled = false;
                 cb_portNameSend.Enabled = false;
                 UpdatePortNames();
                 AppendText("打开连接");
@@ -103,7 +105,7 @@ namespace IoTClient.Tool.Controls
                 cb_baudRate.Enabled = true;
                 cb_dataBit.Enabled = true;
                 cb_stopBit.Enabled = true;
-                cb_checkBit.Enabled = true;
+                cb_parity.Enabled = true;
                 cb_portNameSend.Enabled = true;
                 but_close.Enabled = false;
                 UpdatePortNames();

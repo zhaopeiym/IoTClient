@@ -29,7 +29,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="baudRate">波特率</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
-        public ModBusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits)
+        public ModBusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity)
         {
             if (serialPort == null) serialPort = new SerialPort();
             serialPort.PortName = portName;
@@ -37,6 +37,7 @@ namespace IoTClient.Clients.ModBus
             serialPort.DataBits = dataBits;
             serialPort.StopBits = stopBits;
             serialPort.Encoding = Encoding.ASCII;
+            serialPort.Parity = parity;
 #if !DEBUG
             serialPort.ReadTimeout = 1000;//1秒
 #endif
@@ -160,7 +161,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    return result;
+                    //return result;
                 }
 
                 byte[] resultData = new byte[responsePackage.Length - 2];
@@ -437,7 +438,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    return result;
+                    //return result;
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Buffer.BlockCopy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
@@ -474,13 +475,13 @@ namespace IoTClient.Clients.ModBus
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
 
                 var commandCRC16 = CRC16.GetCRC16(command);
-                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));              
+                result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 var responsePackage = SendPackage(commandCRC16);
                 if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    return result;
+                    //return result;
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);

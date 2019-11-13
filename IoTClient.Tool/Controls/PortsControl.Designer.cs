@@ -29,7 +29,9 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.cb_checkBit = new System.Windows.Forms.ComboBox();
+            this.cb_encoding = new System.Windows.Forms.ComboBox();
+            this.cb_parity = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.cb_stopBit = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -44,8 +46,6 @@
             this.but_close = new System.Windows.Forms.Button();
             this.txt_content = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.cb_encoding = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.txt_msg = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
@@ -56,7 +56,7 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.cb_encoding);
-            this.groupBox1.Controls.Add(this.cb_checkBit);
+            this.groupBox1.Controls.Add(this.cb_parity);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.cb_stopBit);
@@ -74,13 +74,31 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "设置";
             // 
-            // cb_checkBit
+            // cb_encoding
             // 
-            this.cb_checkBit.FormattingEnabled = true;
-            this.cb_checkBit.Location = new System.Drawing.Point(190, 46);
-            this.cb_checkBit.Name = "cb_checkBit";
-            this.cb_checkBit.Size = new System.Drawing.Size(83, 20);
-            this.cb_checkBit.TabIndex = 10;
+            this.cb_encoding.FormattingEnabled = true;
+            this.cb_encoding.Location = new System.Drawing.Point(190, 72);
+            this.cb_encoding.Name = "cb_encoding";
+            this.cb_encoding.Size = new System.Drawing.Size(83, 20);
+            this.cb_encoding.TabIndex = 12;
+            this.cb_encoding.SelectedValueChanged += new System.EventHandler(this.cb_encoding_SelectedValueChanged);
+            // 
+            // cb_parity
+            // 
+            this.cb_parity.FormattingEnabled = true;
+            this.cb_parity.Location = new System.Drawing.Point(190, 46);
+            this.cb_parity.Name = "cb_parity";
+            this.cb_parity.Size = new System.Drawing.Size(83, 20);
+            this.cb_parity.TabIndex = 10;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(148, 76);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(41, 12);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "编  码";
             // 
             // label5
             // 
@@ -208,24 +226,6 @@
             this.groupBox3.TabIndex = 14;
             this.groupBox3.TabStop = false;
             // 
-            // cb_encoding
-            // 
-            this.cb_encoding.FormattingEnabled = true;
-            this.cb_encoding.Location = new System.Drawing.Point(190, 72);
-            this.cb_encoding.Name = "cb_encoding";
-            this.cb_encoding.Size = new System.Drawing.Size(83, 20);
-            this.cb_encoding.TabIndex = 12;
-            this.cb_encoding.SelectedValueChanged += new System.EventHandler(this.cb_encoding_SelectedValueChanged);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(148, 76);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(41, 12);
-            this.label6.TabIndex = 11;
-            this.label6.Text = "编  码";
-            // 
             // txt_msg
             // 
             this.txt_msg.Location = new System.Drawing.Point(30, 18);
@@ -267,7 +267,7 @@
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ComboBox cb_portNameSend;
-        private System.Windows.Forms.ComboBox cb_checkBit;
+        private System.Windows.Forms.ComboBox cb_parity;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox cb_stopBit;
         private System.Windows.Forms.Label label4;

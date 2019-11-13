@@ -74,6 +74,7 @@
             this.button3.TabIndex = 24;
             this.button3.Text = "清空数据";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // but_close_server
             // 
@@ -83,6 +84,7 @@
             this.but_close_server.TabIndex = 7;
             this.but_close_server.Text = "关闭服务";
             this.but_close_server.UseVisualStyleBackColor = true;
+            this.but_close_server.Click += new System.EventHandler(this.but_close_server_Click);
             // 
             // but_close
             // 
@@ -92,6 +94,7 @@
             this.but_close.TabIndex = 6;
             this.but_close.Text = "关闭";
             this.but_close.UseVisualStyleBackColor = true;
+            this.but_close.Click += new System.EventHandler(this.but_close_Click);
             // 
             // groupBox2
             // 
@@ -117,6 +120,7 @@
             this.but_server.TabIndex = 0;
             this.but_server.Text = "本地模拟服务";
             this.but_server.UseVisualStyleBackColor = true;
+            this.but_server.Click += new System.EventHandler(this.but_server_Click);
             // 
             // but_open
             // 
@@ -126,6 +130,7 @@
             this.but_open.TabIndex = 1;
             this.but_open.Text = "连接";
             this.but_open.UseVisualStyleBackColor = true;
+            this.but_open.Click += new System.EventHandler(this.but_open_Click);
             // 
             // txt_ip
             // 
@@ -296,6 +301,7 @@
             this.but_sendData.TabIndex = 16;
             this.but_sendData.Text = "发送报文";
             this.but_sendData.UseVisualStyleBackColor = true;
+            this.but_sendData.Click += new System.EventHandler(this.but_sendData_Click);
             // 
             // txt_dataPackage
             // 
@@ -322,6 +328,7 @@
             this.but_read.TabIndex = 7;
             this.but_read.Text = "读取";
             this.but_read.UseVisualStyleBackColor = true;
+            this.but_read.Click += new System.EventHandler(this.but_read_Click);
             // 
             // lab_address
             // 
@@ -338,6 +345,7 @@
             this.txt_address.Name = "txt_address";
             this.txt_address.Size = new System.Drawing.Size(81, 21);
             this.txt_address.TabIndex = 9;
+            this.txt_address.Text = "V2634";
             // 
             // but_write
             // 
@@ -347,6 +355,7 @@
             this.but_write.TabIndex = 10;
             this.but_write.Text = "写入";
             this.but_write.UseVisualStyleBackColor = true;
+            this.but_write.Click += new System.EventHandler(this.but_write_Click);
             // 
             // txt_value
             // 
@@ -354,6 +363,7 @@
             this.txt_value.Name = "txt_value";
             this.txt_value.Size = new System.Drawing.Size(75, 21);
             this.txt_value.TabIndex = 12;
+            this.txt_value.Text = "18.88";
             // 
             // lab_value
             // 

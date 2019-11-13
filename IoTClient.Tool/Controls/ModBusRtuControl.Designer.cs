@@ -52,9 +52,11 @@
             this.rd_long = new System.Windows.Forms.RadioButton();
             this.rd_int = new System.Windows.Forms.RadioButton();
             this.rd_uint = new System.Windows.Forms.RadioButton();
-            this.txt_baudRate = new System.Windows.Forms.TextBox();
             this.txt_content = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cb_baudRate = new System.Windows.Forms.ComboBox();
+            this.cb_parity = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.cb_portNameSend_server = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -77,7 +79,7 @@
             // 
             // but_read
             // 
-            this.but_read.Location = new System.Drawing.Point(133, 18);
+            this.but_read.Location = new System.Drawing.Point(133, 16);
             this.but_read.Name = "but_read";
             this.but_read.Size = new System.Drawing.Size(75, 23);
             this.but_read.TabIndex = 7;
@@ -100,10 +102,11 @@
             this.txt_address.Name = "txt_address";
             this.txt_address.Size = new System.Drawing.Size(88, 21);
             this.txt_address.TabIndex = 9;
+            this.txt_address.Text = "1";
             // 
             // but_write
             // 
-            this.but_write.Location = new System.Drawing.Point(337, 20);
+            this.but_write.Location = new System.Drawing.Point(337, 17);
             this.but_write.Name = "but_write";
             this.but_write.Size = new System.Drawing.Size(75, 23);
             this.but_write.TabIndex = 10;
@@ -113,10 +116,11 @@
             // 
             // txt_value
             // 
-            this.txt_value.Location = new System.Drawing.Point(256, 20);
+            this.txt_value.Location = new System.Drawing.Point(256, 17);
             this.txt_value.Name = "txt_value";
             this.txt_value.Size = new System.Drawing.Size(74, 21);
             this.txt_value.TabIndex = 12;
+            this.txt_value.Text = "3344";
             // 
             // groupBox3
             // 
@@ -137,7 +141,7 @@
             // 
             // but_sendData
             // 
-            this.but_sendData.Location = new System.Drawing.Point(616, 20);
+            this.but_sendData.Location = new System.Drawing.Point(616, 17);
             this.but_sendData.Name = "but_sendData";
             this.but_sendData.Size = new System.Drawing.Size(75, 23);
             this.but_sendData.TabIndex = 16;
@@ -147,7 +151,7 @@
             // 
             // txt_dataPackage
             // 
-            this.txt_dataPackage.Location = new System.Drawing.Point(424, 21);
+            this.txt_dataPackage.Location = new System.Drawing.Point(424, 18);
             this.txt_dataPackage.Name = "txt_dataPackage";
             this.txt_dataPackage.Size = new System.Drawing.Size(186, 21);
             this.txt_dataPackage.TabIndex = 17;
@@ -302,14 +306,6 @@
             this.rd_uint.Text = "uint";
             this.rd_uint.UseVisualStyleBackColor = true;
             // 
-            // txt_baudRate
-            // 
-            this.txt_baudRate.Location = new System.Drawing.Point(127, 19);
-            this.txt_baudRate.Name = "txt_baudRate";
-            this.txt_baudRate.Size = new System.Drawing.Size(42, 21);
-            this.txt_baudRate.TabIndex = 5;
-            this.txt_baudRate.Text = "9600";
-            // 
             // txt_content
             // 
             this.txt_content.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -322,6 +318,9 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.cb_baudRate);
+            this.groupBox2.Controls.Add(this.cb_parity);
+            this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.cb_portNameSend_server);
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.label7);
@@ -337,17 +336,50 @@
             this.groupBox2.Controls.Add(this.txt_stationNumber);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.txt_baudRate);
             this.groupBox2.Location = new System.Drawing.Point(13, 11);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(855, 50);
             this.groupBox2.TabIndex = 33;
             this.groupBox2.TabStop = false;
             // 
+            // cb_baudRate
+            // 
+            this.cb_baudRate.FormattingEnabled = true;
+            this.cb_baudRate.Items.AddRange(new object[] {
+            "1200",
+            "4800",
+            "9600",
+            "14400"});
+            this.cb_baudRate.Location = new System.Drawing.Point(121, 17);
+            this.cb_baudRate.Name = "cb_baudRate";
+            this.cb_baudRate.Size = new System.Drawing.Size(47, 20);
+            this.cb_baudRate.TabIndex = 27;
+            // 
+            // cb_parity
+            // 
+            this.cb_parity.FormattingEnabled = true;
+            this.cb_parity.Items.AddRange(new object[] {
+            "无",
+            "奇",
+            "偶"});
+            this.cb_parity.Location = new System.Drawing.Point(325, 17);
+            this.cb_parity.Name = "cb_parity";
+            this.cb_parity.Size = new System.Drawing.Size(35, 20);
+            this.cb_parity.TabIndex = 26;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(297, 21);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(29, 12);
+            this.label3.TabIndex = 25;
+            this.label3.Text = "奇偶";
+            // 
             // cb_portNameSend_server
             // 
             this.cb_portNameSend_server.FormattingEnabled = true;
-            this.cb_portNameSend_server.Location = new System.Drawing.Point(614, 21);
+            this.cb_portNameSend_server.Location = new System.Drawing.Point(615, 19);
             this.cb_portNameSend_server.Name = "cb_portNameSend_server";
             this.cb_portNameSend_server.Size = new System.Drawing.Size(47, 20);
             this.cb_portNameSend_server.TabIndex = 24;
@@ -355,7 +387,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(587, 25);
+            this.label8.Location = new System.Drawing.Point(588, 23);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(29, 12);
             this.label8.TabIndex = 23;
@@ -364,7 +396,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(250, 23);
+            this.label7.Location = new System.Drawing.Point(233, 21);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(41, 12);
             this.label7.TabIndex = 21;
@@ -372,16 +404,17 @@
             // 
             // txt_stopBit
             // 
-            this.txt_stopBit.Location = new System.Drawing.Point(292, 19);
+            this.txt_stopBit.Location = new System.Drawing.Point(274, 17);
             this.txt_stopBit.Name = "txt_stopBit";
-            this.txt_stopBit.Size = new System.Drawing.Size(24, 21);
+            this.txt_stopBit.Size = new System.Drawing.Size(21, 21);
             this.txt_stopBit.TabIndex = 22;
             this.txt_stopBit.Text = "1";
+            this.txt_stopBit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(176, 24);
+            this.label6.Location = new System.Drawing.Point(168, 22);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(41, 12);
             this.label6.TabIndex = 19;
@@ -389,23 +422,24 @@
             // 
             // txt_dataBit
             // 
-            this.txt_dataBit.Location = new System.Drawing.Point(217, 20);
+            this.txt_dataBit.Location = new System.Drawing.Point(209, 18);
             this.txt_dataBit.Name = "txt_dataBit";
-            this.txt_dataBit.Size = new System.Drawing.Size(24, 21);
+            this.txt_dataBit.Size = new System.Drawing.Size(21, 21);
             this.txt_dataBit.TabIndex = 20;
             this.txt_dataBit.Text = "8";
+            this.txt_dataBit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // cb_portNameSend
             // 
             this.cb_portNameSend.FormattingEnabled = true;
-            this.cb_portNameSend.Location = new System.Drawing.Point(34, 20);
+            this.cb_portNameSend.Location = new System.Drawing.Point(34, 18);
             this.cb_portNameSend.Name = "cb_portNameSend";
             this.cb_portNameSend.Size = new System.Drawing.Size(47, 20);
             this.cb_portNameSend.TabIndex = 18;
             // 
             // but_close
             // 
-            this.but_close.Location = new System.Drawing.Point(466, 19);
+            this.but_close.Location = new System.Drawing.Point(495, 16);
             this.but_close.Name = "but_close";
             this.but_close.Size = new System.Drawing.Size(75, 23);
             this.but_close.TabIndex = 17;
@@ -415,7 +449,7 @@
             // 
             // but_server_close
             // 
-            this.but_server_close.Location = new System.Drawing.Point(768, 19);
+            this.but_server_close.Location = new System.Drawing.Point(768, 17);
             this.but_server_close.Name = "but_server_close";
             this.but_server_close.Size = new System.Drawing.Size(75, 23);
             this.but_server_close.TabIndex = 16;
@@ -425,7 +459,7 @@
             // 
             // but_server_open
             // 
-            this.but_server_open.Location = new System.Drawing.Point(665, 19);
+            this.but_server_open.Location = new System.Drawing.Point(666, 17);
             this.but_server_open.Name = "but_server_open";
             this.but_server_open.Size = new System.Drawing.Size(99, 23);
             this.but_server_open.TabIndex = 0;
@@ -435,7 +469,7 @@
             // 
             // but_open
             // 
-            this.but_open.Location = new System.Drawing.Point(385, 18);
+            this.but_open.Location = new System.Drawing.Point(416, 16);
             this.but_open.Name = "but_open";
             this.but_open.Size = new System.Drawing.Size(75, 23);
             this.but_open.TabIndex = 1;
@@ -446,7 +480,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(324, 23);
+            this.label5.Location = new System.Drawing.Point(363, 21);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(29, 12);
             this.label5.TabIndex = 15;
@@ -454,16 +488,17 @@
             // 
             // txt_stationNumber
             // 
-            this.txt_stationNumber.Location = new System.Drawing.Point(353, 19);
+            this.txt_stationNumber.Location = new System.Drawing.Point(392, 17);
             this.txt_stationNumber.Name = "txt_stationNumber";
-            this.txt_stationNumber.Size = new System.Drawing.Size(25, 21);
+            this.txt_stationNumber.Size = new System.Drawing.Size(21, 21);
             this.txt_stationNumber.TabIndex = 14;
             this.txt_stationNumber.Text = "1";
+            this.txt_stationNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(7, 24);
+            this.label1.Location = new System.Drawing.Point(7, 22);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(29, 12);
             this.label1.TabIndex = 3;
@@ -472,7 +507,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(86, 24);
+            this.label2.Location = new System.Drawing.Point(82, 22);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(41, 12);
             this.label2.TabIndex = 4;
@@ -521,7 +556,6 @@
         private System.Windows.Forms.RadioButton rd_long;
         private System.Windows.Forms.RadioButton rd_int;
         private System.Windows.Forms.RadioButton rd_uint;
-        private System.Windows.Forms.TextBox txt_baudRate;
         private System.Windows.Forms.TextBox txt_content;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button but_close;
@@ -542,5 +576,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button but_sendData;
         private System.Windows.Forms.TextBox txt_dataPackage;
+        private System.Windows.Forms.ComboBox cb_parity;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cb_baudRate;
     }
 }

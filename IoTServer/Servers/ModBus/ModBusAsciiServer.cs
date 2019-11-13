@@ -12,7 +12,7 @@ namespace IoTServer.Servers.ModBus
     {
         private SerialPort serialPort;
         DataPersist dataPersist;
-        public ModBusAsciiServer(string portName, int baudRate, int dataBits, StopBits stopBits)
+        public ModBusAsciiServer(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity)
         {
             if (serialPort == null) serialPort = new SerialPort();
             serialPort.PortName = portName;
@@ -20,6 +20,7 @@ namespace IoTServer.Servers.ModBus
             serialPort.DataBits = dataBits;
             serialPort.StopBits = stopBits;
             serialPort.Encoding = Encoding.ASCII;
+            serialPort.Parity = parity;
 #if !DEBUG
             serialPort.ReadTimeout = 1000;//1秒
 #endif
