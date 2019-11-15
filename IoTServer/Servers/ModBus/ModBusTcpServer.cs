@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace IoTServer.Servers.ModBus
 {
-    public class ModBusTcpServer
+    /// <summary>
+    /// ModBusTcp 服务端模拟
+    /// </summary>
+    public class ModBusTcpServer : ServerSocketBase
     {
         private Socket socketServer;
         private string ip;
@@ -99,24 +102,11 @@ namespace IoTServer.Servers.ModBus
                 try
                 {
                     byte[] requetData1 = new byte[8];
-                    //读取客户端发送过来的数据
-                    int readLeng = newSocket.Receive(requetData1, 0, requetData1.Length, SocketFlags.None);
-                    if (readLeng == 0)//客户端断开连接
-                    {
-                        if (newSocket.Connected) newSocket.Shutdown(SocketShutdown.Both);
-                        newSocket.Close();
-                        return;
-                    }
-                    byte[] requetData2 = new byte[requetData1[5] - 2];
-                    readLeng = newSocket.Receive(requetData2, 0, requetData2.Length, SocketFlags.None);
-                    if (readLeng == 0)//客户端断开连接
-                    {
-                        if (newSocket.Connected) newSocket.Shutdown(SocketShutdown.Both);
-                        newSocket.Close();
-                        return;
-                    }
+                    //读取客户端发送过来的数据                  
+                    requetData1 = SocketRead(newSocket, requetData1.Length);
+                    byte[] requetData2 = new byte[requetData1[5] - 2];                 
+                    requetData2 = SocketRead(newSocket, requetData2.Length);
                     var requetData = requetData1.Concat(requetData2).ToArray();
-
                     byte[] responseData1 = new byte[8];
                     //复制请求报文中的报文头
                     Buffer.BlockCopy(requetData, 0, responseData1, 0, responseData1.Length);
@@ -192,16 +182,12 @@ namespace IoTServer.Servers.ModBus
                             }
                             break;
                     }
-                }
-                catch (SocketException ex)
-                {
-                    if (newSocket?.Connected ?? false) newSocket?.Shutdown(SocketShutdown.Both);
-                    newSocket?.Close();
-                }
+                }               
                 catch (Exception ex)
                 {
-                    if (newSocket?.Connected ?? false) newSocket?.Shutdown(SocketShutdown.Both);
-                    newSocket?.Close();
+                    //if (newSocket?.Connected ?? false) newSocket?.Shutdown(SocketShutdown.Both);
+                    //newSocket?.Close();
+                    //throw ex;
                 }
             }
         }

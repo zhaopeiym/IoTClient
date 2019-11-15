@@ -9,16 +9,6 @@
             ModBusAscii
             </summary>
         </member>
-        <member name="F:IoTClient.Clients.ModBus.ModBusAsciiClient.serialPort">
-            <summary>
-            串行端口对象
-            </summary>
-        </member>
-        <member name="F:IoTClient.Clients.ModBus.ModBusAsciiClient.isAutoOpen">
-            <summary>
-            是否自动打开关闭
-            </summary>
-        </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits)">
             <summary>
             构造函数
@@ -27,36 +17,6 @@
             <param name="baudRate">波特率</param>
             <param name="dataBits">数据位</param>
             <param name="stopBits">停止位</param>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.GetPortNames">
-            <summary>
-            获取设备上的COM端口集合
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.Connect">
-            <summary>
-            连接
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.Open">
-            <summary>
-            打开连接
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.Dispose">
-            <summary>
-            关闭
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.Close">
-            <summary>
-            关闭连接
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.SendPackage(System.Byte[])">
             <summary>
@@ -286,26 +246,9 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusAsciiClient.SerialPortRead(System.IO.Ports.SerialPort)">
-            <summary>
-            读取
-            </summary>
-            <param name="serialPort"></param>
-            <returns></returns>
-        </member>
         <member name="T:IoTClient.Clients.ModBus.ModBusRtuClient">
             <summary>
             ModBusTcp协议客户端
-            </summary>
-        </member>
-        <member name="F:IoTClient.Clients.ModBus.ModBusRtuClient.serialPort">
-            <summary>
-            串行端口对象
-            </summary>
-        </member>
-        <member name="F:IoTClient.Clients.ModBus.ModBusRtuClient.isAutoOpen">
-            <summary>
-            是否自动打开关闭
             </summary>
         </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity)">
@@ -316,36 +259,7 @@
             <param name="baudRate">波特率</param>
             <param name="dataBits">数据位</param>
             <param name="stopBits">停止位</param>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.GetPortNames">
-            <summary>
-            获取设备上的COM端口集合
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Connect">
-            <summary>
-            连接
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Open">
-            <summary>
-            打开连接
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Dispose">
-            <summary>
-            关闭
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Close">
-            <summary>
-            关闭连接
-            </summary>
-            <returns></returns>
+            <param name="parity">奇偶校验</param>
         </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.SendPackage(System.Byte[])">
             <summary>
@@ -573,13 +487,6 @@
             <param name="value"></param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.SerialPortRead(System.IO.Ports.SerialPort)">
-            <summary>
-            读取
-            </summary>
-            <param name="serialPort"></param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Clients.ModBus.ModBusTcpClient">
@@ -1316,23 +1223,23 @@
             CRC16验证
             </summary>
         </member>
-        <member name="M:IoTClient.Common.Helpers.CRC16.CheckCRC16(System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Common.Helpers.CRC16.CheckCRC16(System.Byte[],System.UInt16,System.UInt16)">
             <summary>
-            校验CRC校验码
+            验证CRC16校验码
             </summary>
-            <param name="value"></param>
-            <param name="ch">多项式码地位</param>
-            <param name="cl">多项式码高位</param>
+            <param name="value">校验数据</param>
+            <param name="poly">多项式码</param>
+            <param name="crcInit">校验码初始值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Common.Helpers.CRC16.GetCRC16(System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Common.Helpers.CRC16.GetCRC16(System.Byte[],System.UInt16,System.UInt16)">
             <summary>
-            获取CRC校验码
+            计算CRC16校验码
             </summary>
-            <param name="value"></param>
-            <param name="ch">多项式码地位</param>
-            <param name="cl">多项式码高位</param>
-            <returns>返回带CRC校验码的字节数组</returns>
+            <param name="value">校验数据</param>
+            <param name="poly">多项式码</param>
+            <param name="crcInit">校验码初始值</param>
+            <returns></returns>
         </member>
         <member name="T:IoTClient.Common.Helpers.DataConvert">
             <summary>
@@ -1660,50 +1567,108 @@
             开始地址
             </summary>
         </member>
-        <member name="T:IoTClient.Core.SocketBase">
+        <member name="T:IoTClient.SerialPortBase">
             <summary>
-            Socket基类
+            SerialPort基类
             </summary>
         </member>
-        <member name="F:IoTClient.Core.SocketBase.BufferSize">
+        <member name="F:IoTClient.SerialPortBase.serialPort">
             <summary>
-            分批缓冲区大小
+            串行端口对象
             </summary>
         </member>
-        <member name="F:IoTClient.Core.SocketBase.socket">
-            <summary>
-            Socket实例
-            </summary>
-        </member>
-        <member name="F:IoTClient.Core.SocketBase.isAutoOpen">
+        <member name="F:IoTClient.SerialPortBase.isAutoOpen">
             <summary>
             是否自动打开关闭
             </summary>
         </member>
-        <member name="M:IoTClient.Core.SocketBase.Open">
+        <member name="M:IoTClient.SerialPortBase.GetPortNames">
+            <summary>
+            获取设备上的COM端口集合
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SerialPortBase.Connect">
+            <summary>
+            连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SerialPortBase.Open">
             <summary>
             打开连接
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Core.SocketBase.Close">
+        <member name="M:IoTClient.SerialPortBase.Dispose">
             <summary>
             关闭连接
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Core.SocketBase.Dispose">
+        <member name="M:IoTClient.SerialPortBase.Close">
             <summary>
             关闭连接
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Core.SocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32)">
+        <member name="M:IoTClient.SerialPortBase.SerialPortRead(System.IO.Ports.SerialPort)">
             <summary>
             读取
             </summary>
-            <param name="socket"></param>
-            <param name="receiveCount"></param>
+            <param name="serialPort"></param>
+            <returns></returns>
+        </member>
+        <member name="T:IoTClient.SocketBase">
+            <summary>
+            Socket基类
+            </summary>
+        </member>
+        <member name="F:IoTClient.SocketBase.BufferSize">
+            <summary>
+            分批缓冲区大小
+            </summary>
+        </member>
+        <member name="F:IoTClient.SocketBase.socket">
+            <summary>
+            Socket实例
+            </summary>
+        </member>
+        <member name="F:IoTClient.SocketBase.isAutoOpen">
+            <summary>
+            是否自动打开关闭
+            </summary>
+        </member>
+        <member name="M:IoTClient.SocketBase.Connect">
+            <summary>
+            连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SocketBase.Open">
+            <summary>
+            打开连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SocketBase.Dispose">
+            <summary>
+            关闭连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SocketBase.Close">
+            <summary>
+            关闭连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32)">
+            <summary>
+            读取
+            </summary>
+            <param name="socket">socket</param>
+            <param name="receiveCount">读取长度</param>
             <returns></returns>
         </member>
     </members>

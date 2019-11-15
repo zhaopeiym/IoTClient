@@ -102,7 +102,7 @@
             this.txt_address.Name = "txt_address";
             this.txt_address.Size = new System.Drawing.Size(88, 21);
             this.txt_address.TabIndex = 9;
-            this.txt_address.Text = "1";
+            this.txt_address.Text = "4";
             // 
             // but_write
             // 
@@ -120,7 +120,7 @@
             this.txt_value.Name = "txt_value";
             this.txt_value.Size = new System.Drawing.Size(74, 21);
             this.txt_value.TabIndex = 12;
-            this.txt_value.Text = "3344";
+            this.txt_value.Text = "33";
             // 
             // groupBox3
             // 

@@ -200,13 +200,11 @@ namespace IoTClient.Clients.PLC
                 //发送读取信息
                 var arg = ConvertArg(address);
                 byte[] command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                //socket.Send(command);
-                //var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-                //var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));              
                 var dataPackage = SendPackage(command);
                 byte[] requst = new byte[length];
-                Array.Copy(dataPackage, dataPackage.Length - length, requst, 0, length);
+                Array.Copy(dataPackage, 25, requst, 0, length);
+                //Array.Copy(dataPackage, dataPackage.Length - length, requst, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 result.Value = requst;
             }

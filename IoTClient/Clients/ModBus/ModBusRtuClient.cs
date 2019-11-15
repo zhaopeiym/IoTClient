@@ -11,17 +11,8 @@ namespace IoTClient.Clients.ModBus
     /// <summary>
     /// ModBusTcp协议客户端
     /// </summary>
-    public class ModBusRtuClient
+    public class ModBusRtuClient : SerialPortBase
     {
-        /// <summary>
-        /// 串行端口对象
-        /// </summary>
-        private SerialPort serialPort;
-        /// <summary>
-        /// 是否自动打开关闭
-        /// </summary>
-        private bool isAutoOpen = true;
-
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -29,6 +20,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="baudRate">波特率</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
+        /// <param name="parity">奇偶校验</param>
         public ModBusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity)
         {
             if (serialPort == null) serialPort = new SerialPort();
@@ -43,76 +35,7 @@ namespace IoTClient.Clients.ModBus
 #endif
 
         }
-
-        /// <summary>
-        /// 获取设备上的COM端口集合
-        /// </summary>
-        /// <returns></returns>
-        public static string[] GetPortNames()
-        {
-            return SerialPort.GetPortNames();
-        }
-
-        /// <summary>
-        /// 连接
-        /// </summary>
-        /// <returns></returns>
-        private Result Connect()
-        {
-            var result = new Result();
-            serialPort?.Close();
-            try
-            {
-                serialPort.Open();
-            }
-            catch (Exception ex)
-            {
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 打开连接
-        /// </summary>
-        /// <returns></returns>
-        public Result Open()
-        {
-            isAutoOpen = false;
-            return Connect();
-        }
-
-        /// <summary>
-        /// 关闭
-        /// </summary>
-        /// <returns></returns>
-        private Result Dispose()
-        {
-            var result = new Result();
-            try
-            {
-                serialPort.Close();
-            }
-            catch (Exception ex)
-            {
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 关闭连接
-        /// </summary>
-        /// <returns></returns>
-        public Result Close()
-        {
-            isAutoOpen = true;
-            serialPort.Dispose();
-            return Dispose();
-        }
-
+         
         #region 发送报文，并获取响应报文
         /// <summary>
         /// 发送报文，并获取响应报文
@@ -154,7 +77,7 @@ namespace IoTClient.Clients.ModBus
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
-                    result.Err = "响应结果为空，请检查是否连上了服务端";
+                    result.Err = "响应结果为空";
                     return result;
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
@@ -166,7 +89,6 @@ namespace IoTClient.Clients.ModBus
 
                 byte[] resultData = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultData, 0, resultData.Length);
-
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
                 result.Value = resultData.Reverse().ToArray();
@@ -434,12 +356,18 @@ namespace IoTClient.Clients.ModBus
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 //发送命令并获取响应报文
                 var responsePackage = SendPackage(commandCRC16);
-                if (!CRC16.CheckCRC16(responsePackage))
+                if (!responsePackage.Any())
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果为空";
+                    return result;
+                }
+                else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
                     //return result;
-                }
+                }                
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Buffer.BlockCopy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -477,7 +405,13 @@ namespace IoTClient.Clients.ModBus
                 var commandCRC16 = CRC16.GetCRC16(command);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 var responsePackage = SendPackage(commandCRC16);
-                if (!CRC16.CheckCRC16(responsePackage))
+                if (!responsePackage.Any())
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果为空";
+                    return result;
+                }
+                else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
@@ -672,22 +606,6 @@ namespace IoTClient.Clients.ModBus
             return buffer;
         }
 
-        #endregion
-
-        /// <summary>
-        /// 读取
-        /// </summary>
-        /// <param name="serialPort"></param>
-        /// <returns></returns>
-        private byte[] SerialPortRead(SerialPort serialPort)
-        {
-            //延时处理
-            if (serialPort.BytesToRead == 0) Thread.Sleep(20);
-            if (serialPort.BytesToRead == 0) Thread.Sleep(40);
-            if (serialPort.BytesToRead == 0) Thread.Sleep(80);
-            byte[] buffer = new byte[serialPort.BytesToRead];
-            var length = serialPort.Read(buffer, 0, buffer.Length);
-            return buffer;
-        }
+        #endregion 
     }
 }

@@ -17,7 +17,7 @@ namespace IoTClient.Tests.ModBus
         }
 
         /// <summary>
-        /// 值的写入有一定的延时，修改500毫秒后检验
+        /// ModBus值的写入有一定的延时，500毫秒后检验
         /// </summary>
         /// <returns></returns>
         [Fact]
@@ -37,10 +37,26 @@ namespace IoTClient.Tests.ModBus
             client.Write("12", Number, stationNumber);
             await Task.Delay(500);
             Assert.True(client.ReadInt16("12", stationNumber).Value == 1);
+
             Number = 0;
             client.Write("12", Number, stationNumber);
             await Task.Delay(500);
             Assert.True(client.ReadInt16("12", stationNumber).Value == 0);
+
+            int numberInt32 = -12;
+            client.Write("4", numberInt32, stationNumber);
+            await Task.Delay(500);
+            Assert.True(client.ReadInt32("4", stationNumber).Value == numberInt32);
+
+            float numberFloat = 112;
+            client.Write("4", numberFloat, stationNumber);
+            await Task.Delay(500);
+            Assert.True(client.ReadFloat("4", stationNumber).Value == numberFloat);
+
+            double numberDouble = 32;
+            client.Write("4", numberDouble, stationNumber);
+            await Task.Delay(500);
+            Assert.True(client.ReadDouble("4", stationNumber).Value == numberDouble);
         }
 
         [Fact]
@@ -62,10 +78,26 @@ namespace IoTClient.Tests.ModBus
             client.Write("12", Number, stationNumber);
             await Task.Delay(500);
             Assert.True(client.ReadInt16("12", stationNumber).Value == 1);
+
             Number = 0;
             client.Write("12", Number, stationNumber);
             await Task.Delay(500);
             Assert.True(client.ReadInt16("12", stationNumber).Value == 0);
+
+            int numberInt32 = -12;
+            client.Write("4", numberInt32, stationNumber);
+            await Task.Delay(500);
+            Assert.True(client.ReadInt32("4", stationNumber).Value == numberInt32);
+
+            float numberFloat = 112;
+            client.Write("4", numberFloat, stationNumber);
+            await Task.Delay(500);
+            Assert.True(client.ReadFloat("4", stationNumber).Value == numberFloat);
+
+            double numberDouble = 32;
+            client.Write("4", numberDouble, stationNumber);
+            await Task.Delay(500);
+            Assert.True(client.ReadDouble("4", stationNumber).Value == numberDouble);
 
             client.Close();
         }

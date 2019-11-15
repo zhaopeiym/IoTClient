@@ -9,7 +9,7 @@
 ## 引用组件
 [Nuget安装](https://www.nuget.org/packages/IoTClient/) ```Install-Package IoTClient ```  
 或图形化安装   
-![](https://img2018.cnblogs.com/blog/208266/201911/208266-20191110094638423-1017899651.png)  
+![image](https://user-images.githubusercontent.com/5820324/68722366-2fc5bf00-05f0-11ea-8282-f2b0a58a9f9d.png)  
 
 ## ModBusTcp读写操作
 
@@ -17,11 +17,11 @@
 //1、实例化客户端 - 输入正确的IP和端口
 ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502);
 
-//2、读操作 - 参数依次是：地址 、值 、站号 、功能码
+//2、写操作 - 参数依次是：地址 、值 、站号 、功能码
 client.Write("4", (short)33, 2, 16);
 client.Write("4", (short)3344, 2, 16);
 
-//3、写操作 - 参数依次是：地址 、站号 、功能码
+//3、读操作 - 参数依次是：地址 、站号 、功能码
 var value = client.ReadInt16("4", 2, 3).Value;
 var value2 = client.ReadInt32("4", 2, 3).Value;
 
@@ -43,9 +43,11 @@ var value3 = result.Value;
 ``` 
 
 # IoTClient Tool效果图   
-![image](https://user-images.githubusercontent.com/5820324/68068792-1a50c980-fd94-11e9-9ad6-3c8cf683cf6d.png)  
+![image](https://user-images.githubusercontent.com/5820324/68926947-9c43e800-07c1-11ea-9da7-f431ec52f2fb.png)  
 
-![image](https://user-images.githubusercontent.com/5820324/68068801-305e8a00-fd94-11e9-9745-98afa11c968e.png)  
+![image](https://user-images.githubusercontent.com/5820324/68926546-c052f980-07c0-11ea-86ec-8ae36cc9aa3a.png)    
+
+![image](https://user-images.githubusercontent.com/5820324/68926383-5a667200-07c0-11ea-905c-42a391f2300f.png)
 
 ![image](https://user-images.githubusercontent.com/5820324/68068805-3c4a4c00-fd94-11e9-899e-cec0b4b70fa8.png)  
 

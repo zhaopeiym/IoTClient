@@ -59,7 +59,6 @@ namespace IoTClient.Tool.Controls
                 server.Start();
                 but_server.Enabled = false;
                 but_close_server.Enabled = true;
-                but_sendData.Enabled = true;
                 AppendText($"开启仿真模拟服务");
             }
             catch (Exception ex)
@@ -73,7 +72,6 @@ namespace IoTClient.Tool.Controls
             server?.Stop();
             but_server.Enabled = true;
             but_close_server.Enabled = false;
-            but_sendData.Enabled = false;
             AppendText($"关闭仿真模拟服务");
         }
 
@@ -92,6 +90,7 @@ namespace IoTClient.Tool.Controls
                     but_write.Enabled = true;
                     but_open.Enabled = false;
                     but_close.Enabled = true;
+                    but_sendData.Enabled = true;
                     AppendText($"连接成功");
                 }
             }
@@ -165,7 +164,7 @@ namespace IoTClient.Tool.Controls
                     AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
                 else
                     AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
-                if (chb_show_package.Checked)
+                if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
                     AppendText($"[响应报文]{result.Response}\r\n");
@@ -253,7 +252,7 @@ namespace IoTClient.Tool.Controls
                     AppendText($"[写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
                     AppendText($"[写入 {txt_address.Text?.Trim()} 失败]：{result.Err}");
-                if (chb_show_package.Checked)
+                if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
                     AppendText($"[响应报文]{result.Response}\r\n");

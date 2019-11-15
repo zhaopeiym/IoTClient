@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 namespace IoTServer.Servers.PLC
 {
     /// <summary>
-    /// 三菱plc 服务端
+    /// 三菱plc 服务端模拟
     /// </summary>
-    public class MitsubishiServer
+    public class MitsubishiServer : ServerSocketBase
     {
         private Socket socketServer;
         private string ip;
@@ -109,14 +109,8 @@ namespace IoTServer.Servers.PLC
                 try
                 {
                     byte[] requetData1 = new byte[21];
-                    //读取客户端发送过来的数据
-                    int readLeng = newSocket.Receive(requetData1, 0, requetData1.Length, SocketFlags.None);
-                    if (readLeng == 0)//客户端断开连接
-                    {
-                        newSocket.Shutdown(SocketShutdown.Both);
-                        newSocket.Close();
-                        return;
-                    }
+                    //读取客户端发送过来的数据                   
+                    requetData1 = SocketRead(newSocket, requetData1.Length);
                     byte[] requetData = null;
                     //[12] 0x14 写 0x04 读
                     if (requetData1[12] == 0x14)
@@ -124,21 +118,15 @@ namespace IoTServer.Servers.PLC
                         var lenght = requetData1[20] * 2 * 256 + requetData1[19] * 2;
                         //如果是按Bit存储
                         if (requetData1[13] == 0x01) lenght = 1;
-                        byte[] requetData2 = new byte[lenght];
-                        readLeng = newSocket.Receive(requetData2, 0, requetData2.Length, SocketFlags.None);
-                        if (readLeng == 0)//客户端断开连接
-                        {
-                            if (newSocket?.Connected ?? false) newSocket.Shutdown(SocketShutdown.Both);
-                            newSocket?.Close();
-                            return;
-                        }
+                        byte[] requetData2 = new byte[lenght];                       
+                        requetData2 = SocketRead(newSocket, requetData2.Length);
                         requetData = requetData1.Concat(requetData2).ToArray();
                     }
                     else
                         requetData = requetData1;
                     //地址
                     var address = $"{requetData[18].ToString()}-{requetData[17] * 256 * 256 + requetData[16] * 256 + requetData[15]}";
-                     
+
                     switch (requetData[12])
                     {
                         //读
@@ -183,9 +171,11 @@ namespace IoTServer.Servers.PLC
                             break;
                     }
                 }
-                catch (SocketException ex)
+                catch (Exception ex)
                 {
-
+                    //if (newSocket?.Connected ?? false) newSocket?.Shutdown(SocketShutdown.Both);
+                    //newSocket?.Close();
+                    //throw ex;
                 }
             }
         }

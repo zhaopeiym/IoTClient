@@ -201,7 +201,7 @@ namespace IoTClient.Tool.Controls
                     AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
                 else
                     AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
-                if (chb_show_package.Checked)
+                if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
                     AppendText($"[响应报文]{result.Response}\r\n");
@@ -289,7 +289,7 @@ namespace IoTClient.Tool.Controls
                     AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
                     AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}\r\n");
-                if (chb_show_package.Checked)
+                if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
                     AppendText($"[响应报文]{result.Response}\r\n");

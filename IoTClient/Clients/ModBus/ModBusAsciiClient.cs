@@ -11,18 +11,8 @@ namespace IoTClient.Clients.ModBus
     /// <summary>
     /// ModBusAscii
     /// </summary>
-    public class ModBusAsciiClient
+    public class ModBusAsciiClient : SerialPortBase
     {
-
-        /// <summary>
-        /// 串行端口对象
-        /// </summary>
-        private SerialPort serialPort;
-        /// <summary>
-        /// 是否自动打开关闭
-        /// </summary>
-        private bool isAutoOpen = true;
-
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -42,75 +32,6 @@ namespace IoTClient.Clients.ModBus
             serialPort.ReadTimeout = 1000;//1秒
 #endif
 
-        }
-
-        /// <summary>
-        /// 获取设备上的COM端口集合
-        /// </summary>
-        /// <returns></returns>
-        public static string[] GetPortNames()
-        {
-            return SerialPort.GetPortNames();
-        }
-
-        /// <summary>
-        /// 连接
-        /// </summary>
-        /// <returns></returns>
-        private Result Connect()
-        {
-            var result = new Result();
-            serialPort?.Close();
-            try
-            {
-                serialPort.Open();
-            }
-            catch (Exception ex)
-            {
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 打开连接
-        /// </summary>
-        /// <returns></returns>
-        public Result Open()
-        {
-            isAutoOpen = false;
-            return Connect();
-        }
-
-        /// <summary>
-        /// 关闭
-        /// </summary>
-        /// <returns></returns>
-        private Result Dispose()
-        {
-            var result = new Result();
-            try
-            {
-                serialPort.Close();
-            }
-            catch (Exception ex)
-            {
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 关闭连接
-        /// </summary>
-        /// <returns></returns>
-        public Result Close()
-        {
-            isAutoOpen = true;
-            serialPort.Dispose();
-            return Dispose();
         }
 
         #region 发送报文，并获取响应报文
@@ -161,7 +82,7 @@ namespace IoTClient.Clients.ModBus
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
-                    result.Err = "响应结果为空，请检查是否连上了服务端";
+                    result.Err = "响应结果为空";
                     return result;
                 }
 
@@ -172,8 +93,8 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果LRC验证失败";
-                    return result;
-                } 
+                    //return result;
+                }
                 var resultData = new byte[resultByte[2]];
                 Buffer.BlockCopy(resultByte, 3, resultData, 0, resultData.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -439,8 +360,8 @@ namespace IoTClient.Clients.ModBus
             try
             {
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode);
-               
-                var commandAscii = DataConvert.ByteArrayToAsciiArray(LRC.GetLRC(command)); 
+
+                var commandAscii = DataConvert.ByteArrayToAsciiArray(LRC.GetLRC(command));
                 var finalCommand = new byte[commandAscii.Length + 3];
                 Buffer.BlockCopy(commandAscii, 0, finalCommand, 1, commandAscii.Length);
                 finalCommand[0] = 0x3A;
@@ -450,7 +371,13 @@ namespace IoTClient.Clients.ModBus
                 result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
                 //发送命令并获取响应报文
                 var responsePackage = SendPackage(finalCommand);
-                 
+                if (!responsePackage.Any())
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果为空";
+                    return result;
+                }
+
                 byte[] resultLRC = new byte[responsePackage.Length - 3];
                 Array.Copy(responsePackage, 1, resultLRC, 0, resultLRC.Length);
                 var resultByte = DataConvert.AsciiArrayToByteArray(resultLRC);
@@ -458,7 +385,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果LRC验证失败";
-                    return result;
+                    //return result;
                 }
 
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -502,6 +429,12 @@ namespace IoTClient.Clients.ModBus
 
                 result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
                 var responsePackage = SendPackage(finalCommand);
+                if (!responsePackage.Any())
+                {
+                    result.IsSucceed = false;
+                    result.Err = "响应结果为空";
+                    return result;
+                }
 
                 byte[] resultLRC = new byte[responsePackage.Length - 3];
                 Array.Copy(responsePackage, 1, resultLRC, 0, resultLRC.Length);
@@ -510,7 +443,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果LRC验证失败";
-                    return result;
+                    //return result;
                 }
 
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -701,21 +634,5 @@ namespace IoTClient.Clients.ModBus
         }
 
         #endregion
-
-        /// <summary>
-        /// 读取
-        /// </summary>
-        /// <param name="serialPort"></param>
-        /// <returns></returns>
-        private byte[] SerialPortRead(SerialPort serialPort)
-        {
-            //延时处理
-            if (serialPort.BytesToRead == 0) Thread.Sleep(20);
-            if (serialPort.BytesToRead == 0) Thread.Sleep(40);
-            if (serialPort.BytesToRead == 0) Thread.Sleep(80);
-            byte[] buffer = new byte[serialPort.BytesToRead];
-            var length = serialPort.Read(buffer, 0, buffer.Length);
-            return buffer;
-        }
     }
 }

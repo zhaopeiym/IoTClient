@@ -11,7 +11,10 @@ using System.Threading.Tasks;
 
 namespace IoTServer.Servers.PLC
 {
-    public class SiemensServer
+    /// <summary>
+    /// 西门子PLC 服务端模拟
+    /// </summary>
+    public class SiemensServer : ServerSocketBase
     {
         private Socket socketServer;
         private string ip;
@@ -101,22 +104,10 @@ namespace IoTServer.Servers.PLC
                 try
                 {
                     byte[] requetData1 = new byte[4];
-                    //读取客户端发送过来的数据
-                    int readLeng = newSocket.Receive(requetData1, 0, requetData1.Length, SocketFlags.None);
-                    if (readLeng == 0)//客户端断开连接
-                    {
-                        newSocket.Shutdown(SocketShutdown.Both);
-                        newSocket.Close();
-                        return;
-                    }
+                    //读取客户端发送过来的数据                   
+                    requetData1 = SocketRead(newSocket, requetData1.Length);
                     byte[] requetData2 = new byte[requetData1[3] - 4];
-                    readLeng = newSocket.Receive(requetData2, 0, requetData2.Length, SocketFlags.None);
-                    if (readLeng == 0)//客户端断开连接
-                    {
-                        if (newSocket?.Connected ?? false) newSocket.Shutdown(SocketShutdown.Both);
-                        newSocket?.Close();
-                        return;
-                    }
+                    requetData2 = SocketRead(newSocket, requetData2.Length);
                     var requetData = requetData1.Concat(requetData2).ToArray();
 
                     //如果是连接的时候发送的两次初始化指令 则直接跳过
@@ -155,6 +146,7 @@ namespace IoTServer.Servers.PLC
                                 responseData1[16] = (byte)(requetData.Length % 256);
                                 responseData1[20] = requetData[18];
                                 dataContent.CopyTo(responseData1, 21);
+                                //当读取的是字符串的时候[25]存储的后面的数据长度，参考SiemensClient的Write(string address, string value)方法。
                                 Buffer.BlockCopy(bytes, 0, responseData1, responseData1.Length - bytes.Length, bytes.Length);
                                 newSocket.Send(responseData1);
                             }
@@ -176,12 +168,11 @@ namespace IoTServer.Servers.PLC
                             break;
                     }
                 }
-                catch (SocketException ex)
+                catch (Exception ex)
                 {
-                    //todo
-                    //if (ex.SocketErrorCode != SocketError.ConnectionRefused &&
-                    //    ex.SocketErrorCode != SocketError.ConnectionReset)
-                    //    throw ex;
+                    //if (newSocket?.Connected ?? false) newSocket?.Shutdown(SocketShutdown.Both);
+                    //newSocket?.Close();
+                    //throw ex;
                 }
             }
         }

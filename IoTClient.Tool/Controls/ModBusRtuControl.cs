@@ -1,11 +1,14 @@
 ﻿using IoTClient.Clients.ModBus;
 using IoTClient.Common.Helpers;
+using IoTClient.Models;
 using IoTServer.Common;
 using IoTServer.Servers.ModBus;
 using System;
+using System.Collections;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IoTClient.Tool.Controls
@@ -14,9 +17,16 @@ namespace IoTClient.Tool.Controls
     {
         private ModBusRtuClient client;
         private ModBusRtuServer server;
+
+        int[] BaudRateList = new int[] { 9600, 4800, 2400, 1200, 600, 14400, 300, 19200, 110, 38400, 56000, 57600, 115200, 128000, 256000 };
+        int[] DataBitList = new int[] { 8, 7, 6, 5 };
+        StopBits[] StopBitsList = new StopBits[] { StopBits.One, StopBits.Two, StopBits.OnePointFive };
+        Parity[] ParityList = new Parity[] { Parity.None, Parity.Odd, Parity.Even };
+
         public ModBusRtuControl()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
 
             Size = new Size(880, 450);
             groupBox2.Location = new Point(13, 5);
@@ -54,6 +64,7 @@ namespace IoTClient.Tool.Controls
             cb_parity.SelectedIndex = 0;
             cb_parity.DropDownStyle = ComboBoxStyle.DropDownList;
             cb_baudRate.SelectedIndex = 2;
+            toolTip1.SetToolTip(but_open, "按住Ctrl后连接将自动扫描串口连接参数");
         }
 
         /// <summary>
@@ -91,7 +102,17 @@ namespace IoTClient.Tool.Controls
                     but_open.Enabled = false;
                     but_close.Enabled = true;
                     but_sendData.Enabled = true;
-                    AppendText("连接成功");
+
+                    //按了Ctrl后的鼠标点击
+                    if ((ModifierKeys & Keys.Control) == Keys.Control)
+                    {
+                        Task.Run(() =>
+                        {
+                            AutoOpenRead();
+                        });
+                    }
+                    else
+                        AppendText("连接成功");
                 }
                 else
                     AppendText($"连接失败：{result.Err}");
@@ -99,6 +120,83 @@ namespace IoTClient.Tool.Controls
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 自动扫描可连接串口属性
+        /// </summary>
+        /// <returns></returns>
+        private void AutoOpenRead()
+        {
+            #region 当前选择的配置有效匹配
+            FirstItem(ref BaudRateList, int.Parse(cb_baudRate.Text.ToString()));
+            FirstItem(ref DataBitList, int.Parse(txt_dataBit.Text.ToString()));
+            FirstItem(ref StopBitsList, (StopBits)int.Parse(txt_stopBit.Text.ToString()));
+            var firstParity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
+            FirstItem(ref ParityList, firstParity);
+            #endregion
+            byte.TryParse(txt_stationNumber.Text?.Trim(), out byte stationNumber);
+
+            if (!client.ReadInt16("0", stationNumber).IsSucceed)
+            {
+                foreach (var baudRate in BaudRateList)
+                {
+                    foreach (var dataBit in DataBitList)
+                    {
+                        foreach (var stopBits in StopBitsList)
+                        {
+                            foreach (var parity in ParityList)
+                            {
+                                for (byte i = 0; i < 255; i++)
+                                {
+                                    stationNumber = (byte)(i + 1);
+                                    if (but_open.Enabled) return;
+                                    client?.Close();
+                                    client = new ModBusRtuClient(cb_portNameSend.Text.ToString(), baudRate, dataBit, stopBits, parity);
+                                    var result = client.Open();
+                                    if (result.IsSucceed)
+                                    {
+                                        if (client.ReadInt16("0", stationNumber).IsSucceed)
+                                        {
+                                            AppendText($@"连接【成功】 端口:{cb_portNameSend.Text.ToString()} 波特率:{baudRate} 数据位:{dataBit} 停止位:{stopBits} 奇偶:{parity} 站号:{stationNumber}");
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            AppendText($@"连接失败 端口:{cb_portNameSend.Text.ToString()} 波特率:{baudRate} 数据位:{dataBit} 停止位:{stopBits} 奇偶:{parity} 站号:{stationNumber}");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AppendText($"连接异常 端口:{cb_portNameSend.Text.ToString()} 波特率:{baudRate} 数据位:{dataBit} 停止位:{stopBits} 奇偶:{parity} 站号:{stationNumber} Err:{result.Err}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                AppendText($@"连接【成功】 端口:{cb_portNameSend.Text} 波特率:{cb_baudRate.Text} 数据位:{txt_dataBit.Text} 停止位:{txt_stopBit.Text} 奇偶:{cb_parity.Text} 站号:{stationNumber}");
+            }
+        }
+
+        /// <summary>
+        /// 移动项到数组第一个
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="item"></param>
+        private void FirstItem<T>(ref T[] list, T item)
+        {
+            if (list.Contains(item))
+            {
+                var temp = list.ToList();
+                temp.Remove(item);
+                temp.Insert(0, item);
+                list = temp.ToArray();
             }
         }
 
@@ -178,7 +276,7 @@ namespace IoTClient.Tool.Controls
                     AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
                 else
                     AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
-                if (chb_show_package.Checked)
+                if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
                     AppendText($"[响应报文]{result.Response}\r\n");
@@ -271,7 +369,7 @@ namespace IoTClient.Tool.Controls
                     AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
                     AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}");
-                if (chb_show_package.Checked)
+                if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
                     AppendText($"[响应报文]{result.Response}\r\n");

@@ -272,3 +272,5 @@ __pycache__/
 /IoTClient/version.props
 /IoTServer/version.props
 /IoTServer/自增版本号打包.ps1
+/IoTClient/IoTClient/IoTClient.xml
+/IoTServer/IoTServer/IoTServer.xml

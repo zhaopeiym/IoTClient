@@ -39,6 +39,11 @@
             初始化加载数据
             </summary>
         </member>
+        <member name="T:IoTServer.Servers.ModBus.ModBusAsciiServer">
+            <summary>
+            ModBusAscii 服务端模拟
+            </summary>
+        </member>
         <member name="M:IoTServer.Servers.ModBus.ModBusAsciiServer.Start">
             <summary>
             启动服务
@@ -56,6 +61,11 @@
             <param name="sender"></param>
             <param name="e"></param>
         </member>
+        <member name="T:IoTServer.Servers.ModBus.ModBusRtuServer">
+            <summary>
+            ModBusRtu 服务端模拟
+            </summary>
+        </member>
         <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.Start">
             <summary>
             启动服务
@@ -72,6 +82,11 @@
             </summary>
             <param name="sender"></param>
             <param name="e"></param>
+        </member>
+        <member name="T:IoTServer.Servers.ModBus.ModBusTcpServer">
+            <summary>
+            ModBusTcp 服务端模拟
+            </summary>
         </member>
         <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Start">
             <summary>
@@ -97,7 +112,7 @@
         </member>
         <member name="T:IoTServer.Servers.PLC.MitsubishiServer">
             <summary>
-            三菱plc 服务端
+            三菱plc 服务端模拟
             </summary>
         </member>
         <member name="M:IoTServer.Servers.PLC.MitsubishiServer.#ctor(System.Int32,System.String)">
@@ -129,6 +144,11 @@
             </summary>
             <param name="newSocket"></param>
         </member>
+        <member name="T:IoTServer.Servers.PLC.SiemensServer">
+            <summary>
+            西门子PLC 服务端模拟
+            </summary>
+        </member>
         <member name="M:IoTServer.Servers.PLC.SiemensServer.Start">
             <summary>
             启动服务
@@ -150,6 +170,24 @@
             接收客户端发送的消息
             </summary>
             <param name="newSocket"></param>
+        </member>
+        <member name="T:IoTServer.Servers.ServerSocketBase">
+            <summary>
+            ServerSocket基类
+            </summary>
+        </member>
+        <member name="F:IoTServer.Servers.ServerSocketBase.BufferSize">
+            <summary>
+            分批缓冲区大小
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.ServerSocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32)">
+            <summary>
+            读取
+            </summary>
+            <param name="socket">socket</param>
+            <param name="receiveCount">读取长度</param>
+            <returns></returns>
         </member>
     </members>
 </doc>

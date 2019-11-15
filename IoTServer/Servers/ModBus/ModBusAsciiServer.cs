@@ -8,6 +8,9 @@ using System.Text;
 
 namespace IoTServer.Servers.ModBus
 {
+    /// <summary>
+    /// ModBusAscii 服务端模拟
+    /// </summary>
     public class ModBusAsciiServer
     {
         private SerialPort serialPort;
