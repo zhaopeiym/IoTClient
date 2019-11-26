@@ -8,7 +8,7 @@ using System.Net.Sockets;
 namespace IoTClient.Clients.ModBus
 {
     /// <summary>
-    /// ModBusRtu协议客户端
+    /// ModBusTcp协议客户端
     /// </summary>
     public class ModBusTcpClient : SocketBase
     {

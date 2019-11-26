@@ -9,7 +9,7 @@ using System.Threading;
 namespace IoTClient.Clients.ModBus
 {
     /// <summary>
-    /// ModBusTcp协议客户端
+    /// ModBusRtu协议客户端
     /// </summary>
     public class ModBusRtuClient : SerialPortBase
     {
