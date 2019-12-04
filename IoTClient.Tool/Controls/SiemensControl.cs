@@ -122,7 +122,11 @@ namespace IoTClient.Tool
                     return;
                 }
                 dynamic result = null;
-                if (rd_bit.Checked)
+                if (rd_byte.Checked)
+                {
+                    result = client.ReadByte(txt_address.Text);
+                }
+                else if (rd_bit.Checked)
                 {
                     result = client.ReadBoolean(txt_address.Text);
                 }
@@ -212,6 +216,10 @@ namespace IoTClient.Tool
                         }
                     }
                     result = client.Write(txt_address.Text, bit);
+                }
+                else if (rd_byte.Checked)
+                {
+                    result = client.Write(txt_address.Text, byte.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_short.Checked)
                 {

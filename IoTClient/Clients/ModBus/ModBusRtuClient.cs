@@ -11,7 +11,7 @@ namespace IoTClient.Clients.ModBus
     /// <summary>
     /// ModBusRtu协议客户端
     /// </summary>
-    public class ModBusRtuClient : SerialPortBase
+    public class ModBusRtuClient : SerialPortBase, IModBusClient
     {
         /// <summary>
         /// 构造函数

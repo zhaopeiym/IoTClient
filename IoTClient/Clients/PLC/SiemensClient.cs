@@ -253,6 +253,22 @@ namespace IoTClient.Clients.PLC
             return result;
         }
 
+        public Result<byte> ReadByte(string address)
+        {            
+            var readResut = Read(address, 1);
+            var result = new Result<byte>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = readResut.Value[0];
+            return result;
+        }
+
         /// <summary>
         /// 读取Int16
         /// </summary>

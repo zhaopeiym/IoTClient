@@ -11,7 +11,7 @@ namespace IoTClient.Tool
 {
     public partial class ModBusTcpControl : UserControl
     {
-        ModBusTcpClient client;
+        IModBusClient client;
         ModBusTcpServer server;
         public ModBusTcpControl()
         {
@@ -80,7 +80,10 @@ namespace IoTClient.Tool
             try
             {
                 client?.Close();
-                client = new ModBusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                if (chb_rtudata.Checked)
+                    client = new ModBusTcpRtuClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                else
+                    client = new ModBusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
