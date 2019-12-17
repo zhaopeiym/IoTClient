@@ -155,6 +155,11 @@ namespace IoTClient.Tool.Controls
             }
             try
             {
+                if (txt_address.Text.Contains("-"))
+                {
+                    AppendText($"ModBusAsciiClient 暂不支持批量读取");
+                    return;
+                }
                 dynamic result = null;
                 if (rd_bit.Checked)
                 {

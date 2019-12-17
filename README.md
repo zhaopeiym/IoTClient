@@ -42,6 +42,14 @@ var response = result.Response;
 var value3 = result.Value;
 ``` 
 
+## ModBusRtu读写操作
+```
+//实例化客户端 - [COM端口名称,波特率,数据位,停止位,奇偶校验]
+ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Parity.None);
+
+//其他读写操作和ModBusTcpClient的读写操作一致
+```
+
 # IoTClient Tool效果图   
 ![image](https://user-images.githubusercontent.com/5820324/68926947-9c43e800-07c1-11ea-9da7-f431ec52f2fb.png)  
 

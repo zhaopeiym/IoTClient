@@ -15,7 +15,7 @@ namespace IoTClient.Common.Helpers
         /// </summary>
         /// <param name="byteArray"></param>
         /// <returns></returns>
-        public static string ByteArrayToString(byte[] byteArray)
+        public static string ByteArrayToString(this byte[] byteArray)
         {
             return string.Join(" ", byteArray.Select(t => t.ToString("X2")));
         }
@@ -26,7 +26,7 @@ namespace IoTClient.Common.Helpers
         /// <param name="str"></param>
         /// <param name="strict">严格模式（严格按两个字母间隔一个空格）</param>
         /// <returns></returns>
-        public static byte[] StringToByteArray(string str, bool strict = true)
+        public static byte[] StringToByteArray(this string str, bool strict = true)
         {
             if (string.IsNullOrWhiteSpace(str) || str.Trim().Replace(" ", "").Length % 2 != 0)
                 throw new ArgumentException("请传入有效的参数");
@@ -54,7 +54,7 @@ namespace IoTClient.Common.Helpers
         /// <param name="str"></param>
         /// <param name="strict"></param>
         /// <returns></returns>
-        public static byte[] AsciiStringToByteArray(string str, bool strict = true)
+        public static byte[] AsciiStringToByteArray(this string str, bool strict = true)
         {
             if (string.IsNullOrWhiteSpace(str) || str.Trim().Replace(" ", "").Length % 2 != 0)
                 throw new ArgumentException("请传入有效的参数");
@@ -87,7 +87,7 @@ namespace IoTClient.Common.Helpers
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static byte[] AsciiArrayToByteArray(byte[] str)
+        public static byte[] AsciiArrayToByteArray(this byte[] str)
         {
             if (!str?.Any() ?? true)
                 throw new ArgumentException("请传入有效的参数");
@@ -106,9 +106,31 @@ namespace IoTClient.Common.Helpers
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static byte[] ByteArrayToAsciiArray(byte[] str)
+        public static byte[] ByteArrayToAsciiArray(this byte[] str)
         {
             return Encoding.ASCII.GetBytes(string.Join("", str.Select(t => t.ToString("X2"))));
+        }
+
+        /// <summary>
+        /// Int转二进制
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string IntToBinaryArray(this int value)
+        {
+            //Convert.ToString(12,2); // 将12转为2进制字符串，结果 “1100”
+            return Convert.ToString(value, 2);
+        }
+
+        /// <summary>
+        /// 二进制转Int
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static int BinaryArrayToInt(this string value)
+        {
+            //Convert.ToInt("1100",2); // 将2进制字符串转为整数，结果 12
+            return Convert.ToInt32(value, 2);
         }
     }
 }

@@ -47,6 +47,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadUInt16(System.String,System.Byte,System.Byte)">
             <summary>
             读取UInt16
@@ -54,6 +63,15 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadUInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadInt32(System.String,System.Byte,System.Byte)">
@@ -65,6 +83,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadUInt32(System.String,System.Byte,System.Byte)">
             <summary>
             读取UInt32
@@ -72,6 +99,15 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadUInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadInt64(System.String,System.Byte,System.Byte)">
@@ -83,6 +119,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadUInt64(System.String,System.Byte,System.Byte)">
             <summary>
             读取UInt64
@@ -90,6 +135,15 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadUInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadFloat(System.String,System.Byte,System.Byte)">
@@ -101,6 +155,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadFloat(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadDouble(System.String,System.Byte,System.Byte)">
             <summary>
             读取Double
@@ -108,6 +171,15 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadDouble(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadCoil(System.String,System.Byte,System.Byte)">
@@ -119,6 +191,15 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadCoil(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadDiscrete(System.String,System.Byte,System.Byte)">
             <summary>
             读取离散
@@ -126,6 +207,15 @@
             <param name="address"></param>
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.IModBusClient.ReadDiscrete(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="address"></param>
+            <param name="values"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.IModBusClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
@@ -583,6 +673,96 @@
             <param name="functionCode"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadUInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadUInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadUInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadFloat(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadDouble(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadCoil(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.ReadDiscrete(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusRtuClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
             <summary>
             线圈写入
@@ -817,16 +997,106 @@
             <summary>
             读取离散
             </summary>
-            <param name="address"></param>
+            <param name="address">读取地址</param>
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadUInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadUInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadUInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadFloat(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadDouble(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadCoil(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.ReadDiscrete(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusTcpClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
             <summary>
             线圈写入
             </summary>
-            <param name="address"></param>
+            <param name="address">读取地址</param>
             <param name="value"></param>
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
@@ -835,8 +1105,8 @@
             <summary>
             写入
             </summary>
-            <param name="address"></param>
-            <param name="values"></param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
             <returns></returns>
@@ -934,7 +1204,7 @@
             获取写入命令
             </summary>
             <param name="address">寄存器地址</param>
-            <param name="values"></param>
+            <param name="values">批量读取的值</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
             <returns></returns>
@@ -964,7 +1234,7 @@
             <param name="stopBits">停止位</param>
             <param name="parity">奇偶校验</param>
         </member>
-        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.SendPackage(System.Byte[])">
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.SendPackage(System.Byte[],System.Int32)">
             <summary>
             发送报文，并获取响应报文
             </summary>
@@ -1069,6 +1339,96 @@
             <param name="address"></param>
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadUInt16(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadUInt32(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadUInt64(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadFloat(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadDouble(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadCoil(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.ReadDiscrete(System.String,System.String,System.Byte[])">
+            <summary>
+            从批量读取的数据字节提取对应的地址数据
+            </summary>
+            <param name="beginAddress">批量读取的起始地址</param>
+            <param name="address">读取地址</param>
+            <param name="values">批量读取的值</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.ModBus.ModBusTcpRtuClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
@@ -1741,6 +2101,20 @@
             如：00 01 => 30 31
             </summary>
             <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.DataConvert.IntToBinaryArray(System.Int32)">
+            <summary>
+            Int转二进制
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.DataConvert.BinaryArrayToInt(System.String)">
+            <summary>
+            二进制转Int
+            </summary>
+            <param name="value"></param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Common.Helpers.LRC">

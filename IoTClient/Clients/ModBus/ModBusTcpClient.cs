@@ -1,4 +1,5 @@
-﻿using IoTClient.Core;
+﻿using IoTClient.Common.Helpers;
+using IoTClient.Core;
 using IoTClient.Models;
 using System;
 using System.Linq;
@@ -293,7 +294,7 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
             return result;
         }
-
+         
         /// <summary>
         /// 读取Double
         /// </summary>
@@ -316,7 +317,7 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
             return result;
         }
-
+         
         /// <summary>
         /// 读取线圈
         /// </summary>
@@ -339,11 +340,11 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
         }
-
+         
         /// <summary>
         /// 读取离散
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">读取地址</param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
         /// <returns></returns>
@@ -362,6 +363,314 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
         }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<short> ReadInt16(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                var byteArry = values.Skip(i * 2).Take(2).Reverse().ToArray();
+                return new Result<short>
+                {
+                    Value = BitConverter.ToInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<short>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<ushort> ReadUInt16(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                var byteArry = values.Skip(i * 2).Take(2).Reverse().ToArray();
+                return new Result<ushort>
+                {
+                    Value = BitConverter.ToUInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<ushort>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<int> ReadInt32(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 2;
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                return new Result<int>
+                {
+                    Value = BitConverter.ToInt32(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<int>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<uint> ReadUInt32(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 2;
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                return new Result<uint>
+                {
+                    Value = BitConverter.ToUInt32(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<uint>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<long> ReadInt64(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 4;
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                return new Result<long>
+                {
+                    Value = BitConverter.ToInt64(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<long>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<ulong> ReadUInt64(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 4;
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                return new Result<ulong>
+                {
+                    Value = BitConverter.ToUInt64(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<ulong>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+         
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<float> ReadFloat(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 2;
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                return new Result<float>
+                {
+                    Value = BitConverter.ToSingle(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<float>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+         
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<double> ReadDouble(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 4;
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                return new Result<double>
+                {
+                    Value = BitConverter.ToDouble(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<double>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<bool> ReadCoil(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                var index = (i + 1) % 8 == 0 ? (i + 1) / 8 : (i + 1) / 8 + 1;
+                var binaryArray = Convert.ToInt32(values[index - 1]).IntToBinaryArray().ToArray().Reverse().ToArray();
+                var isBit = false;
+                if ((index - 1) * 8 + binaryArray.Length > i)
+                    isBit = binaryArray[i - (index - 1) * 8].ToString() == 1.ToString();
+                return new Result<bool>()
+                {
+                    Value = isBit
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<bool>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<bool> ReadDiscrete(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                var index = (i + 1) % 8 == 0 ? (i + 1) / 8 : (i + 1) / 8 + 1;
+                var binaryArray = Convert.ToInt32(values[index - 1]).IntToBinaryArray().ToArray().Reverse().ToArray();
+                var isBit = false;
+                if ((index - 1) * 8 + binaryArray.Length > i)
+                    isBit = binaryArray[i - (index - 1) * 8].ToString() == 1.ToString();
+                return new Result<bool>()
+                {
+                    Value = isBit
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<bool>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
         #endregion
 
         #region Write 写入
@@ -369,7 +678,7 @@ namespace IoTClient.Clients.ModBus
         /// <summary>
         /// 线圈写入
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">读取地址</param>
         /// <param name="value"></param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
@@ -417,8 +726,8 @@ namespace IoTClient.Clients.ModBus
         /// <summary>
         /// 写入
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="values"></param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
         /// <returns></returns>
@@ -613,7 +922,7 @@ namespace IoTClient.Clients.ModBus
         /// 获取写入命令
         /// </summary>
         /// <param name="address">寄存器地址</param>
-        /// <param name="values"></param>
+        /// <param name="values">批量读取的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>

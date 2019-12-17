@@ -18,10 +18,10 @@ namespace IoTClient.Tool.Controls
         /// </summary>
         private SerialPort serialPort;
         int[] BaudRateArr = new int[] { 9600, 4800, 2400, 1200, 300, 110 };
-        int[] DataBitArr = new int[] { 8, 7, 6, 5 };
-        int[] StopBitArr = new int[] { 1, 2, 3 };
+        int[] DataBitArr = new int[] { 8, 7, 6 };
+        float[] StopBitArr = new float[] { 1, 1.5f, 2 };
         string[] Encodings = new string[] { "ASCII", "UTF8", "UTF32", "UTF7", "Unicode" };
-        object[] CheckBitArr = new object[] { "None", "Odd", "Even" };
+        object[] CheckBitArr = new object[] { "None", "Odd", "Even", "Mark", "Space" };
         Encoding encoding = Encoding.ASCII;
         public PortsControl()
         {
@@ -62,7 +62,7 @@ namespace IoTClient.Tool.Controls
                 serialPort.PortName = cb_portNameSend.Text.ToString();
                 serialPort.BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 serialPort.DataBits = int.Parse(cb_dataBit.Text.ToString());
-                serialPort.StopBits = (StopBits)int.Parse(cb_stopBit.Text.ToString());
+                serialPort.StopBits = cb_stopBit.Text == "1.5" ? StopBits.OnePointFive : (StopBits)int.Parse(cb_stopBit.Text.ToString());
                 serialPort.Parity = parity;
                 serialPort.ReadTimeout = 1000;//1秒
                 serialPort.Open();

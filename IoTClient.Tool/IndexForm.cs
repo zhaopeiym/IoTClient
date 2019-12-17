@@ -133,6 +133,11 @@ namespace IoTClient.Tool
                         omronFinsTcp.Dock = DockStyle.Fill;
                         tab.Controls.Add(omronFinsTcp);
                         break;
+                    case "Other":
+                        var otherControl = new OtherControl();
+                        otherControl.Dock = DockStyle.Fill;
+                        tab.Controls.Add(otherControl);
+                        break;
                 }
             }
             else

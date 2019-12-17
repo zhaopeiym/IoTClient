@@ -134,6 +134,12 @@
     <Compile Include="Controls\OmronFinsTcpControl.Designer.cs">
       <DependentUpon>OmronFinsTcpControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\OtherControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\OtherControl.Designer.cs">
+      <DependentUpon>OtherControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PortsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -192,6 +198,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\OmronFinsTcpControl.resx">
       <DependentUpon>OmronFinsTcpControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\OtherControl.resx">
+      <DependentUpon>OtherControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PortsControl.resx">
       <DependentUpon>PortsControl.cs</DependentUpon>
