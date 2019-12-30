@@ -50,7 +50,7 @@
             this.listBox1.ItemHeight = 12;
             this.listBox1.Location = new System.Drawing.Point(3, 17);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(115, 377);
+            this.listBox1.Size = new System.Drawing.Size(169, 377);
             this.listBox1.TabIndex = 0;
             // 
             // txt_msgList
@@ -60,7 +60,7 @@
             this.txt_msgList.Location = new System.Drawing.Point(3, 17);
             this.txt_msgList.Multiline = true;
             this.txt_msgList.Name = "txt_msgList";
-            this.txt_msgList.Size = new System.Drawing.Size(741, 377);
+            this.txt_msgList.Size = new System.Drawing.Size(690, 377);
             this.txt_msgList.TabIndex = 1;
             // 
             // button3
@@ -130,7 +130,7 @@
             this.groupBox1.Controls.Add(this.listBox1);
             this.groupBox1.Location = new System.Drawing.Point(3, 38);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(121, 397);
+            this.groupBox1.Size = new System.Drawing.Size(175, 397);
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "设备";
@@ -138,9 +138,9 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.txt_msgList);
-            this.groupBox2.Location = new System.Drawing.Point(130, 38);
+            this.groupBox2.Location = new System.Drawing.Point(181, 38);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(747, 397);
+            this.groupBox2.Size = new System.Drawing.Size(696, 397);
             this.groupBox2.TabIndex = 19;
             this.groupBox2.TabStop = false;
             // 
