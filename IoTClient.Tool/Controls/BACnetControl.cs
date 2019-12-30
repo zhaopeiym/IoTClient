@@ -25,6 +25,7 @@ namespace IoTClient.Tool
 
         private void BACnetControl_Load(object sender, EventArgs e)
         {
+            //BACnet的默认端口47808
             Bacnet_client = new BacnetClient(new BacnetIpUdpProtocolTransport(47808, false));
             Bacnet_client.OnIam -= new BacnetClient.IamHandler(handler_OnIam);
             Bacnet_client.OnIam += new BacnetClient.IamHandler(handler_OnIam);
