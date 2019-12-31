@@ -47,14 +47,14 @@
             this.but_tcpopen = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.txt_udpmsg = new System.Windows.Forms.TextBox();
+            this.txt_udpport = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
+            this.txt_udpip = new System.Windows.Forms.TextBox();
+            this.but_udpsend = new System.Windows.Forms.Button();
+            this.but_udpclose = new System.Windows.Forms.Button();
+            this.but_udpopen = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -209,14 +209,14 @@
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.label4);
-            this.groupBox3.Controls.Add(this.textBox4);
-            this.groupBox3.Controls.Add(this.textBox5);
+            this.groupBox3.Controls.Add(this.txt_udpmsg);
+            this.groupBox3.Controls.Add(this.txt_udpport);
             this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.textBox6);
-            this.groupBox3.Controls.Add(this.button4);
-            this.groupBox3.Controls.Add(this.button5);
-            this.groupBox3.Controls.Add(this.button6);
+            this.groupBox3.Controls.Add(this.txt_udpip);
+            this.groupBox3.Controls.Add(this.but_udpsend);
+            this.groupBox3.Controls.Add(this.but_udpclose);
+            this.groupBox3.Controls.Add(this.but_udpopen);
             this.groupBox3.Location = new System.Drawing.Point(616, 3);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(253, 110);
@@ -233,20 +233,20 @@
             this.label4.TabIndex = 8;
             this.label4.Text = "消息";
             // 
-            // textBox4
+            // txt_udpmsg
             // 
-            this.textBox4.Location = new System.Drawing.Point(33, 41);
-            this.textBox4.Multiline = true;
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(214, 34);
-            this.textBox4.TabIndex = 7;
+            this.txt_udpmsg.Location = new System.Drawing.Point(33, 41);
+            this.txt_udpmsg.Multiline = true;
+            this.txt_udpmsg.Name = "txt_udpmsg";
+            this.txt_udpmsg.Size = new System.Drawing.Size(214, 34);
+            this.txt_udpmsg.TabIndex = 7;
             // 
-            // textBox5
+            // txt_udpport
             // 
-            this.textBox5.Location = new System.Drawing.Point(193, 14);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(53, 21);
-            this.textBox5.TabIndex = 6;
+            this.txt_udpport.Location = new System.Drawing.Point(193, 14);
+            this.txt_udpport.Name = "txt_udpport";
+            this.txt_udpport.Size = new System.Drawing.Size(53, 21);
+            this.txt_udpport.TabIndex = 6;
             // 
             // label5
             // 
@@ -266,40 +266,42 @@
             this.label6.TabIndex = 4;
             this.label6.Text = "IP";
             // 
-            // textBox6
+            // txt_udpip
             // 
-            this.textBox6.Location = new System.Drawing.Point(33, 14);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(128, 21);
-            this.textBox6.TabIndex = 3;
+            this.txt_udpip.Location = new System.Drawing.Point(33, 14);
+            this.txt_udpip.Name = "txt_udpip";
+            this.txt_udpip.Size = new System.Drawing.Size(128, 21);
+            this.txt_udpip.TabIndex = 3;
             // 
-            // button4
+            // but_udpsend
             // 
-            this.button4.Location = new System.Drawing.Point(173, 81);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 2;
-            this.button4.Text = "发送";
-            this.button4.UseVisualStyleBackColor = true;
+            this.but_udpsend.Location = new System.Drawing.Point(173, 81);
+            this.but_udpsend.Name = "but_udpsend";
+            this.but_udpsend.Size = new System.Drawing.Size(75, 23);
+            this.but_udpsend.TabIndex = 2;
+            this.but_udpsend.Text = "发送";
+            this.but_udpsend.UseVisualStyleBackColor = true;
+            this.but_udpsend.Click += new System.EventHandler(this.but_udpSend_Click);
             // 
-            // button5
+            // but_udpclose
             // 
-            this.button5.Location = new System.Drawing.Point(89, 81);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 1;
-            this.button5.Text = "关闭连接";
-            this.button5.UseVisualStyleBackColor = true;
+            this.but_udpclose.Location = new System.Drawing.Point(89, 81);
+            this.but_udpclose.Name = "but_udpclose";
+            this.but_udpclose.Size = new System.Drawing.Size(75, 23);
+            this.but_udpclose.TabIndex = 1;
+            this.but_udpclose.Text = "关闭连接";
+            this.but_udpclose.UseVisualStyleBackColor = true;
+            this.but_udpclose.Click += new System.EventHandler(this.but_udpClose_Click);
             // 
-            // button6
+            // but_udpopen
             // 
-            this.button6.Location = new System.Drawing.Point(5, 81);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 23);
-            this.button6.TabIndex = 0;
-            this.button6.Text = "打开连接";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.but_udpopen.Location = new System.Drawing.Point(5, 81);
+            this.but_udpopen.Name = "but_udpopen";
+            this.but_udpopen.Size = new System.Drawing.Size(75, 23);
+            this.but_udpopen.TabIndex = 0;
+            this.but_udpopen.Text = "打开连接";
+            this.but_udpopen.UseVisualStyleBackColor = true;
+            this.but_udpopen.Click += new System.EventHandler(this.but_udpOpen_Click);
             // 
             // OtherControl
             // 
@@ -342,13 +344,13 @@
         private System.Windows.Forms.TextBox txt_tcpmsg;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox txt_udpmsg;
+        private System.Windows.Forms.TextBox txt_udpport;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.TextBox txt_udpip;
+        private System.Windows.Forms.Button but_udpsend;
+        private System.Windows.Forms.Button but_udpclose;
+        private System.Windows.Forms.Button but_udpopen;
     }
 }

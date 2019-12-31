@@ -9,12 +9,15 @@ namespace IoTClient.Tool.Controls
 {
     public partial class OtherControl : UserControl
     {
-        private Socket socket;
+        private Socket socketTcp;
+        private UdpClient udpClient;
         public OtherControl()
         {
             InitializeComponent();
             but_tcpclose.Enabled = false;
             but_tcpsend.Enabled = false;
+            but_udpclose.Enabled = false;
+            but_udpsend.Enabled = false;
         }
 
         private void but_crc16calculate_Click(object sender, EventArgs e)
@@ -51,13 +54,13 @@ namespace IoTClient.Tool.Controls
 
         private void but_tcpOpen_Click(object sender, EventArgs e)
         {
-            socket?.Close();
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socketTcp?.Close();
+            socketTcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                socket.SendTimeout = 1000 * 2;
-                socket.ReceiveTimeout = 1000 * 2;
-                socket.Connect(new IPEndPoint(IPAddress.Parse(txt_tcpip.Text?.Trim()), int.Parse(txt_tcpport.Text?.Trim())));
+                socketTcp.SendTimeout = 1000 * 2;
+                socketTcp.ReceiveTimeout = 1000 * 2;
+                socketTcp.Connect(new IPEndPoint(IPAddress.Parse(txt_tcpip.Text?.Trim()), int.Parse(txt_tcpport.Text?.Trim())));
                 AppendText("打开连接成功");
                 but_tcpopen.Enabled = false;
                 but_tcpclose.Enabled = true;
@@ -70,7 +73,7 @@ namespace IoTClient.Tool.Controls
 
         private void but_tcpClose_Click(object sender, EventArgs e)
         {
-            socket?.Close();
+            socketTcp?.Close();
             AppendText("关闭连接成功");
             but_tcpopen.Enabled = true;
         }
@@ -80,48 +83,77 @@ namespace IoTClient.Tool.Controls
             try
             {
                 var command = DataConvert.StringToByteArray(txt_tcpmsg.Text, false);
-                socket.Send(command);
-                var msg = SocketRead(socket, 4096);
+                socketTcp.Send(command);
+                var msg = SocketRead(socketTcp, 4096);
                 AppendText(msg.ByteArrayToString());
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 //重新连接
-                socket?.Close();
-                socket.Connect(new IPEndPoint(IPAddress.Parse(txt_tcpip.Text?.Trim()), int.Parse(txt_tcpport.Text?.Trim())));
+                socketTcp?.Close();
+                socketTcp.Connect(new IPEndPoint(IPAddress.Parse(txt_tcpip.Text?.Trim()), int.Parse(txt_tcpport.Text?.Trim())));
             }
         }
 
 
         protected byte[] SocketRead(Socket socket, int receiveCount)
         {
+            byte[] receiveBytes = new byte[receiveCount];
+            int receiveFinish = 0;
+            var readLeng = socket.Receive(receiveBytes, receiveFinish, receiveCount, SocketFlags.None);
+            if (readLeng == 0)
+            {
+                if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+                throw new Exception("连接已断开");
+            }
+            return receiveBytes.Take(readLeng).ToArray();
+        }
+
+        private void but_udpOpen_Click(object sender, EventArgs e)
+        {
             try
             {
-                byte[] receiveBytes = new byte[receiveCount];
-                int receiveFinish = 0;
-                var readLeng = socket.Receive(receiveBytes, receiveFinish, receiveCount, SocketFlags.None);
-                if (readLeng == 0)
-                {
-                    if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
-                    throw new Exception("连接已断开");
-                }
-                return receiveBytes.Take(readLeng).ToArray();
+                udpClient = new UdpClient();
+                udpClient.Connect(new IPEndPoint(IPAddress.Parse(txt_udpip.Text?.Trim()), int.Parse(txt_udpport.Text?.Trim())));
+                AppendText("打开连接成功");
+                but_udpopen.Enabled = false;
+                but_udpclose.Enabled = true;
+                but_udpsend.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                AppendText("打开连接失败" + ex.Message);
+            }
+        }
+
+        private void but_udpSend_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var command = DataConvert.StringToByteArray(txt_udpmsg.Text, false);
+                udpClient.Send(command, command.Length);
+
+                var ep = new IPEndPoint(IPAddress.Any, 0);
+                var msg = udpClient.Receive(ref ep);
+                AppendText(msg.ByteArrayToString());
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                //重新连接
-                socket?.Close();
-                socket.Connect(new IPEndPoint(IPAddress.Parse(txt_tcpip.Text?.Trim()), int.Parse(txt_tcpport.Text?.Trim())));
-                return null;
+                udpClient?.Close();
+                udpClient.Connect(new IPEndPoint(IPAddress.Parse(txt_udpip.Text?.Trim()), int.Parse(txt_udpport.Text?.Trim())));
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void but_udpClose_Click(object sender, EventArgs e)
         {
-
+            udpClient?.Close();
+            AppendText("关闭连接成功");
+            but_udpopen.Enabled = true;
+            but_udpclose.Enabled = false;
+            but_udpsend.Enabled = false;
         }
     }
 }
