@@ -59,9 +59,9 @@
             this.but_close_server = new System.Windows.Forms.Button();
             this.but_close = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.rd_byte = new System.Windows.Forms.RadioButton();
             this.button3 = new System.Windows.Forms.Button();
             this.txt_content = new System.Windows.Forms.TextBox();
-            this.rd_byte = new System.Windows.Forms.RadioButton();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -366,6 +366,16 @@
             this.groupBox1.TabIndex = 32;
             this.groupBox1.TabStop = false;
             // 
+            // rd_byte
+            // 
+            this.rd_byte.AutoSize = true;
+            this.rd_byte.Location = new System.Drawing.Point(54, 23);
+            this.rd_byte.Name = "rd_byte";
+            this.rd_byte.Size = new System.Drawing.Size(47, 16);
+            this.rd_byte.TabIndex = 25;
+            this.rd_byte.Text = "byte";
+            this.rd_byte.UseVisualStyleBackColor = true;
+            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(762, 17);
@@ -386,16 +396,6 @@
             this.txt_content.Size = new System.Drawing.Size(855, 272);
             this.txt_content.TabIndex = 31;
             // 
-            // rd_byte
-            // 
-            this.rd_byte.AutoSize = true;
-            this.rd_byte.Location = new System.Drawing.Point(54, 23);
-            this.rd_byte.Name = "rd_byte";
-            this.rd_byte.Size = new System.Drawing.Size(47, 16);
-            this.rd_byte.TabIndex = 25;
-            this.rd_byte.Text = "byte";
-            this.rd_byte.UseVisualStyleBackColor = true;
-            // 
             // SiemensControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -406,6 +406,7 @@
             this.Controls.Add(this.txt_content);
             this.Name = "SiemensControl";
             this.Size = new System.Drawing.Size(880, 450);
+            this.ControlRemoved += new System.Windows.Forms.ControlEventHandler(this.SiemensControl_ControlRemoved);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);

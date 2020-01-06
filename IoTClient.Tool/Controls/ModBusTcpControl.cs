@@ -241,7 +241,7 @@ namespace IoTClient.Tool
             }
             try
             {
-
+                var address = txt_address.Text.Split('-')[0];
                 dynamic result = null;
                 if (rd_bit.Checked)
                 {
@@ -257,39 +257,39 @@ namespace IoTClient.Tool
                             return;
                         }
                     }
-                    result = client.Write(txt_address.Text, coil, stationNumber);
+                    result = client.Write(address, coil, stationNumber);
                 }
                 else if (rd_short.Checked)
                 {
-                    result = client.Write(txt_address.Text, short.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, short.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_ushort.Checked)
                 {
-                    result = client.Write(txt_address.Text, ushort.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, ushort.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_int.Checked)
                 {
-                    result = client.Write(txt_address.Text, int.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, int.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_uint.Checked)
                 {
-                    result = client.Write(txt_address.Text, uint.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, uint.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_long.Checked)
                 {
-                    result = client.Write(txt_address.Text, long.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, long.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_ulong.Checked)
                 {
-                    result = client.Write(txt_address.Text, ulong.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, ulong.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_float.Checked)
                 {
-                    result = client.Write(txt_address.Text, float.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, float.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_double.Checked)
                 {
-                    result = client.Write(txt_address.Text, double.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, double.Parse(txt_value.Text?.Trim()), stationNumber);
                 }
                 else if (rd_discrete.Checked)
                 {
@@ -298,9 +298,9 @@ namespace IoTClient.Tool
                 }
 
                 if (result.IsSucceed)
-                    AppendText($"[写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
+                    AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
-                    AppendText($"[写入 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                    AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}");
                 if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");

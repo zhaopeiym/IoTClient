@@ -47,12 +47,17 @@ namespace IoTClient.Tool
             but_close_server.Enabled = false;
             but_close.Enabled = false;
             but_sendData.Enabled = false;
+
+            toolTip1.SetToolTip(but_open, "点击打开连接");
+            toolTip1.SetToolTip(txt_address, "支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据");
+            txt_content.Text = "小技巧:\r\n1、读取地址支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据\r\n";
         }
 
         private void but_server_Click(object sender, EventArgs e)
         {
             try
             {
+                if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
                 server?.Stop();
                 server = new SiemensServer(int.Parse(txt_port.Text.Trim()));
                 server.Start();
@@ -78,6 +83,7 @@ namespace IoTClient.Tool
         {
             try
             {
+                if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
                 client?.Close();
                 client = new SiemensClient(SiemensVersion.S7_200Smart, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
                 var result = client.Open();
@@ -122,51 +128,118 @@ namespace IoTClient.Tool
                     return;
                 }
                 dynamic result = null;
-                if (rd_byte.Checked)
+
+                //bool类型不进行批量读取
+                if (rd_bit.Checked) txt_address.Text = txt_address.Text.Split('-')[0];
+                var addressAndReadLength = txt_address.Text.Split('-');
+
+                //批量读取
+                if (addressAndReadLength.Length == 2)
                 {
-                    result = client.ReadByte(txt_address.Text);
+                    var address = addressAndReadLength[0];
+                    var readNumber = ushort.Parse(addressAndReadLength[1]);
+                    ushort bLength = 1;
+                    if (rd_bit.Checked)
+                        bLength = 2;
+                    else if (rd_byte.Checked)
+                        bLength = 1;
+                    else if (rd_short.Checked || rd_ushort.Checked)
+                        bLength = 2;
+                    else if (rd_int.Checked || rd_uint.Checked || rd_float.Checked)
+                        bLength = 4;
+                    else if (rd_long.Checked || rd_ulong.Checked || rd_double.Checked)
+                        bLength = 8;
+
+                    var readLength = Convert.ToUInt16(bLength * readNumber);
+
+                    if (!rd_bit.Checked) result = client.Read(address.ToString(), readLength, false);
+                    else result = client.Read(address.ToString(), readLength, true);
+
+                    var addressNumber = int.Parse(address.Substring(1));
+                    if (result.IsSucceed)
+                    {
+                        AppendEmptyText();
+                        byte[] rValue = result.Value;
+                        rValue = rValue.Reverse().ToArray();
+                        for (int i = 0; i < readNumber; i++)
+                        {
+                            var cAddress = (addressNumber + i * bLength).ToString();
+
+                            var addressStr = address.Substring(0, 1) + (addressNumber + i * bLength);
+                            if (rd_short.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadInt16(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_ushort.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadUInt16(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_int.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadInt32(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_uint.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadUInt32(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_long.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadInt64(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_ulong.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadUInt64(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_float.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadFloat(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_double.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadDouble(addressNumber.ToString(), cAddress, rValue).Value}");
+                            else if (rd_byte.Checked)
+                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadByte(addressNumber.ToString(), cAddress, rValue).Value}");
+                            //else if (rd_bit.Checked)
+                            //    AppendText($"[读取 {addressStr} 成功]：{ client.ReadBoolean(addressNumber.ToString(), cAddress, rValue).Value}");
+                        }
+                    }
+                    else
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
                 }
-                else if (rd_bit.Checked)
+                //单个读取
+                else
                 {
-                    result = client.ReadBoolean(txt_address.Text);
-                }
-                else if (rd_short.Checked)
-                {
-                    result = client.ReadInt16(txt_address.Text);
-                }
-                else if (rd_ushort.Checked)
-                {
-                    result = client.ReadUInt16(txt_address.Text);
-                }
-                else if (rd_int.Checked)
-                {
-                    result = client.ReadInt32(txt_address.Text);
-                }
-                else if (rd_uint.Checked)
-                {
-                    result = client.ReadUInt32(txt_address.Text);
-                }
-                else if (rd_long.Checked)
-                {
-                    result = client.ReadInt64(txt_address.Text);
-                }
-                else if (rd_ulong.Checked)
-                {
-                    result = client.ReadUInt64(txt_address.Text);
-                }
-                else if (rd_float.Checked)
-                {
-                    result = client.ReadFloat(txt_address.Text);
-                }
-                else if (rd_double.Checked)
-                {
-                    result = client.ReadDouble(txt_address.Text);
+                    if (rd_byte.Checked)
+                    {
+                        result = client.ReadByte(txt_address.Text);
+                    }
+                    else if (rd_bit.Checked)
+                    {
+                        result = client.ReadBoolean(txt_address.Text);
+                    }
+                    else if (rd_short.Checked)
+                    {
+                        result = client.ReadInt16(txt_address.Text);
+                    }
+                    else if (rd_ushort.Checked)
+                    {
+                        result = client.ReadUInt16(txt_address.Text);
+                    }
+                    else if (rd_int.Checked)
+                    {
+                        result = client.ReadInt32(txt_address.Text);
+                    }
+                    else if (rd_uint.Checked)
+                    {
+                        result = client.ReadUInt32(txt_address.Text);
+                    }
+                    else if (rd_long.Checked)
+                    {
+                        result = client.ReadInt64(txt_address.Text);
+                    }
+                    else if (rd_ulong.Checked)
+                    {
+                        result = client.ReadUInt64(txt_address.Text);
+                    }
+                    else if (rd_float.Checked)
+                    {
+                        result = client.ReadFloat(txt_address.Text);
+                    }
+                    else if (rd_double.Checked)
+                    {
+                        result = client.ReadDouble(txt_address.Text);
+                    }
+                    if (result.IsSucceed)
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
+                    else
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
                 }
 
-                if (result.IsSucceed)
-                    AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
-                else
-                    AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
                 if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
@@ -200,6 +273,7 @@ namespace IoTClient.Tool
 
             try
             {
+                var address = txt_address.Text.Split('-')[0];
                 dynamic result = null;
                 if (rd_bit.Checked)
                 {
@@ -215,50 +289,50 @@ namespace IoTClient.Tool
                             return;
                         }
                     }
-                    result = client.Write(txt_address.Text, bit);
+                    result = client.Write(address, bit);
                 }
                 else if (rd_byte.Checked)
                 {
-                    result = client.Write(txt_address.Text, byte.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, byte.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_short.Checked)
                 {
-                    result = client.Write(txt_address.Text, short.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, short.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_ushort.Checked)
                 {
-                    result = client.Write(txt_address.Text, ushort.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, ushort.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_int.Checked)
                 {
-                    result = client.Write(txt_address.Text, int.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, int.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_uint.Checked)
                 {
-                    result = client.Write(txt_address.Text, uint.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, uint.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_long.Checked)
                 {
-                    result = client.Write(txt_address.Text, long.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, long.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_ulong.Checked)
                 {
-                    result = client.Write(txt_address.Text, ulong.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, ulong.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_float.Checked)
                 {
-                    result = client.Write(txt_address.Text, float.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, float.Parse(txt_value.Text?.Trim()));
                 }
                 else if (rd_double.Checked)
                 {
-                    result = client.Write(txt_address.Text, double.Parse(txt_value.Text?.Trim()));
+                    result = client.Write(address, double.Parse(txt_value.Text?.Trim()));
                 }
 
 
                 if (result.IsSucceed)
-                    AppendText($"[写入 {txt_address.Text?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
+                    AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
                 else
-                    AppendText($"[写入 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                    AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}");
                 if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
@@ -312,6 +386,19 @@ namespace IoTClient.Tool
             {
                 txt_content.AppendText($"[{DateTime.Now.ToLongTimeString()}]{content}\r\n");
             }));
+        }
+
+        private void AppendEmptyText()
+        {
+            txt_content.Invoke((Action)(() =>
+            {
+                txt_content.AppendText($"\r\n");
+            }));
+        }
+
+        private void SiemensControl_ControlRemoved(object sender, ControlEventArgs e)
+        {
+
         }
     }
 }

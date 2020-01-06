@@ -235,6 +235,15 @@ namespace IoTClient.Tool
             catch (Exception) { }
         }
 
+        private void cooperationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("http://wpa.qq.com/msgrd?v=3&uin=1150234111&site=qq&menu=yes");
+            }
+            catch (Exception) { }
+        }
+
         private void toolStripMenuItem5_Click(object sender, EventArgs e)
         {
             try
@@ -326,6 +335,6 @@ namespace IoTClient.Tool
                     if (File.Exists(filePath)) File.Delete(filePath);
                 }
             }
-        }
+        } 
     }
 }

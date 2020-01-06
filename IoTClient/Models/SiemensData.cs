@@ -9,11 +9,7 @@
         /// <summary>
         /// DB块编号
         /// </summary>
-        public ushort DbBlock { get; set; }
-        ///// <summary>
-        ///// 读取的数据长度
-        ///// </summary>
-        //public ushort Length { get; set; }
+        public ushort DbBlock { get; set; }       
         /// <summary>
         /// 开始地址
         /// </summary>

@@ -39,6 +39,7 @@
             this.OmronFinsTcp = new System.Windows.Forms.TabPage();
             this.BACnet = new System.Windows.Forms.TabPage();
             this.Ports = new System.Windows.Forms.TabPage();
+            this.Other = new System.Windows.Forms.TabPage();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,7 +47,7 @@
             this.toolStripMenuItemBlogPath = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.Other = new System.Windows.Forms.TabPage();
+            this.商务合作ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modBusTcpControl1 = new IoTClient.Tool.ModBusTcpControl();
             this.tabControl1.SuspendLayout();
             this.ModBusTcp.SuspendLayout();
@@ -164,6 +165,16 @@
             this.Ports.Text = "  串口  ";
             this.Ports.UseVisualStyleBackColor = true;
             // 
+            // Other
+            // 
+            this.Other.Location = new System.Drawing.Point(4, 22);
+            this.Other.Name = "Other";
+            this.Other.Padding = new System.Windows.Forms.Padding(3);
+            this.Other.Size = new System.Drawing.Size(886, 448);
+            this.Other.TabIndex = 9;
+            this.Other.Text = "工具";
+            this.Other.UseVisualStyleBackColor = true;
+            // 
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
@@ -173,6 +184,7 @@
             this.toolStripMenuItem3,
             this.toolStripMenuItemBlogPath,
             this.toolStripMenuItem4,
+            this.商务合作ToolStripMenuItem,
             this.toolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -225,18 +237,16 @@
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
-            this.toolStripMenuItem1.Text = "版本 0.3.4";
+            this.toolStripMenuItem1.Text = "版本 0.3.5";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
-            // Other
+            // 商务合作ToolStripMenuItem
             // 
-            this.Other.Location = new System.Drawing.Point(4, 22);
-            this.Other.Name = "Other";
-            this.Other.Padding = new System.Windows.Forms.Padding(3);
-            this.Other.Size = new System.Drawing.Size(886, 448);
-            this.Other.TabIndex = 9;
-            this.Other.Text = "工具";
-            this.Other.UseVisualStyleBackColor = true;
+            this.商务合作ToolStripMenuItem.ForeColor = System.Drawing.Color.White;
+            this.商务合作ToolStripMenuItem.Name = "商务合作ToolStripMenuItem";
+            this.商务合作ToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
+            this.商务合作ToolStripMenuItem.Text = "商务合作";
+            this.商务合作ToolStripMenuItem.Click += new System.EventHandler(this.cooperationToolStripMenuItem_Click);
             // 
             // modBusTcpControl1
             // 
@@ -289,5 +299,6 @@
         private System.Windows.Forms.TabPage ModBusAscii;
         private System.Windows.Forms.TabPage SiemensS7300;
         private System.Windows.Forms.TabPage Other;
+        private System.Windows.Forms.ToolStripMenuItem 商务合作ToolStripMenuItem;
     }
 }

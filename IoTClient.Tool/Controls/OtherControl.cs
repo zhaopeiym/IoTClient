@@ -22,6 +22,12 @@ namespace IoTClient.Tool.Controls
 
         private void but_crc16calculate_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txt_crcstr.Text) || txt_crcstr.Text.Trim().Replace(" ", "").Length % 2 != 0)
+            {
+                MessageBox.Show("请传入有效的参数");
+                return;
+            }
+
             var byteArry = DataConvert.StringToByteArray(txt_crcstr.Text?.Trim(), false);
             var crc16 = CRC16.GetCRC16(byteArry);
             AppendText($"CRC16计算结果：{DataConvert.ByteArrayToString(crc16)}");
@@ -37,6 +43,12 @@ namespace IoTClient.Tool.Controls
 
         private void but_crc16validation_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txt_crcstr.Text) || txt_crcstr.Text.Trim().Replace(" ", "").Length % 2 != 0)
+            {
+                MessageBox.Show("请传入有效的参数");
+                return;
+            }
+
             var byteArry = DataConvert.StringToByteArray(txt_crcstr.Text?.Trim(), false);
             var checkCrc16 = CRC16.CheckCRC16(byteArry);
             AppendText($"CRC16验证结果：{txt_crcstr.Text} {checkCrc16}");
@@ -54,6 +66,12 @@ namespace IoTClient.Tool.Controls
 
         private void but_tcpOpen_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txt_tcpip.Text) || string.IsNullOrWhiteSpace(txt_tcpport.Text))
+            {
+                MessageBox.Show("请传入有效的IP和端口");
+                return;
+            }
+
             socketTcp?.Close();
             socketTcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -113,6 +131,12 @@ namespace IoTClient.Tool.Controls
 
         private void but_udpOpen_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txt_tcpip.Text) || string.IsNullOrWhiteSpace(txt_tcpport.Text))
+            {
+                MessageBox.Show("请传入有效的IP和端口");
+                return;
+            }
+
             try
             {
                 udpClient = new UdpClient();

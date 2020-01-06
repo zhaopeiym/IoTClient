@@ -121,43 +121,21 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString()))
-                    address = address.Remove(1, 1);
+                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送读取信息
                 var arg = ConvertArg(address);
                 byte[] command;
                 if (isBit)
-                    command = GetReadBitCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock);
+                    command = GetReadBitCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
                 else
                     command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
                 var dataPackage = SendPackage(command);
-                var bufferLength = length == 8 ? 8 : 4;
-                byte[] temp = new byte[bufferLength];
-                byte[] response = new byte[bufferLength];
-                Array.Copy(dataPackage, dataPackage.Length - bufferLength, temp, 0, bufferLength);
-                switch (length)
-                {
-                    case 8:
-                        response[0] = temp[7];
-                        response[1] = temp[6];
-                        response[2] = temp[5];
-                        response[3] = temp[4];
-                        response[4] = temp[3];
-                        response[5] = temp[2];
-                        response[6] = temp[1];
-                        response[7] = temp[0];
-                        break;
-                    default:
-                        response[0] = temp[3];
-                        response[1] = temp[2];
-                        response[2] = temp[1];
-                        response[3] = temp[0];
-                        break;
-                }
+                byte[] responseData = new byte[length];
+                Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                result.Value = response;
+                result.Value = responseData.Reverse().ToArray();
             }
             catch (SocketException ex)
             {
@@ -195,12 +173,11 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString()))
-                    address = address.Remove(1, 1);
+                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送读取信息
                 var arg = ConvertArg(address);
                 byte[] command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));              
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var dataPackage = SendPackage(command);
                 byte[] requst = new byte[length];
                 Array.Copy(dataPackage, 25, requst, 0, length);
@@ -239,7 +216,7 @@ namespace IoTClient.Clients.PLC
         public Result<bool> ReadBoolean(string address)
         {
             //return BitConverter.ToBoolean(Read(address, 4, isBit: true), 0);
-            var readResut = Read(address, 4, isBit: true);
+            var readResut = Read(address, 1, isBit: true);
             var result = new Result<bool>()
             {
                 IsSucceed = readResut.IsSucceed,
@@ -253,8 +230,13 @@ namespace IoTClient.Clients.PLC
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         public Result<byte> ReadByte(string address)
-        {            
+        {
             var readResut = Read(address, 1);
             var result = new Result<byte>()
             {
@@ -483,6 +465,306 @@ namespace IoTClient.Clients.PLC
             }
             //return Encoding.ASCII.GetString(, 1, length[0]);
         }
+
+        ///// <summary>
+        ///// 从批量读取的数据字节提取对应的地址数据
+        ///// </summary>
+        ///// <param name="beginAddress">批量读取的起始地址</param>
+        ///// <param name="address">读取地址</param>
+        ///// <param name="values">批量读取的值</param>
+        ///// <returns></returns>
+        //public Result<bool> ReadBoolean(string beginAddress, string address, byte[] values)
+        //{
+        //    if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+        //        throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+        //    try
+        //    {
+        //        var i = addressInt - beginAddressInt;
+        //        var byteArry = values.Skip(i).Take(1).ToArray();
+        //        return new Result<bool>
+        //        {
+        //            Value = BitConverter.ToBoolean(byteArry, 0)
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new Result<bool>
+        //        {
+        //            IsSucceed = false,
+        //            Err = ex.Message
+        //        };
+        //    }
+        //}
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<byte> ReadByte(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                return new Result<byte>
+                {
+                    Value = values.Skip(i).Take(1).ToArray()[0]
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<byte>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<short> ReadInt16(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                var byteArry = values.Skip(i).Take(2).Reverse().ToArray();
+                return new Result<short>
+                {
+                    Value = BitConverter.ToInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<short>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<ushort> ReadUInt16(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = addressInt - beginAddressInt;
+                var byteArry = values.Skip(i).Take(2).Reverse().ToArray();
+                return new Result<ushort>
+                {
+                    Value = BitConverter.ToUInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<ushort>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<int> ReadInt32(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 2;
+                var byteArry = values.Skip(i * 2).Take(2 * 2).Reverse().ToArray();
+                return new Result<int>
+                {
+                    Value = BitConverter.ToInt32(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<int>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<uint> ReadUInt32(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 2;
+                var byteArry = values.Skip(i * 2).Take(2 * 2).Reverse().ToArray();
+                return new Result<uint>
+                {
+                    Value = BitConverter.ToUInt32(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<uint>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<long> ReadInt64(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 4;
+                var byteArry = values.Skip(i * 4).Take(2 * 4).Reverse().ToArray();
+                return new Result<long>
+                {
+                    Value = BitConverter.ToInt64(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<long>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<ulong> ReadUInt64(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 4;
+                var byteArry = values.Skip(i * 4).Take(2 * 4).Reverse().ToArray();
+                return new Result<ulong>
+                {
+                    Value = BitConverter.ToUInt64(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<ulong>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<float> ReadFloat(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 2;
+                var byteArry = values.Skip(i * 2).Take(2 * 2).Reverse().ToArray();
+                return new Result<float>
+                {
+                    Value = BitConverter.ToSingle(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<float>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
+        public Result<double> ReadDouble(string beginAddress, string address, byte[] values)
+        {
+            if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+                throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var i = (addressInt - beginAddressInt) / 4;
+                var byteArry = values.Skip(i * 4).Take(2 * 4).Reverse().ToArray();
+                return new Result<double>
+                {
+                    Value = BitConverter.ToDouble(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<double>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
         #endregion
 
         #region Write
@@ -584,7 +866,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, byte value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, new byte[1] { value });
         }
 
         /// <summary>
@@ -764,23 +1046,23 @@ namespace IoTClient.Clients.PLC
             command[3] = (byte)(command.Length % 256);//[2][3]整个读取请求长度为0x1F= 31 
             command[4] = 0x02;
             command[5] = 0xF0;
-            command[6] = 0x80;
-            command[7] = 0x32;
+            command[6] = 0x80;//COTP
+            command[7] = 0x32;//协议ID
             command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
             command[9] = 0x00;
             command[10] = 0x00;//[4]-[10]固定6个字节
             command[11] = 0x00;
             command[12] = 0x01;//[11][12]两个字节，标识序列号，回复报文相同位置和这个完全一样；范围是0~65535
             command[13] = 0x00;
-            command[14] = 0x0E;
+            command[14] = 0x0E;//parameter length（[17]-[30]都为parameter刚好14也就是0x0E）
             command[15] = 0x00;
-            command[16] = 0x00;
+            command[16] = 0x00;//data length
             command[17] = 0x04;//04读 05写
             command[18] = 0x01;//读取数据块个数
-            command[19] = 0x12;
-            command[20] = 0x0A;
-            command[21] = 0x10;
-            command[22] = 0x02;
+            command[19] = 0x12;//variable specification
+            command[20] = 0x0A;//Length of following address specification
+            command[21] = 0x10;//Syntax Id: S7ANY 
+            command[22] = 0x02;//Transport size: BYTE 
             command[23] = (byte)(length / 256);
             command[24] = (byte)(length % 256);//[23][24]两个字节,访问数据的个数，以byte为单位；
             command[25] = (byte)(dbAddress / 256);
@@ -792,7 +1074,7 @@ namespace IoTClient.Clients.PLC
             return command;
         }
 
-        protected byte[] GetReadBitCommand(byte type, int beginAddress, ushort dbAddress)
+        protected byte[] GetReadBitCommand(byte type, int beginAddress, ushort dbAddress, ushort length = 1)
         {
             byte[] command = new byte[31];
             command[0] = 0x03;
@@ -809,7 +1091,7 @@ namespace IoTClient.Clients.PLC
             command[11] = 0x00;
             command[12] = 0x01;
             command[13] = (byte)((command.Length - 17) / 256);
-            command[14] = (byte)((command.Length - 17) % 256);
+            command[14] = (byte)((command.Length - 17) % 256); //parameter length（减17是因为从[17]到最后属于parameter）
             command[15] = 0x00;
             command[16] = 0x00;
             command[17] = 0x04;//04读 05写
@@ -818,8 +1100,8 @@ namespace IoTClient.Clients.PLC
             command[20] = 0x0A;
             command[21] = 0x10;
             command[22] = 0x01;
-            command[23] = 0x00;
-            command[24] = 0x01;
+            command[23] = (byte)(length / 256);
+            command[24] = (byte)(length % 256);
             command[25] = (byte)(dbAddress / 256);
             command[26] = (byte)(dbAddress % 256);//[25][26]DB块的编号
             command[27] = type;//访问数据块的类型

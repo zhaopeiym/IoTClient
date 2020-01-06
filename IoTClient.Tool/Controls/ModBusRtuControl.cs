@@ -359,7 +359,6 @@ namespace IoTClient.Tool.Controls
         /// <param name="e"></param>
         private void but_write_Click(object sender, EventArgs e)
         {
-            var address = txt_address.Text?.Trim();
             byte.TryParse(txt_stationNumber.Text?.Trim(), out byte stationNumber);
             if (string.IsNullOrWhiteSpace(txt_address.Text))
             {
@@ -373,7 +372,7 @@ namespace IoTClient.Tool.Controls
             }
             try
             {
-
+                var address = txt_address.Text?.Trim().Split('-')[0];
                 dynamic result = null;
                 if (rd_bit.Checked)
                 {
