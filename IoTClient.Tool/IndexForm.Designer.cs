@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IndexForm));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.ModBusTcp = new System.Windows.Forms.TabPage();
+            this.modBusTcpControl1 = new IoTClient.Tool.ModBusTcpControl();
             this.ModBusRtu = new System.Windows.Forms.TabPage();
             this.ModBusAscii = new System.Windows.Forms.TabPage();
             this.Siemens = new System.Windows.Forms.TabPage();
@@ -46,9 +47,8 @@
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemBlogPath = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.商务合作ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modBusTcpControl1 = new IoTClient.Tool.ModBusTcpControl();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.ModBusTcp.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -84,6 +84,14 @@
             this.ModBusTcp.TabIndex = 0;
             this.ModBusTcp.Text = "ModBusTcp";
             this.ModBusTcp.UseVisualStyleBackColor = true;
+            // 
+            // modBusTcpControl1
+            // 
+            this.modBusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.modBusTcpControl1.Location = new System.Drawing.Point(3, 3);
+            this.modBusTcpControl1.Name = "modBusTcpControl1";
+            this.modBusTcpControl1.Size = new System.Drawing.Size(880, 442);
+            this.modBusTcpControl1.TabIndex = 0;
             // 
             // ModBusRtu
             // 
@@ -232,14 +240,6 @@
             this.toolStripMenuItem4.Text = "交流群";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripMenuItem4_Click);
             // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
-            this.toolStripMenuItem1.Text = "版本 0.3.5";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
-            // 
             // 商务合作ToolStripMenuItem
             // 
             this.商务合作ToolStripMenuItem.ForeColor = System.Drawing.Color.White;
@@ -248,13 +248,13 @@
             this.商务合作ToolStripMenuItem.Text = "商务合作";
             this.商务合作ToolStripMenuItem.Click += new System.EventHandler(this.cooperationToolStripMenuItem_Click);
             // 
-            // modBusTcpControl1
+            // toolStripMenuItem1
             // 
-            this.modBusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modBusTcpControl1.Location = new System.Drawing.Point(3, 3);
-            this.modBusTcpControl1.Name = "modBusTcpControl1";
-            this.modBusTcpControl1.Size = new System.Drawing.Size(880, 442);
-            this.modBusTcpControl1.TabIndex = 0;
+            this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
+            this.toolStripMenuItem1.Text = "版本 0.3.6";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // IndexForm
             // 

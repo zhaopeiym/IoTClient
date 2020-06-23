@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace IoTServer.Common
     public class DataPersist
     {
         string prefix;
-        static Dictionary<string, string> data = new Dictionary<string, string>();
+        static ConcurrentDictionary<string, string> data = new ConcurrentDictionary<string, string>();
 
         /// <summary>
         /// 
@@ -27,7 +28,7 @@ namespace IoTServer.Common
         public string Read(string key)
         {
             key = prefix + key;
-            if (data.Keys.Contains(key))
+            if (data.ContainsKey(key))
             {
                 return data[key];
             }
@@ -46,14 +47,14 @@ namespace IoTServer.Common
         /// <param name="value"></param>
         public void Write(string key, string value)
         {
-            key = prefix + key;
-            if (data.Keys.Contains(key))
+            key = prefix + key;            
+            if (data.ContainsKey(key))
             {
                 data[key] = value;
             }
             else
             {
-                data.Add(key, value);
+                data.TryAdd(key, value);
             }
         }
 
@@ -67,7 +68,7 @@ namespace IoTServer.Common
         /// </summary>
         public static void Clear()
         {
-            data = new Dictionary<string, string>();
+            data = new ConcurrentDictionary<string, string>();
         }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace IoTServer.Common
                 File.SetAttributes(path, FileAttributes.Hidden);
             }
             if (!string.IsNullOrWhiteSpace(dataString))
-                data = JsonConvert.DeserializeObject<Dictionary<string, string>>(dataString);
+                data = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(dataString);
         }
     }
 }

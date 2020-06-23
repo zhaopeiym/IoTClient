@@ -42,7 +42,7 @@ namespace IoTServer.Servers.PLC
             socketServer.Bind(ipEndPoint);
 
             //3、开启侦听(等待客户机发出的连接),并设置最大客户端连接数为10
-            socketServer.Listen(10);
+            socketServer.Listen(100);
 
             Task.Run(() => { Accept(socketServer); });
         }

@@ -30,11 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="IoTClient" Version="0.0.14" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\IoTClient\IoTClient.csproj" />
   </ItemGroup>
 
 </Project>

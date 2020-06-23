@@ -99,10 +99,14 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public byte[] SendPackage(byte[] command)
         {
-            socket.Send(command);
-            var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
-            var dataPackage = SocketRead(socket, GetContentLength(headPackage));
-            return headPackage.Concat(dataPackage).ToArray();
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                socket.Send(command);
+                var headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                return headPackage.Concat(dataPackage).ToArray();
+            }
         }
         #endregion
 
@@ -121,7 +125,7 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
+                //if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送读取信息
                 var arg = ConvertArg(address);
                 byte[] command;
@@ -153,6 +157,14 @@ namespace IoTClient.Clients.PLC
                 socket?.Shutdown(SocketShutdown.Both);
                 socket?.Close();
             }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.ErrList.Add(ex.Message);
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
+            }
             finally
             {
                 if (isAutoOpen) Dispose();
@@ -173,7 +185,7 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
+                //if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送读取信息
                 var arg = ConvertArg(address);
                 byte[] command = GetReadCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, length);
@@ -198,6 +210,14 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
+            }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.ErrList.Add(ex.Message);
                 socket?.Shutdown(SocketShutdown.Both);
                 socket?.Close();
             }
@@ -782,7 +802,7 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
+                //if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送写入信息
                 var arg = ConvertArg(address);
                 byte[] command = GetWriteByteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, value);
@@ -803,6 +823,14 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
+            }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.ErrList.Add(ex.Message);
                 socket?.Shutdown(SocketShutdown.Both);
                 socket?.Close();
             }
@@ -827,7 +855,7 @@ namespace IoTClient.Clients.PLC
             {
                 Array.Reverse(data);
                 //兼容地址，如VD5012中的D
-                if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
+                //if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
                 //发送写入信息
                 var arg = ConvertArg(address);
                 byte[] command = GetWriteCommand(arg.TypeCode, arg.BeginAddress, arg.DbBlock, data);
@@ -848,6 +876,14 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.Shutdown(SocketShutdown.Both);
+                socket?.Close();
+            }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.ErrList.Add(ex.Message);
                 socket?.Shutdown(SocketShutdown.Both);
                 socket?.Close();
             }

@@ -50,6 +50,40 @@ ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Pari
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
 
+## SiemensClient读写操作
+```
+//1、实例化客户端 - 输入正确的IP和端口
+SiemensClient client = new SiemensClient(SiemensVersion.S7_200Smart, "127.0.0.1",102);
+
+//2、写操作
+client.Write("Q1.3", true);
+client.Write("V2205", (short)11);
+client.Write("V2209", 33);
+
+//3、读操作
+var value1 = client.ReadBoolean("Q1.3").Value;
+var value2 = client.ReadInt16("V2205").Value;
+var value3 = client.ReadInt32("V2209").Value;
+
+//4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
+client.Open();
+
+//5、读写操作都会返回操作结果对象Result
+var result = client.ReadInt16("V2205");
+//5.1 读取是否成功（true或false）
+var isSucceed = result.IsSucceed;
+//5.2 读取失败的异常信息
+var errMsg = result.Err;
+//5.3 读取操作实际发送的请求报文
+var requst  = result.Requst;
+//5.4 读取操作服务端响应的报文
+var response = result.Response;
+//5.5 读取到的值
+var value4 = result.Value;
+```
+
+## 其他更多详细使用请[参考](https://github.com/zhaopeiym/IoTClient/tree/master/IoTClient.Tool/Controls)
+
 # IoTClient Tool效果图   
 ![image](https://user-images.githubusercontent.com/5820324/68926947-9c43e800-07c1-11ea-9da7-f431ec52f2fb.png)  
 
