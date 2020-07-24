@@ -5,10 +5,22 @@ using System.Net.Sockets;
 namespace IoTClient
 {
     /// <summary>
+    /// 日记记录委托定义
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="ex"></param>
+    public delegate void LoggerDelegate(string name, Exception ex = null);
+
+    /// <summary>
     /// Socket基类
     /// </summary>
     public abstract class SocketBase
     {
+        /// <summary>
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+        /// </summary>
+        public LoggerDelegate WarningLog;
         /// <summary>
         /// 分批缓冲区大小
         /// </summary>
@@ -25,13 +37,13 @@ namespace IoTClient
         protected bool isAutoOpen = true;
 
         /// <summary>
-        /// 连接
+        /// 连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
         /// <returns></returns>
         protected abstract Result Connect();
 
         /// <summary>
-        /// 打开连接
+        /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
         /// <returns></returns>
         public Result Open()
@@ -49,7 +61,7 @@ namespace IoTClient
             Result result = new Result();
             try
             {
-                if (socket.Connected) socket?.Shutdown(SocketShutdown.Both);//正常关闭连接
+                if (socket?.Connected ?? false) socket?.Shutdown(SocketShutdown.Both);//正常关闭连接
                 socket?.Close();
                 return result;
             }
@@ -57,6 +69,8 @@ namespace IoTClient
             {
                 result.IsSucceed = false;
                 result.Err = ex.Message;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
                 return result;
             }
         }
@@ -79,20 +93,44 @@ namespace IoTClient
         /// <returns></returns>
         protected byte[] SocketRead(Socket socket, int receiveCount)
         {
+            byte[] receiveBytes = SocketTryRead(socket, receiveCount);
+            if (receiveBytes == null)
+            {
+                if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+                throw new Exception("连接被断开");
+            }
+            return receiveBytes;
+        }
+
+        /// <summary>
+        /// 读取
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="receiveCount"></param>
+        /// <returns>读到的数据，如果内部出现异常则返回null</returns>
+        protected byte[] SocketTryRead(Socket socket, int receiveCount)
+        {
             byte[] receiveBytes = new byte[receiveCount];
             int receiveFinish = 0;
             while (receiveFinish < receiveCount)
             {
                 // 分批读取
                 int receiveLength = (receiveCount - receiveFinish) >= BufferSize ? BufferSize : (receiveCount - receiveFinish);
-                var readLeng = socket.Receive(receiveBytes, receiveFinish, receiveLength, SocketFlags.None);              
-                if (readLeng == 0)
+                try
                 {
-                    if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
-                    throw new Exception("连接已断开");
+                    var readLeng = socket.Receive(receiveBytes, receiveFinish, receiveLength, SocketFlags.None);
+                    if (readLeng == 0)
+                    {
+                        return null;
+                    }
+                    receiveFinish += readLeng;
                 }
-                receiveFinish += readLeng;
+                catch (SocketException ex)
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    return null;
+                }
             }
             return receiveBytes;
         }

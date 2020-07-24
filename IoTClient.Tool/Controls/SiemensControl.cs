@@ -1,11 +1,14 @@
 ﻿using IoTClient.Clients.PLC;
 using IoTClient.Common.Enums;
 using IoTClient.Common.Helpers;
+using IoTClient.Enums;
 using IoTServer.Common;
 using IoTServer.Servers.PLC;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IoTClient.Tool
@@ -14,9 +17,13 @@ namespace IoTClient.Tool
     {
         SiemensClient client;
         SiemensServer server;
-        public SiemensControl()
+        private SiemensVersion siemensVersion;
+        public SiemensControl(SiemensVersion siemensVersion)
         {
+            this.siemensVersion = siemensVersion;
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
+
             Size = new Size(880, 450);
             groupBox2.Location = new Point(13, 5);
             groupBox2.Size = new Size(855, 50);
@@ -50,7 +57,7 @@ namespace IoTClient.Tool
 
             toolTip1.SetToolTip(but_open, "点击打开连接");
             toolTip1.SetToolTip(txt_address, "支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据");
-            txt_content.Text = "小技巧:\r\n1、读取地址支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据\r\n";
+            txt_content.Text = "小技巧:\r\n1、读取地址支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据，或者直接输入V2634、V2638、V2642。\r\n";
         }
 
         private void but_server_Click(object sender, EventArgs e)
@@ -81,28 +88,40 @@ namespace IoTClient.Tool
 
         private void but_open_Click(object sender, EventArgs e)
         {
-            try
+            Task.Run(() =>
             {
-                if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
-                client?.Close();
-                client = new SiemensClient(SiemensVersion.S7_200Smart, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
-                var result = client.Open();
-                if (!result.IsSucceed)
-                    MessageBox.Show($"连接失败：{result.Err}");
-                else
+                try
                 {
-                    but_read.Enabled = true;
-                    but_write.Enabled = true;
-                    but_open.Enabled = false;
-                    but_close.Enabled = true;
-                    but_sendData.Enabled = true;
-                    AppendText($"连接成功");
+                    but_open.Text = "连接中...";
+                    if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
+                    client?.Close();
+                    client = new SiemensClient(siemensVersion, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
+                    client.WarningLog = (msg, ex) =>
+                    {
+                        //MessageBox.Show(ex.Message);
+                    };
+                    var result = client.Open();
+                    if (!result.IsSucceed)
+                        MessageBox.Show($"连接失败：{result.Err}");
+                    else
+                    {
+                        but_read.Enabled = true;
+                        but_write.Enabled = true;
+                        but_open.Enabled = false;
+                        but_close.Enabled = true;
+                        but_sendData.Enabled = true;
+                        AppendText($"连接成功\t\t\t\t耗时：{result.TimeConsuming}ms");
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    but_open.Text = "连接";
+                }
+            });
         }
 
         private void but_close_Click(object sender, EventArgs e)
@@ -132,64 +151,78 @@ namespace IoTClient.Tool
                 //bool类型不进行批量读取
                 if (rd_bit.Checked) txt_address.Text = txt_address.Text.Split('-')[0];
                 var addressAndReadLength = txt_address.Text.Split('-');
+                var addressAndReadNumber = txt_address.Text.Split(',', '、', '，');
 
                 //批量读取
                 if (addressAndReadLength.Length == 2)
                 {
                     var address = addressAndReadLength[0];
                     var readNumber = ushort.Parse(addressAndReadLength[1]);
-                    ushort bLength = 1;
-                    if (rd_bit.Checked)
-                        bLength = 2;
+
+                    if (rd_short.Checked)
+                        result = client.ReadInt16(address, readNumber);
+                    else if (rd_ushort.Checked)
+                        result = client.ReadUInt16(address, readNumber);
+                    else if (rd_int.Checked)
+                        result = client.ReadInt32(address, readNumber);
+                    else if (rd_uint.Checked)
+                        result = client.ReadUInt32(address, readNumber);
+                    else if (rd_long.Checked)
+                        result = client.ReadInt64(address, readNumber);
+                    else if (rd_ulong.Checked)
+                        result = client.ReadUInt64(address, readNumber);
+                    else if (rd_float.Checked)
+                        result = client.ReadFloat(address, readNumber);
+                    else if (rd_double.Checked)
+                        result = client.ReadDouble(address, readNumber);
                     else if (rd_byte.Checked)
-                        bLength = 1;
-                    else if (rd_short.Checked || rd_ushort.Checked)
-                        bLength = 2;
-                    else if (rd_int.Checked || rd_uint.Checked || rd_float.Checked)
-                        bLength = 4;
-                    else if (rd_long.Checked || rd_ulong.Checked || rd_double.Checked)
-                        bLength = 8;
+                        result = client.ReadByte(address, readNumber);
+                    else if (rd_bit.Checked)
+                        result = client.ReadBoolean(address, readNumber);
 
-                    var readLength = Convert.ToUInt16(bLength * readNumber);
-
-                    if (!rd_bit.Checked) result = client.Read(address.ToString(), readLength, false);
-                    else result = client.Read(address.ToString(), readLength, true);
-
-                    var addressNumber = int.Parse(address.Substring(1));
                     if (result.IsSucceed)
                     {
                         AppendEmptyText();
-                        byte[] rValue = result.Value;
-                        rValue = rValue.Reverse().ToArray();
-                        for (int i = 0; i < readNumber; i++)
+                        foreach (var item in result.Value)
                         {
-                            var cAddress = (addressNumber + i * bLength).ToString();
-
-                            var addressStr = address.Substring(0, 1) + (addressNumber + i * bLength);
-                            if (rd_short.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadInt16(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_ushort.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadUInt16(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_int.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadInt32(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_uint.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadUInt32(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_long.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadInt64(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_ulong.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadUInt64(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_float.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadFloat(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_double.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadDouble(addressNumber.ToString(), cAddress, rValue).Value}");
-                            else if (rd_byte.Checked)
-                                AppendText($"[读取 {addressStr} 成功]：{ client.ReadByte(addressNumber.ToString(), cAddress, rValue).Value}");
-                            //else if (rd_bit.Checked)
-                            //    AppendText($"[读取 {addressStr} 成功]：{ client.ReadBoolean(addressNumber.ToString(), cAddress, rValue).Value}");
+                            AppendText($"[读取 {item.Key} 成功]：{item.Value}\t\t耗时：{result.TimeConsuming}ms");
                         }
                     }
                     else
                         AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                }
+                else if (addressAndReadNumber.Length >= 2)
+                {
+                    DataTypeEnum datatype = DataTypeEnum.None;
+                    if (rd_byte.Checked) datatype = DataTypeEnum.Byte;
+                    else if (rd_bit.Checked) datatype = DataTypeEnum.Bool;
+                    else if (rd_short.Checked) datatype = DataTypeEnum.Int16;
+                    else if (rd_ushort.Checked) datatype = DataTypeEnum.UInt16;
+                    else if (rd_int.Checked) datatype = DataTypeEnum.Int32;
+                    else if (rd_uint.Checked) datatype = DataTypeEnum.UInt32;
+                    else if (rd_long.Checked) datatype = DataTypeEnum.Int64;
+                    else if (rd_ulong.Checked) datatype = DataTypeEnum.UInt64;
+                    else if (rd_float.Checked) datatype = DataTypeEnum.Float;
+                    else if (rd_double.Checked) datatype = DataTypeEnum.Double;
+
+                    Dictionary<string, DataTypeEnum> addresses = new Dictionary<string, DataTypeEnum>();
+                    foreach (var item in addressAndReadNumber)
+                    {
+                        addresses.Add(item, datatype);
+                    }
+
+                    result = client.Read(addresses);
+
+                    if (result.IsSucceed)
+                    {
+                        AppendEmptyText();
+                        foreach (var item in result.Value)
+                        {
+                            AppendText($"[读取 {item.Key} 成功]：{item.Value}\t\t耗时：{result.TimeConsuming}ms");
+                        }
+                    }
+                    else
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\t\t耗时：{result.TimeConsuming}ms");
                 }
                 //单个读取
                 else
@@ -235,9 +268,9 @@ namespace IoTClient.Tool
                         result = client.ReadDouble(txt_address.Text);
                     }
                     if (result.IsSucceed)
-                        AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}");
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 成功]：{result.Value}\t\t耗时：{result.TimeConsuming}ms");
                     else
-                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\t\t耗时：{result.TimeConsuming}ms");
                 }
 
                 if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
@@ -330,9 +363,9 @@ namespace IoTClient.Tool
 
 
                 if (result.IsSucceed)
-                    AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK");
+                    AppendText($"[写入 {address?.Trim()} 成功]：{txt_value.Text?.Trim()} OK\t\t耗时：{result.TimeConsuming}ms");
                 else
-                    AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}");
+                    AppendText($"[写入 {address?.Trim()} 失败]：{result.Err}\t\t耗时：{result.TimeConsuming}ms");
                 if (chb_show_package.Checked || (ModifierKeys & Keys.Control) == Keys.Control)
                 {
                     AppendText($"[请求报文]{result.Requst}");
@@ -368,7 +401,7 @@ namespace IoTClient.Tool
                 }
 
                 var dataPackage = DataConvert.StringToByteArray(txt_dataPackage.Text?.Trim(), false);
-                var msg = client.SendPackage(dataPackage);
+                var msg = client.SendPackage(dataPackage).Value;
                 AppendText($"[请求报文]{string.Join(" ", dataPackage.Select(t => t.ToString("X2")))}");
                 AppendText($"[响应报文]{string.Join(" ", msg.Select(t => t.ToString("X2")))}\r\n");
             }

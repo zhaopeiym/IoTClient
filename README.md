@@ -4,6 +4,7 @@
 - 本组件终身开源免费，采用最宽松MIT协议，您也可以随意修改和商业使用（商业使用请做好评估和测试）。  
 - 开发工具：Visual Studio 2019 
 - QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
+- IoTClient Tool [下载1](https://github.com/zhaopeiym/IoTClient/releases) [下载2](https://files-cdn.cnblogs.com/files/zhaopei/IoTClient.rar) 
 
 # 使用说明
 ## 引用组件

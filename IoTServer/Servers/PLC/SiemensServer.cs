@@ -116,31 +116,45 @@ namespace IoTServer.Servers.PLC
                         newSocket.Send(requetData);
                         continue;
                     }
-                    var address = requetData[28] * 256 * 256 + requetData[29] * 256 + requetData[30];
-                    var typeDB = requetData[27];
-                    var stationNumberKey = $"s200-{typeDB}";
+
                     switch (requetData[17])
                     {
                         //读
                         case 4:
                             {
-                                //读取数据长度
-                                var readLength = requetData[23] * 256 + requetData[24];
+                                var dbNumber = requetData[18];
+                               
 
-                                var value = dataPersist.Read(stationNumberKey);//TODO 数据存在 25、26   
-                                var byteArray = JsonConvert.DeserializeObject<byte[]>(value) ?? new byte[65536];
-                                //把存储的数据转为字节数组
-                                //var bytes = JsonConvert.DeserializeObject<byte[]>(value);
-                                //if (string.IsNullOrWhiteSpace(value))
-                                //    bytes = BitConverter.GetBytes(0);
-                                var dataContent = new byte[4 + readLength];//可以从报文中获取Length？
-                                DataConvert.StringToByteArray("FF 09 00 04").CopyTo(dataContent, 0);
-                                dataContent[1] = readLength == 1 ? (byte)0x03 : (byte)0x04;//04 byte(字节) 03bit（位）
-                                dataContent[2] = (byte)(readLength / 256);
-                                dataContent[3] = (byte)(readLength % 256);
-                                Buffer.BlockCopy(byteArray, address / 8, dataContent, 4, readLength);
-                                //dataContent[2] dataContent[3] 后半截数据数组的Length
-                                //dataContent[4]-[7] 返回给客户端的数据
+                                //读取数据长度
+                                var readLength = 0;
+                                for (int i = 0; i < dbNumber; i++)
+                                {
+                                    readLength += requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                }
+
+                                var dataContent = new byte[4 * dbNumber + readLength];//可以从报文中获取Length？
+                                var cursor = 0;
+                                for (int i = 0; i < dbNumber; i++)
+                                {
+                                    var address = requetData[28 + i * 12] * 256 * 256 + requetData[29 + i * 12] * 256 + requetData[30 + i * 12];
+                                    var tempReadLenght = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                    var typeDB = requetData[27 + i * 12];
+                                    var stationNumberKey = $"s200-{typeDB}";
+                                    var value = dataPersist.Read(stationNumberKey);//TODO 数据存在 25、26   
+                                    var byteArray = JsonConvert.DeserializeObject<byte[]>(value) ?? new byte[65536];
+
+                                    DataConvert.StringToByteArray("FF 09 00 04").CopyTo(dataContent, 0 + cursor);
+                                    dataContent[1 + cursor] = readLength == 1 ? (byte)0x03 : (byte)0x04;//04 byte(字节) 03bit（位）
+                                    dataContent[2 + cursor] = (byte)(readLength / 256);
+                                    dataContent[3 + cursor] = (byte)(readLength % 256);
+
+                                    Buffer.BlockCopy(byteArray, address / 8, dataContent, 4 + cursor, tempReadLenght);
+                                    cursor += 4 + tempReadLenght;
+                                    //dataContent[2] dataContent[3] 后半截数据数组的Length
+                                    //dataContent[4]-[7] 返回给客户端的数据
+                                }
+
+
                                 byte[] responseData1 = new byte[21 + dataContent.Length];
                                 DataConvert.StringToByteArray("03 00 00 1A 02 F0 80 32 03 00 00 00 01 00 02 00 00 00 00 04 01").CopyTo(responseData1, 0);
                                 //responseData1[8] = 0x03;//1  客户端发送命令 3 服务器回复命令 
@@ -159,6 +173,10 @@ namespace IoTServer.Servers.PLC
                         //写
                         case 5:
                             {
+                                var address = requetData[28] * 256 * 256 + requetData[29] * 256 + requetData[30];
+                                var typeDB = requetData[27];
+                                var stationNumberKey = $"s200-{typeDB}";
+
                                 var value = new byte[requetData.Length - 35];
                                 Buffer.BlockCopy(requetData, 35, value, 0, value.Length);
 

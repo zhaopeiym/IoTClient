@@ -55,14 +55,23 @@
             this.but_udpsend = new System.Windows.Forms.Button();
             this.but_udpclose = new System.Windows.Forms.Button();
             this.but_udpopen = new System.Windows.Forms.Button();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.txt_redisValue = new System.Windows.Forms.TextBox();
+            this.txt_redisKey = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.txt_address = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // but_crc16calculate
             // 
-            this.but_crc16calculate.Location = new System.Drawing.Point(177, 14);
+            this.but_crc16calculate.Location = new System.Drawing.Point(349, 14);
             this.but_crc16calculate.Name = "but_crc16calculate";
             this.but_crc16calculate.Size = new System.Drawing.Size(75, 23);
             this.but_crc16calculate.TabIndex = 0;
@@ -74,11 +83,12 @@
             // 
             this.txt_crcstr.Location = new System.Drawing.Point(6, 15);
             this.txt_crcstr.Name = "txt_crcstr";
-            this.txt_crcstr.Size = new System.Drawing.Size(165, 21);
+            this.txt_crcstr.Size = new System.Drawing.Size(337, 21);
             this.txt_crcstr.TabIndex = 1;
             // 
             // txt_content
             // 
+            this.txt_content.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.txt_content.Location = new System.Drawing.Point(3, 169);
             this.txt_content.Multiline = true;
             this.txt_content.Name = "txt_content";
@@ -87,7 +97,7 @@
             // 
             // but_crc16validation
             // 
-            this.but_crc16validation.Location = new System.Drawing.Point(258, 15);
+            this.but_crc16validation.Location = new System.Drawing.Point(430, 14);
             this.but_crc16validation.Name = "but_crc16validation";
             this.but_crc16validation.Size = new System.Drawing.Size(75, 23);
             this.but_crc16validation.TabIndex = 3;
@@ -102,7 +112,7 @@
             this.groupBox1.Controls.Add(this.txt_crcstr);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(346, 44);
+            this.groupBox1.Size = new System.Drawing.Size(512, 44);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "CRC";
@@ -118,7 +128,7 @@
             this.groupBox2.Controls.Add(this.but_tcpsend);
             this.groupBox2.Controls.Add(this.but_tcpclose);
             this.groupBox2.Controls.Add(this.but_tcpopen);
-            this.groupBox2.Location = new System.Drawing.Point(356, 3);
+            this.groupBox2.Location = new System.Drawing.Point(3, 53);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(253, 110);
             this.groupBox2.TabIndex = 5;
@@ -217,7 +227,7 @@
             this.groupBox3.Controls.Add(this.but_udpsend);
             this.groupBox3.Controls.Add(this.but_udpclose);
             this.groupBox3.Controls.Add(this.but_udpopen);
-            this.groupBox3.Location = new System.Drawing.Point(616, 3);
+            this.groupBox3.Location = new System.Drawing.Point(262, 53);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(253, 110);
             this.groupBox3.TabIndex = 9;
@@ -303,10 +313,90 @@
             this.but_udpopen.UseVisualStyleBackColor = true;
             this.but_udpopen.Click += new System.EventHandler(this.but_udpOpen_Click);
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.button4);
+            this.groupBox4.Controls.Add(this.button3);
+            this.groupBox4.Controls.Add(this.txt_redisValue);
+            this.groupBox4.Controls.Add(this.txt_redisKey);
+            this.groupBox4.Controls.Add(this.button2);
+            this.groupBox4.Controls.Add(this.button1);
+            this.groupBox4.Controls.Add(this.txt_address);
+            this.groupBox4.Location = new System.Drawing.Point(521, 3);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(356, 160);
+            this.groupBox4.TabIndex = 10;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Redis";
+            this.groupBox4.Enter += new System.EventHandler(this.groupBox4_Enter);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(275, 122);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 6;
+            this.button4.Text = "写入";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.redisSet_Click);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(275, 48);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 5;
+            this.button3.Text = "读取";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.redisRead_Click);
+            // 
+            // txt_redisValue
+            // 
+            this.txt_redisValue.Location = new System.Drawing.Point(6, 85);
+            this.txt_redisValue.Multiline = true;
+            this.txt_redisValue.Name = "txt_redisValue";
+            this.txt_redisValue.Size = new System.Drawing.Size(263, 60);
+            this.txt_redisValue.TabIndex = 4;
+            // 
+            // txt_redisKey
+            // 
+            this.txt_redisKey.Location = new System.Drawing.Point(6, 50);
+            this.txt_redisKey.Name = "txt_redisKey";
+            this.txt_redisKey.Size = new System.Drawing.Size(263, 21);
+            this.txt_redisKey.TabIndex = 3;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(275, 14);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "关闭";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(194, 14);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "连接";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.redisOpen_Click);
+            // 
+            // txt_address
+            // 
+            this.txt_address.Location = new System.Drawing.Point(6, 16);
+            this.txt_address.Name = "txt_address";
+            this.txt_address.Size = new System.Drawing.Size(182, 21);
+            this.txt_address.TabIndex = 0;
+            this.txt_address.Text = "127.0.0.1:6379";
+            // 
             // OtherControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -319,6 +409,8 @@
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -352,5 +444,13 @@
         private System.Windows.Forms.Button but_udpsend;
         private System.Windows.Forms.Button but_udpclose;
         private System.Windows.Forms.Button but_udpopen;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.TextBox txt_redisValue;
+        private System.Windows.Forms.TextBox txt_redisKey;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox txt_address;
     }
 }

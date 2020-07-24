@@ -1,4 +1,5 @@
-﻿using IoTClient.Tool.Controls;
+﻿using IoTClient.Common.Enums;
+using IoTClient.Tool.Controls;
 using IoTClient.Tool.Model;
 using IoTServer.Common;
 using Newtonsoft.Json;
@@ -82,7 +83,7 @@ namespace IoTClient.Tool
         /// <param name="tab"></param>
         private void SelectedTab(TabPage tab)
         {
-            Text = "IoTClient Tool - " + tab.Text?.Trim();
+            Text = "IoTClient Tool - " + tab.Name?.Trim();
             SaveTabName(tab.Name);
             if (tab.Controls.Count <= 0)
             {
@@ -103,15 +104,35 @@ namespace IoTClient.Tool
                         modBusAscii.Dock = DockStyle.Fill;
                         tab.Controls.Add(modBusAscii);
                         break;
-                    case "Siemens":
-                        var siemens = new SiemensControl();
+                    case "SiemensS7200Smart":
+                        var siemens = new SiemensControl(SiemensVersion.S7_200Smart);
                         siemens.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemens);
                         break;
+                    case "SiemensS7200":
+                        var siemens200 = new SiemensControl(SiemensVersion.S7_200);
+                        siemens200.Dock = DockStyle.Fill;
+                        tab.Controls.Add(siemens200);
+                        break;
                     case "SiemensS7300":
-                        var siemensS7_300 = new SiemensS7_300Control();
+                        var siemensS7_300 = new SiemensControl(SiemensVersion.S7_300);
                         siemensS7_300.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemensS7_300);
+                        break;
+                    case "SiemensS7400":
+                        var siemensS7_400 = new SiemensControl(SiemensVersion.S7_400);
+                        siemensS7_400.Dock = DockStyle.Fill;
+                        tab.Controls.Add(siemensS7_400);
+                        break;
+                    case "SiemensS71200":
+                        var siemensS7_1200 = new SiemensControl(SiemensVersion.S7_1200);
+                        siemensS7_1200.Dock = DockStyle.Fill;
+                        tab.Controls.Add(siemensS7_1200);
+                        break;
+                    case "SiemensS71500":
+                        var siemensS7_1500 = new SiemensControl(SiemensVersion.S7_1500);
+                        siemensS7_1500.Dock = DockStyle.Fill;
+                        tab.Controls.Add(siemensS7_1500);
                         break;
                     case "BACnet":
                         var bacnet = new BACnetControl();
@@ -335,6 +356,6 @@ namespace IoTClient.Tool
                     if (File.Exists(filePath)) File.Delete(filePath);
                 }
             }
-        } 
+        }
     }
 }

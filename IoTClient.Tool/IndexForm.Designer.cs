@@ -34,8 +34,12 @@
             this.modBusTcpControl1 = new IoTClient.Tool.ModBusTcpControl();
             this.ModBusRtu = new System.Windows.Forms.TabPage();
             this.ModBusAscii = new System.Windows.Forms.TabPage();
-            this.Siemens = new System.Windows.Forms.TabPage();
+            this.SiemensS7200 = new System.Windows.Forms.TabPage();
+            this.SiemensS7200Smart = new System.Windows.Forms.TabPage();
             this.SiemensS7300 = new System.Windows.Forms.TabPage();
+            this.SiemensS7400 = new System.Windows.Forms.TabPage();
+            this.SiemensS71200 = new System.Windows.Forms.TabPage();
+            this.SiemensS71500 = new System.Windows.Forms.TabPage();
             this.MitsubishiMC = new System.Windows.Forms.TabPage();
             this.OmronFinsTcp = new System.Windows.Forms.TabPage();
             this.BACnet = new System.Windows.Forms.TabPage();
@@ -59,8 +63,12 @@
             this.tabControl1.Controls.Add(this.ModBusTcp);
             this.tabControl1.Controls.Add(this.ModBusRtu);
             this.tabControl1.Controls.Add(this.ModBusAscii);
-            this.tabControl1.Controls.Add(this.Siemens);
+            this.tabControl1.Controls.Add(this.SiemensS7200);
+            this.tabControl1.Controls.Add(this.SiemensS7200Smart);
             this.tabControl1.Controls.Add(this.SiemensS7300);
+            this.tabControl1.Controls.Add(this.SiemensS7400);
+            this.tabControl1.Controls.Add(this.SiemensS71200);
+            this.tabControl1.Controls.Add(this.SiemensS71500);
             this.tabControl1.Controls.Add(this.MitsubishiMC);
             this.tabControl1.Controls.Add(this.OmronFinsTcp);
             this.tabControl1.Controls.Add(this.BACnet);
@@ -113,15 +121,25 @@
             this.ModBusAscii.Text = "ModBusAscii";
             this.ModBusAscii.UseVisualStyleBackColor = true;
             // 
-            // Siemens
+            // SiemensS7200
             // 
-            this.Siemens.Location = new System.Drawing.Point(4, 22);
-            this.Siemens.Name = "Siemens";
-            this.Siemens.Padding = new System.Windows.Forms.Padding(3);
-            this.Siemens.Size = new System.Drawing.Size(886, 448);
-            this.Siemens.TabIndex = 1;
-            this.Siemens.Text = "西门子S7-200Smart";
-            this.Siemens.UseVisualStyleBackColor = true;
+            this.SiemensS7200.Location = new System.Drawing.Point(4, 22);
+            this.SiemensS7200.Name = "SiemensS7200";
+            this.SiemensS7200.Padding = new System.Windows.Forms.Padding(3);
+            this.SiemensS7200.Size = new System.Drawing.Size(886, 448);
+            this.SiemensS7200.TabIndex = 10;
+            this.SiemensS7200.Text = "S7-200";
+            this.SiemensS7200.UseVisualStyleBackColor = true;
+            // 
+            // SiemensS7200Smart
+            // 
+            this.SiemensS7200Smart.Location = new System.Drawing.Point(4, 22);
+            this.SiemensS7200Smart.Name = "SiemensS7200Smart";
+            this.SiemensS7200Smart.Padding = new System.Windows.Forms.Padding(3);
+            this.SiemensS7200Smart.Size = new System.Drawing.Size(886, 448);
+            this.SiemensS7200Smart.TabIndex = 1;
+            this.SiemensS7200Smart.Text = "S7-200Smart";
+            this.SiemensS7200Smart.UseVisualStyleBackColor = true;
             // 
             // SiemensS7300
             // 
@@ -130,8 +148,38 @@
             this.SiemensS7300.Padding = new System.Windows.Forms.Padding(3);
             this.SiemensS7300.Size = new System.Drawing.Size(886, 448);
             this.SiemensS7300.TabIndex = 8;
-            this.SiemensS7300.Text = "西门子S7-300 Beta";
+            this.SiemensS7300.Text = "S7-300";
             this.SiemensS7300.UseVisualStyleBackColor = true;
+            // 
+            // SiemensS7400
+            // 
+            this.SiemensS7400.Location = new System.Drawing.Point(4, 22);
+            this.SiemensS7400.Name = "SiemensS7400";
+            this.SiemensS7400.Padding = new System.Windows.Forms.Padding(3);
+            this.SiemensS7400.Size = new System.Drawing.Size(886, 448);
+            this.SiemensS7400.TabIndex = 8;
+            this.SiemensS7400.Text = "S7-400";
+            this.SiemensS7400.UseVisualStyleBackColor = true;
+            // 
+            // SiemensS71200
+            // 
+            this.SiemensS71200.Location = new System.Drawing.Point(4, 22);
+            this.SiemensS71200.Name = "SiemensS71200";
+            this.SiemensS71200.Padding = new System.Windows.Forms.Padding(3);
+            this.SiemensS71200.Size = new System.Drawing.Size(886, 448);
+            this.SiemensS71200.TabIndex = 8;
+            this.SiemensS71200.Text = "S7-1200";
+            this.SiemensS71200.UseVisualStyleBackColor = true;
+            // 
+            // SiemensS71500
+            // 
+            this.SiemensS71500.Location = new System.Drawing.Point(4, 22);
+            this.SiemensS71500.Name = "SiemensS71500";
+            this.SiemensS71500.Padding = new System.Windows.Forms.Padding(3);
+            this.SiemensS71500.Size = new System.Drawing.Size(886, 448);
+            this.SiemensS71500.TabIndex = 8;
+            this.SiemensS71500.Text = "S7-1500";
+            this.SiemensS71500.UseVisualStyleBackColor = true;
             // 
             // MitsubishiMC
             // 
@@ -253,7 +301,7 @@
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
-            this.toolStripMenuItem1.Text = "版本 0.3.6";
+            this.toolStripMenuItem1.Text = "版本 0.3.9";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // IndexForm
@@ -282,7 +330,7 @@
 
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage ModBusTcp;
-        private System.Windows.Forms.TabPage Siemens;
+        private System.Windows.Forms.TabPage SiemensS7200Smart;
         private ModBusTcpControl modBusTcpControl1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
@@ -298,7 +346,11 @@
         private System.Windows.Forms.TabPage OmronFinsTcp;
         private System.Windows.Forms.TabPage ModBusAscii;
         private System.Windows.Forms.TabPage SiemensS7300;
+        private System.Windows.Forms.TabPage SiemensS7400;
+        private System.Windows.Forms.TabPage SiemensS71200;
+        private System.Windows.Forms.TabPage SiemensS71500;
         private System.Windows.Forms.TabPage Other;
         private System.Windows.Forms.ToolStripMenuItem 商务合作ToolStripMenuItem;
+        private System.Windows.Forms.TabPage SiemensS7200;
     }
 }

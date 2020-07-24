@@ -5,7 +5,7 @@
         /// <summary>
         /// 当前版本
         /// </summary>
-        public float CurrentVersion { get; set; } = 0.36f;
+        public float CurrentVersion { get; set; } = 0.39f;
 
         /// <summary>
         /// 忽略版本

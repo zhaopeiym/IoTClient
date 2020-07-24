@@ -3,6 +3,8 @@ using IoTClient.Common.Enums;
 using System.Net;
 using Xunit;
 using IoTServer.Common;
+using System.Collections.Generic;
+using IoTClient.Enums;
 
 namespace IoTClient.Tests.PLCTests
 {
@@ -95,6 +97,58 @@ namespace IoTClient.Tests.PLCTests
             Assert.True(client.ReadString("V2205").Value == value_string);
 
             client?.Close();
+        }
+
+        [Fact]
+        public void test()
+        {
+            //string address = "I1.1";
+            //ushort readNumber = 20;
+            //test2(address, readNumber);
+
+            //TODO 最多只能批量读取 19个？
+            Dictionary<string, DataTypeEnum> addresses = new Dictionary<string, DataTypeEnum>();
+
+            addresses.Add("V1000", DataTypeEnum.Float);
+            addresses.Add("I0.0", DataTypeEnum.Bool);
+            addresses.Add("V4109", DataTypeEnum.Byte);
+            //addresses.Add("V1004", DataTypeEnum.Float);
+
+            //addresses.Add("V1000", DataTypeEnum.Float);
+            //addresses.Add("V1004", DataTypeEnum.Float);
+            //addresses.Add("V1008", DataTypeEnum.Float);
+            //addresses.Add("V1012", DataTypeEnum.Float);
+            //addresses.Add("V1016", DataTypeEnum.Float);
+            //addresses.Add("V1020", DataTypeEnum.Float);
+            //addresses.Add("V1024", DataTypeEnum.Float);
+            //addresses.Add("V1032", DataTypeEnum.Float);
+            //addresses.Add("V1036", DataTypeEnum.Float);
+            //addresses.Add("V1040", DataTypeEnum.Float);
+            //addresses.Add("V1044", DataTypeEnum.Float);
+            //addresses.Add("V1048", DataTypeEnum.Float);
+            //addresses.Add("V1052", DataTypeEnum.Float);
+            //addresses.Add("V1230", DataTypeEnum.Float);
+            //addresses.Add("V1234", DataTypeEnum.Float);
+            //addresses.Add("V1238", DataTypeEnum.Float);
+            //addresses.Add("V1242", DataTypeEnum.Float);
+            //addresses.Add("V1246", DataTypeEnum.Float);
+            //addresses.Add("V1250", DataTypeEnum.Float);
+
+            //addresses.Add("V1254", DataTypeEnum.Float);
+            //addresses.Add("V1258", DataTypeEnum.Float);
+
+            var obj = client.Read(addresses);
+        }
+
+        private void test2(string address, ushort readNumber)
+        {
+
+            var reuslt2 = client.ReadBoolean(address, readNumber);
+
+            var reuslt = client.ReadFloat("V1088", 4);
+            var reuslt3 = client.ReadUInt16("V1", 5);
+
+            var reuslt4 = client.ReadByte("V10", 5);
         }
     }
 }

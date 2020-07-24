@@ -109,9 +109,8 @@ namespace IoTClient.Tool
                     rList.Add(new BacnetPropertyReference((uint)pid, i));
                     if ((i != 0 && i % deviceCount == 0) || i == count - 1)//不要超了 MaxAPDU
                     {
-                        IList<BacnetReadAccessResult> lstAccessRst;
-                        var bRst = Bacnet_client.ReadPropertyMultipleRequest(adr, bobj, rList, out lstAccessRst, this.GetCurrentInvokeId());
-                        if (bRst)
+                        IList<BacnetReadAccessResult> lstAccessRst = Bacnet_client.ReadPropertyMultipleRequest(adr, bobj, rList);
+                        if (lstAccessRst?.Any() ?? false)
                         {
                             foreach (var aRst in lstAccessRst)
                             {
@@ -156,36 +155,32 @@ namespace IoTClient.Tool
             {
                 var adr = device.Address;
                 if (adr == null) return 0;
-                var list = ReadScalarValue(adr,
+                var bacnetValue = ReadScalarValue(adr,
                     new BacnetObjectId(BacnetObjectTypes.OBJECT_DEVICE, device.DeviceId),
                     BacnetPropertyIds.PROP_OBJECT_LIST, 0, 0);
-                var rst = Convert.ToUInt32(list.FirstOrDefault().Value);
+                var rst = Convert.ToUInt32(bacnetValue.Value);
                 return rst;
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                Log("Err:" + ex.Message);
+            }
             return 0;
         }
 
-        IList<BacnetValue> ReadScalarValue(BacnetAddress adr, BacnetObjectId oid,
+        private BacnetValue ReadScalarValue(BacnetAddress adr, BacnetObjectId oid,
             BacnetPropertyIds pid, byte invokeId = 0, uint arrayIndex = uint.MaxValue)
         {
             try
             {
-                IList<BacnetValue> NoScalarValue;
-                var rst = Bacnet_client.ReadPropertyRequest(adr, oid, pid, out NoScalarValue, invokeId, arrayIndex);
-                if (!rst) return null;
+                BacnetValue NoScalarValue = Bacnet_client.ReadPropertyRequest(adr, oid, pid, arrayIndex);
                 return NoScalarValue;
             }
-            catch { }
-            return null;
-        }
-
-        byte InvokeId = 0x00;
-        public byte GetCurrentInvokeId()
-        {
-            InvokeId = (byte)((InvokeId + 1) % 256);
-            return InvokeId;
+            catch (Exception ex)
+            {
+                Log("Err:" + ex.Message);
+            }
+            return new BacnetValue();
         }
 
         /// <summary>
@@ -197,51 +192,64 @@ namespace IoTClient.Tool
             var adr = device.Address;
             if (adr == null) return;
             if (device.Properties == null) return;
-            foreach (BacProperty subNode in device.Properties)
+
+            List<BacnetPropertyReference> rList = new List<BacnetPropertyReference>();
+            rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_DESCRIPTION, uint.MaxValue));
+            rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_REQUIRED, uint.MaxValue));
+            rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_OBJECT_NAME, uint.MaxValue));
+            rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_PRESENT_VALUE, uint.MaxValue));
+            List<BacnetReadAccessSpecification> properties = new List<BacnetReadAccessSpecification>();
+
+            for (int i = 0; i < device.Properties.Count; i++)
             {
+                var subNode = device.Properties[i];
                 try
                 {
-                    List<BacnetPropertyReference> rList = new List<BacnetPropertyReference>();
-                    rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_DESCRIPTION, uint.MaxValue));
-                    rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_REQUIRED, uint.MaxValue));
-                    rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_OBJECT_NAME, uint.MaxValue));
-                    rList.Add(new BacnetPropertyReference((uint)BacnetPropertyIds.PROP_PRESENT_VALUE, uint.MaxValue));
-                    IList<BacnetReadAccessResult> lstAccessRst;
-                    var bRst = Bacnet_client.ReadPropertyMultipleRequest(adr, subNode.ObjectId, rList, out lstAccessRst, this.GetCurrentInvokeId());
-                    if (bRst)
+                    properties.Add(new BacnetReadAccessSpecification(subNode.ObjectId, rList));
+
+                    //批量读取，9条一组
+                    if ((i != 0 && i % 9 == 0) || i == device.Properties.Count - 1)
                     {
-                        foreach (var aRst in lstAccessRst)
+                        IList<BacnetReadAccessResult> lstAccessRst = Bacnet_client.ReadPropertyMultipleRequest(adr, properties);
+                        if (lstAccessRst?.Any() ?? false)
                         {
-                            if (aRst.values == null) continue;
-                            foreach (var bPValue in aRst.values)
+                            foreach (var aRst in lstAccessRst)
                             {
-                                if (bPValue.value == null || bPValue.value.Count == 0) continue;
-                                var pid = (BacnetPropertyIds)(bPValue.property.propertyIdentifier);
-                                var bValue = bPValue.value.First();
-                                var strBValue = "" + bValue.Value;
-                                //Log(pid + " , " + strBValue + " , " + bValue.Tag);
-                                switch (pid)
+                                if (aRst.values == null) continue;
+                                subNode = device.Properties
+                                    .Where(t => t.ObjectId.Instance == aRst.objectIdentifier.Instance && t.ObjectId.Type == aRst.objectIdentifier.Type)
+                                    .FirstOrDefault();
+                                foreach (var bPValue in aRst.values)
                                 {
-                                    case BacnetPropertyIds.PROP_DESCRIPTION://描述
-                                        {
-                                            subNode.PROP_DESCRIPTION = bValue + "";
-                                        }
-                                        break;
-                                    case BacnetPropertyIds.PROP_OBJECT_NAME://点名
-                                        {
-                                            subNode.PROP_OBJECT_NAME = bValue + "";
-                                        }
-                                        break;
-                                    case BacnetPropertyIds.PROP_PRESENT_VALUE://值
-                                        {
-                                            subNode.PROP_PRESENT_VALUE = bValue.Value;
-                                            subNode.DataType = bValue.Value.GetType();
-                                        }
-                                        break;
+                                    if (bPValue.value == null || bPValue.value.Count == 0) continue;
+                                    var pid = (BacnetPropertyIds)(bPValue.property.propertyIdentifier);
+                                    var bValue = bPValue.value.First();
+                                    var strBValue = "" + bValue.Value;
+                                    //Log(pid + " , " + strBValue + " , " + bValue.Tag);
+                                    switch (pid)
+                                    {
+                                        case BacnetPropertyIds.PROP_DESCRIPTION://描述
+                                            {
+                                                subNode.PROP_DESCRIPTION = bValue.ToString()?.Trim();
+                                            }
+                                            break;
+                                        case BacnetPropertyIds.PROP_OBJECT_NAME://点名
+                                            {
+                                                subNode.PROP_OBJECT_NAME = bValue.ToString()?.Trim();
+                                            }
+                                            break;
+                                        case BacnetPropertyIds.PROP_PRESENT_VALUE://值
+                                            {
+                                                subNode.PROP_PRESENT_VALUE = bValue.Value;
+                                                subNode.DataType = bValue.Value.GetType();
+                                            }
+                                            break;
+                                    }
                                 }
+                                ShwoText(string.Format("地址:{0}\t 点名:{1}\t 值:{2}\t 类型:{3}\t 描述:{4} ", $"{subNode.ObjectId.Instance}_{(int)subNode.ObjectId.Type}", subNode.PROP_OBJECT_NAME, subNode.PROP_PRESENT_VALUE, subNode.PROP_PRESENT_VALUE.GetType().ToString().Split('.')[1], subNode.PROP_DESCRIPTION));
                             }
                         }
-                        ShwoText(string.Format("点名:{0,-20} 值:{1,-10} 类型:{3,-15} 描述:{2} ", subNode.PROP_OBJECT_NAME, subNode.PROP_PRESENT_VALUE, subNode.PROP_DESCRIPTION, subNode.PROP_PRESENT_VALUE.GetType()));
+                        properties.Clear();
                     }
                 }
                 catch (Exception exp)
@@ -267,14 +275,33 @@ namespace IoTClient.Tool
             }));
         }
 
-        private async void button3_ClickAsync(object sender, EventArgs e)
+        private async void Read_ClickAsync(object sender, EventArgs e)
         {
-            var key = textBox3.Text?.Trim();
-            var rpop = devicesList.SelectMany(t => t.Properties)
-                .Where(t => t.PROP_OBJECT_NAME == key)
-                .FirstOrDefault();
-            var bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == key))
-                .FirstOrDefault();
+            var address = txt_address.Text?.Trim(); 
+            var addressPart = address.Split('_'); 
+            BacProperty rpop = null;
+            BacNode bacnet = null;
+
+            if (addressPart.Length == 1)
+            {
+                rpop = devicesList.SelectMany(t => t.Properties).Where(t => t.PROP_OBJECT_NAME == address).FirstOrDefault();
+                bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == address)).FirstOrDefault();
+            }
+            else if (addressPart.Length == 2)
+            {
+                rpop = devicesList.SelectMany(t => t.Properties)
+                    .Where(t => t.ObjectId.Instance == uint.Parse(addressPart[0]) && t.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1]))
+                    .FirstOrDefault();
+                bacnet = devicesList
+                    .Where(t => t.Properties.Any(p => p.ObjectId.Instance == uint.Parse(addressPart[0]) && p.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1])))
+                    .FirstOrDefault();
+            }
+            else
+            {
+                Log("请输入正确的地址");
+                return;
+            }
+
             if (rpop == null)
             {
                 Log("没有找到对应的点");
@@ -282,14 +309,14 @@ namespace IoTClient.Tool
             }
             int retry = 0;//重试
             tag_retry:
-            var isOk = Bacnet_client.ReadPropertyRequest(bacnet.Address, rpop.ObjectId, BacnetPropertyIds.PROP_PRESENT_VALUE, out IList<BacnetValue> NoScalarValue);
-            if (isOk)
+            IList<BacnetValue> NoScalarValue = Bacnet_client.ReadPropertyRequest(bacnet.Address, rpop.ObjectId, BacnetPropertyIds.PROP_PRESENT_VALUE);
+            if (NoScalarValue?.Any() ?? false)
             {
                 await Task.Delay(retry * 200);
                 try
                 {
                     var value = NoScalarValue[0].Value;
-                    ShwoText(string.Format("[读取成功][{3}] 点:{0,-15} 值:{1,-10} 类型:{2}", key, value?.ToString(), value?.GetType().ToString(), retry));
+                    ShwoText(string.Format("[读取成功][{3}] 点:{0,-15} 值:{1,-10} 类型:{2}", address, value?.ToString(), value?.GetType().ToString(), retry));
                 }
                 catch
                 {
@@ -304,15 +331,35 @@ namespace IoTClient.Tool
             }
         }
 
-        private async void button2_ClickAsync(object sender, EventArgs e)
+        private async void Write_ClickAsync(object sender, EventArgs e)
         {
-            var key = textBox3.Text?.Trim();
-            var value = textBox2.Text?.Trim();
-            var rpop = devicesList.SelectMany(t => t.Properties)
-                .Where(t => t.PROP_OBJECT_NAME == key)
-                .FirstOrDefault();
-            var bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == key))
-                .FirstOrDefault();
+            var address = txt_address.Text?.Trim();
+            var value = txt_value.Text?.Trim();
+            var addressPart = address.Split('_');
+
+            BacProperty rpop = null;
+            BacNode bacnet = null;
+
+            if (addressPart.Length == 1)
+            {
+                rpop = devicesList.SelectMany(t => t.Properties).Where(t => t.PROP_OBJECT_NAME == address).FirstOrDefault();
+                bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == address)).FirstOrDefault();
+            }
+            else if (addressPart.Length == 2)
+            {
+                rpop = devicesList.SelectMany(t => t.Properties)
+                    .Where(t => t.ObjectId.Instance == uint.Parse(addressPart[0]) && t.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1]))
+                    .FirstOrDefault();
+                bacnet = devicesList
+                    .Where(t => t.Properties.Any(p => p.ObjectId.Instance == uint.Parse(addressPart[0]) && p.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1])))
+                    .FirstOrDefault();
+            }
+            else
+            {
+                Log("请输入正确的地址");
+                return;
+            }
+
             if (rpop == null)
             {
                 Log("没有找到对应的点");
@@ -325,9 +372,8 @@ namespace IoTClient.Tool
             try
             {
                 await Task.Delay(retry * 200);
-                Bacnet_client.WritePropertyRequest(bacnet.Address, rpop.ObjectId, BacnetPropertyIds.PROP_PRESENT_VALUE, NoScalarValue, 0);
-                //Bacnet_client.WritePropertyRequest(bacnet.Address, new BacnetObjectId(BacnetObjectTypes.OBJECT_ANALOG_VALUE, rpop.ObjectId.instance), BacnetPropertyIds.PROP_PRESENT_VALUE, NoScalarValue, 0);
-                ShwoText(string.Format("[写入成功][{2}] 点:{0,-15} 值:{1}", key, value, retry));
+                Bacnet_client.WritePropertyRequest(bacnet.Address, rpop.ObjectId, BacnetPropertyIds.PROP_PRESENT_VALUE, NoScalarValue);
+                ShwoText(string.Format("[写入成功][{2}] 点:{0,-15} 值:{1}", address, value, retry));
             }
             catch (Exception ex)
             {

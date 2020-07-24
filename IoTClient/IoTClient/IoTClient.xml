@@ -1801,9 +1801,29 @@
             西门子客户端
             </summary>
         </member>
+        <member name="F:IoTClient.Clients.PLC.SiemensClient.version">
+            <summary>
+            版本
+            </summary>
+        </member>
+        <member name="F:IoTClient.Clients.PLC.SiemensClient.ipAndPoint">
+            <summary>
+            IPEndPoint
+            </summary>
+        </member>
+        <member name="F:IoTClient.Clients.PLC.SiemensClient.timeout">
+            <summary>
+            超时时间
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.SiemensClient.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Connect">
             <summary>
-            打开长连接
+            打开长连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
@@ -1831,11 +1851,34 @@
             <param name="length"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
+            <summary>
+            分批读取，默认按19个地址打包读取
+            </summary>
+            <param name="addresses">地址集合</param>
+            <param name="batchNumber">批量读取数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum})">
+            <summary>
+            最多只能批量读取19个数据？        
+            </summary>
+            <param name="addresses"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadBoolean(System.String)">
             <summary>
             读取Boolean
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadBoolean(System.String,System.UInt16)">
+            <summary>
+            读取Boolean
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadByte(System.String)">
@@ -1845,11 +1888,27 @@
             <param name="address"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadByte(System.String,System.UInt16)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt16(System.String)">
             <summary>
             读取Int16
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt16(System.String,System.UInt16)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt16(System.String)">
@@ -1859,11 +1918,27 @@
             <param name="address">地址</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt16(System.String,System.UInt16)">
+            <summary>
+            读取UInt16
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt32(System.String)">
             <summary>
             读取Int32
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt32(System.String,System.UInt16)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt32(System.String)">
@@ -1873,11 +1948,27 @@
             <param name="address">地址</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt32(System.String,System.UInt16)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt64(System.String)">
             <summary>
             读取Int64
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt64(System.String,System.UInt16)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt64(System.String)">
@@ -1887,11 +1978,27 @@
             <param name="address">地址</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt64(System.String,System.UInt16)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadFloat(System.String)">
             <summary>
             读取Float
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadFloat(System.String,System.UInt16)">
+            <summary>
+            读取Float
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadDouble(System.String)">
@@ -1901,92 +2008,19 @@
             <param name="address">地址</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadDouble(System.String,System.UInt16)">
+            <summary>
+            读取Float
+            </summary>
+            <param name="address">地址</param>
+            <param name="readNumber">读取数量</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadString(System.String)">
             <summary>
             读取String
             </summary>
             <param name="address">地址</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadByte(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt16(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt16(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt32(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt32(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt64(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadUInt64(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadFloat(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadDouble(System.String,System.String,System.Byte[])">
-            <summary>
-            从批量读取的数据字节提取对应的地址数据
-            </summary>
-            <param name="beginAddress">批量读取的起始地址</param>
-            <param name="address">读取地址</param>
-            <param name="values">批量读取的值</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Write(System.String,System.Boolean)">
@@ -2100,14 +2134,17 @@
             <param name="address"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(System.Byte,System.Int32,System.UInt16,System.UInt16)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensData[])">
+            <summary>
+            获取指令
+            </summary>      
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensData)">
             <summary>
             获取指令
             </summary>
-            <param name="type"></param>
-            <param name="beginAddress"></param>
-            <param name="dbAddress"></param>
-            <param name="length"></param>
+            <param name="data"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.GetContentLength(System.Byte[])">
@@ -2239,11 +2276,6 @@
             第一次初始化指令交互报文
             </summary>
         </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_300">
-            <summary>
-            
-            </summary>
-        </member>
         <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2">
             <summary>
             第二次初始化指令交互报文
@@ -2259,6 +2291,16 @@
             第二次初始化指令交互报文
             </summary>
         </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_200">
+            <summary>
+            第一次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2_200">
+            <summary>
+            第二次初始化指令交互报文
+            </summary>
+        </member>
         <member name="T:IoTClient.Common.Enums.SiemensVersion">
             <summary>
             西门子型号版本
@@ -2269,6 +2311,11 @@
             未定义
             </summary>
         </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200">
+            <summary>
+            西门子S7-200 【需要配置网络模块】
+            </summary>
+        </member>
         <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200Smart">
             <summary>
             西门子S7-200Smar
@@ -2277,6 +2324,81 @@
         <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_300">
             <summary>
             西门子S7-300
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_400">
+            <summary>
+            西门子S7-400
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_1200">
+            <summary>
+            西门子S7-1200
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_1500">
+            <summary>
+            西门子S7-1500
+            </summary>
+        </member>
+        <member name="T:IoTClient.Enums.DataTypeEnum">
+            <summary>
+            数据类型
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.None">
+            <summary>
+            未定义
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Bool">
+            <summary>
+            Bool
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Byte">
+            <summary>
+            Byte
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Int16">
+            <summary>
+            Int16
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.UInt16">
+            <summary>
+            UInt16
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Int32">
+            <summary>
+            Int32
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.UInt32">
+            <summary>
+            UInt32
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Int64">
+            <summary>
+            Int64
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.UInt64">
+            <summary>
+            UInt64
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Float">
+            <summary>
+            Float
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.Double">
+            <summary>
+            Double
             </summary>
         </member>
         <member name="T:IoTClient.Models.MitsubishiMCData">
@@ -2447,6 +2569,17 @@
             异常消息
             </summary>
         </member>
+        <member name="P:IoTClient.Models.Result.ErrCode">
+            <summary>
+            异常Code
+            408 连接失败
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.Exception">
+            <summary>
+            详细异常
+            </summary>
+        </member>
         <member name="P:IoTClient.Models.Result.ErrList">
             <summary>
             异常集合
@@ -2462,6 +2595,21 @@
             响应报文
             </summary>
         </member>
+        <member name="P:IoTClient.Models.Result.TimeConsuming">
+            <summary>
+            耗时（毫秒）
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.Result.EndTime">
+            <summary>
+            结束时间统计
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.InitialTime">
+            <summary>
+            开始时间
+            </summary>
+        </member>
         <member name="T:IoTClient.Models.Result`1">
             <summary>
             请求结果
@@ -2470,6 +2618,21 @@
         <member name="P:IoTClient.Models.Result`1.Value">
             <summary>
             数据结果
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.Result`1.EndTime">
+            <summary>
+            结束时间统计
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.Result`1.Assignment(IoTClient.Models.Result)">
+            <summary>
+            赋值
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.Address">
+            <summary>
+            原地址
             </summary>
         </member>
         <member name="P:IoTClient.Core.Models.SiemensData.TypeCode">
@@ -2485,6 +2648,21 @@
         <member name="P:IoTClient.Core.Models.SiemensData.BeginAddress">
             <summary>
             开始地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.ReadLength">
+            <summary>
+            读取长度
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.ReadBit">
+            <summary>
+            是否读取bit类型
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.DataType">
+            <summary>
+            数据类型
             </summary>
         </member>
         <member name="T:IoTClient.SerialPortBase">
@@ -2539,9 +2717,22 @@
             <param name="serialPort"></param>
             <returns></returns>
         </member>
+        <member name="T:IoTClient.LoggerDelegate">
+            <summary>
+            日记记录委托定义
+            </summary>
+            <param name="name"></param>
+            <param name="ex"></param>
+        </member>
         <member name="T:IoTClient.SocketBase">
             <summary>
             Socket基类
+            </summary>
+        </member>
+        <member name="F:IoTClient.SocketBase.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="F:IoTClient.SocketBase.BufferSize">
@@ -2561,13 +2752,13 @@
         </member>
         <member name="M:IoTClient.SocketBase.Connect">
             <summary>
-            连接
+            连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
         <member name="M:IoTClient.SocketBase.Open">
             <summary>
-            打开连接
+            打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
@@ -2590,6 +2781,14 @@
             <param name="socket">socket</param>
             <param name="receiveCount">读取长度</param>
             <returns></returns>
+        </member>
+        <member name="M:IoTClient.SocketBase.SocketTryRead(System.Net.Sockets.Socket,System.Int32)">
+            <summary>
+            读取
+            </summary>
+            <param name="socket"></param>
+            <param name="receiveCount"></param>
+            <returns>读到的数据，如果内部出现异常则返回null</returns>
         </member>
     </members>
 </doc>

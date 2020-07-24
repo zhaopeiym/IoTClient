@@ -20,6 +20,10 @@
     <DocumentationFile>IoTClient\IoTClient.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>IoTClient\IoTClient.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Interfaces\**" />
     <Compile Remove="IoTClient\**" />

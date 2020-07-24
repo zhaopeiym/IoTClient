@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using Talk.Redis;
 
 namespace IoTClient.Tool.Controls
 {
@@ -178,6 +179,56 @@ namespace IoTClient.Tool.Controls
             but_udpopen.Enabled = true;
             but_udpclose.Enabled = false;
             but_udpsend.Enabled = false;
+        }
+
+        private void groupBox4_Enter(object sender, EventArgs e)
+        {
+
+        }
+        private RedisManager redis;
+        private void redisOpen_Click(object sender, EventArgs e)
+        {
+            var address = txt_address.Text?.Trim().Split(':');
+            var ip = address[0];
+            var port = address.Length >= 2 ? address[1] : "6379";
+            var dbindex = address.Length >= 3 ? address[2] : "1";
+            var config = $"{ip}:{port},allowAdmin=true,password=,syncTimeout=15000,defaultdatabase={dbindex}";
+            var initialTime = DateTime.Now;
+            redis = new RedisManager(int.Parse(dbindex), config);
+            var timeConsuming = (DateTime.Now - initialTime).TotalMilliseconds;
+            AppendText($"连接成功\t\t\t\t耗时：{timeConsuming}ms");
+        }
+
+        private void redisRead_Click(object sender, EventArgs e)
+        {
+            if (redis == null)
+            {
+                MessageBox.Show("请先打开连接");
+                return;
+            }
+            var key = txt_redisKey.Text?.Trim();
+            var initialTime = DateTime.Now;
+            var value = redis.GetString(key);
+            var timeConsuming = (DateTime.Now - initialTime).TotalMilliseconds;
+            AppendText($"[读取 {key} 成功]：{value}\t\t耗时：{timeConsuming}ms");
+        }
+
+        private void redisSet_Click(object sender, EventArgs e)
+        {
+            if (redis == null)
+            {
+                MessageBox.Show("请先打开连接");
+                return;
+            }
+            var key = txt_redisKey.Text?.Trim();
+            var value = txt_redisValue.Text?.Trim();
+            var initialTime = DateTime.Now;
+            var isOK = redis.Set(key, value);
+            var timeConsuming = (DateTime.Now - initialTime).TotalMilliseconds;
+            if (isOK)
+                AppendText($"[写入 {key} 成功]：{value}\t\t耗时：{timeConsuming}ms");
+            else
+                AppendText($"[写入 {key} 失败]：{value}\t\t耗时：{timeConsuming}ms");
         }
     }
 }

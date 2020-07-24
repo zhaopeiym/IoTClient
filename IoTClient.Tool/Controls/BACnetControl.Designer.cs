@@ -33,8 +33,8 @@
             this.button3 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.txt_address = new System.Windows.Forms.TextBox();
+            this.txt_value = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -71,7 +71,7 @@
             this.button3.TabIndex = 17;
             this.button3.Text = "读 取";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_ClickAsync);
+            this.button3.Click += new System.EventHandler(this.Read_ClickAsync);
             // 
             // label3
             // 
@@ -93,17 +93,17 @@
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(185, 11);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(100, 21);
-            this.textBox3.TabIndex = 14;
+            this.txt_address.Location = new System.Drawing.Point(185, 11);
+            this.txt_address.Name = "textBox3";
+            this.txt_address.Size = new System.Drawing.Size(100, 21);
+            this.txt_address.TabIndex = 14;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(398, 11);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 21);
-            this.textBox2.TabIndex = 13;
+            this.txt_value.Location = new System.Drawing.Point(398, 11);
+            this.txt_value.Name = "textBox2";
+            this.txt_value.Size = new System.Drawing.Size(100, 21);
+            this.txt_value.TabIndex = 13;
             // 
             // button2
             // 
@@ -113,7 +113,7 @@
             this.button2.TabIndex = 12;
             this.button2.Text = "写 入";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_ClickAsync);
+            this.button2.Click += new System.EventHandler(this.Write_ClickAsync);
             // 
             // button1
             // 
@@ -153,8 +153,8 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.txt_address);
+            this.Controls.Add(this.txt_value);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "BACnetControl";
@@ -175,8 +175,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox txt_address;
+        private System.Windows.Forms.TextBox txt_value;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox1;
