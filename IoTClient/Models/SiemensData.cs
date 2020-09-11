@@ -9,6 +9,11 @@ namespace IoTClient.Core.Models
         /// </summary>
         public string Address { get; set; }
         /// <summary>
+        /// 数据类型
+        /// </summary>
+        public DataTypeEnum DataType { get; set; }
+
+        /// <summary>
         /// 区域类型
         /// </summary>
         public byte TypeCode { get; set; }
@@ -21,16 +26,12 @@ namespace IoTClient.Core.Models
         /// </summary>
         public int BeginAddress { get; set; }
         /// <summary>
-        /// 读取长度
+        /// 读取或写入长度
         /// </summary>
-        public ushort ReadLength { get; set; }
+        public ushort ReadWriteLength { get; set; }
         /// <summary>
-        /// 是否读取bit类型
+        /// 是否读取或写入bit类型
         /// </summary>
-        public bool ReadBit { get; set; } = false;
-        /// <summary>
-        /// 数据类型
-        /// </summary>
-        public DataTypeEnum DataType { get; set; }
+        public bool ReadWriteBit { get; set; } = false;       
     }
 }

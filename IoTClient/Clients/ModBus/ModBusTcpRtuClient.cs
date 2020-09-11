@@ -48,8 +48,7 @@ namespace IoTClient.Clients.ModBus
             }
             catch (Exception ex)
             {
-                if (socket.Connected) socket?.Shutdown(SocketShutdown.Both);
-                socket?.Close();
+                socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 return result;

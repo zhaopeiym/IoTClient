@@ -1,4 +1,6 @@
-# IoTClient
+
+# IoTClient 
+[![image](https://img.shields.io/nuget/v/IoTClient.svg)](https://www.nuget.org/packages/IoTClient/) [![image](https://img.shields.io/nuget/dt/IoTClient.svg)](https://www.nuget.org/packages/IoTClient/) ![image](https://img.shields.io/github/license/alienwow/SnowLeopard.svg)
 - 这是一个物联网设备通讯协议实现客户端，将包括主流PLC通信读取、ModBus协议、Bacnet协议等常用工业通讯协议。
 - 本组件基于.NET Standard 2.0，可用于.Net的跨平台开发，如Windows、Linux甚至可运行于树莓派上。
 - 本组件终身开源免费，采用最宽松MIT协议，您也可以随意修改和商业使用（商业使用请做好评估和测试）。  
@@ -81,6 +83,36 @@ var requst  = result.Requst;
 var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
+```
+
+## SiemensClient最佳实践
+```
+1、什么时候不要主动Open
+西门子plc一般最多允许8个长连接。所以当连接数不够用的时候或者做测试的时候就不要主动Open，这样组件会自动Open并即时Close。
+
+2、什么时候主动Open
+当长连接数量还够用，且想要提升读写性能。
+
+3、除了主动Open连接，还可以通过批量读写，大幅提升读写性能。
+//批量读取
+Dictionary<string, DataTypeEnum> addresses = new Dictionary<string, DataTypeEnum>();
+addresses.Add("DB4.24", DataTypeEnum.Float);
+addresses.Add("DB1.434.0", DataTypeEnum.Bool);
+addresses.Add("V4109", DataTypeEnum.Byte);
+...
+var result = client.BatchRead(addresses);
+
+//批量写入
+Dictionary<string, object> addresses = new Dictionary<string, object>();
+addresses.Add("DB4.24", (float)1);
+addresses.Add("DB4.0", (float)2);
+addresses.Add("DB1.434.0", true);
+...
+var result = client.BatchWrite(addresses);
+
+4、【注意】写入数据的时候需要明确数据类型
+client.Write("DB4.12", 9);          //写入的是int类型
+client.Write("DB4.12", (float)9);   //写入的是float类型
 ```
 
 ## 其他更多详细使用请[参考](https://github.com/zhaopeiym/IoTClient/tree/master/IoTClient.Tool/Controls)

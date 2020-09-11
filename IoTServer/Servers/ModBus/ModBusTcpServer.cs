@@ -51,8 +51,7 @@ namespace IoTServer.Servers.ModBus
         /// </summary>
         public void Stop()
         {
-            if (socketServer?.Connected ?? false)
-                socketServer.Shutdown(SocketShutdown.Both);
+            if (socketServer?.Connected ?? false) socketServer.Shutdown(SocketShutdown.Both);
             socketServer?.Close();
         }
 

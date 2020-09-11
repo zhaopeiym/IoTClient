@@ -12,6 +12,9 @@ namespace IoTClient.Tests.TempTest
         [Fact]
         public void test()
         {
+
+            var oo = BitConverter.ToSingle(DataConvert.StringToByteArray("20 FF C0 00 00").Reverse().ToArray(),0);
+
             var str = "0300 00 1D";
             //var b = str.Split(" ").Select(t => Convert.ToByte(t, 16)).ToArray();
 

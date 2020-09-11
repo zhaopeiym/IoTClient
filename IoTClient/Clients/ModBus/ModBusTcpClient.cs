@@ -52,8 +52,7 @@ namespace IoTClient.Clients.ModBus
             }
             catch (Exception ex)
             {
-                if (socket.Connected) socket?.Shutdown(SocketShutdown.Both);
-                socket?.Close();
+                socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 return result;
@@ -118,8 +117,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.Err = "连接超时";
                     result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
+                    socket?.SafeClose();
                 }
                 else
                 {
@@ -707,8 +705,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.Err = "连接超时";
                     result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
+                    socket?.SafeClose();
                 }
                 else
                 {
@@ -757,8 +754,7 @@ namespace IoTClient.Clients.ModBus
                 {
                     result.Err = "连接超时";
                     result.ErrList.Add("连接超时");
-                    socket?.Shutdown(SocketShutdown.Both);
-                    socket?.Close();
+                    socket?.SafeClose();
                 }
                 else
                 {

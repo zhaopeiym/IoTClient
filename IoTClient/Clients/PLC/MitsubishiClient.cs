@@ -1,4 +1,5 @@
-﻿using IoTClient.Core;
+﻿using IoTClient.Common.Helpers;
+using IoTClient.Core;
 using IoTClient.Models;
 using System;
 using System.Linq;
@@ -118,8 +119,7 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
-                socket?.Shutdown(SocketShutdown.Both);
-                socket?.Close();
+                socket?.SafeClose();
             }
             finally
             {
@@ -366,8 +366,7 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.ErrList.Add(ex.Message);
                 }
-                socket?.Shutdown(SocketShutdown.Both);
-                socket?.Close();
+                socket?.SafeClose();
             }
             finally
             {

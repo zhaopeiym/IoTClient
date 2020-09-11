@@ -1851,7 +1851,7 @@
             <param name="length"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
             <summary>
             分批读取，默认按19个地址打包读取
             </summary>
@@ -2023,6 +2023,22 @@
             <param name="address">地址</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            批量写入
+            TODO 可以重构后面的Write 都走BatchWrite
+            </summary>
+            <param name="addresses"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32)">
+            <summary>
+            分批写入，默认按19个地址打包读取
+            </summary>
+            <param name="addresses">地址集合</param>
+            <param name="batchNumber">批量读取数量</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Write(System.String,System.Boolean)">
             <summary>
             写入数据
@@ -2132,6 +2148,14 @@
             获取区域类型代码
             </summary>
             <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ConvertWriteArg(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            转换成写入需要的通讯信息
+            </summary>
+            <param name="address"></param>
+            <param name="writeData"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensData[])">
@@ -2260,6 +2284,17 @@
             </summary>
             <param name="value"></param>
             <returns></returns>
+        </member>
+        <member name="T:IoTClient.Common.Helpers.SocketHelper">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.SocketHelper.SafeClose(System.Net.Sockets.Socket)">
+            <summary>
+            安全关闭
+            </summary>
+            <param name="socket"></param>
         </member>
         <member name="T:IoTClient.Common.Constants.SiemensConstant">
             <summary>
@@ -2630,9 +2665,24 @@
             赋值
             </summary>
         </member>
+        <member name="P:IoTClient.Models.SiemensWrite.WriteData">
+            <summary>
+            要写入的数据
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.SiemensWrite.Assignment(IoTClient.Core.Models.SiemensData)">
+            <summary>
+            赋值
+            </summary>
+        </member>
         <member name="P:IoTClient.Core.Models.SiemensData.Address">
             <summary>
             原地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.DataType">
+            <summary>
+            数据类型
             </summary>
         </member>
         <member name="P:IoTClient.Core.Models.SiemensData.TypeCode">
@@ -2650,19 +2700,14 @@
             开始地址
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.ReadLength">
+        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteLength">
             <summary>
-            读取长度
+            读取或写入长度
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.ReadBit">
+        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteBit">
             <summary>
-            是否读取bit类型
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.DataType">
-            <summary>
-            数据类型
+            是否读取或写入bit类型
             </summary>
         </member>
         <member name="T:IoTClient.SerialPortBase">

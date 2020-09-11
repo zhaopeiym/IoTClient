@@ -1,4 +1,5 @@
-﻿using IoTClient.Models;
+﻿using IoTClient.Common.Helpers;
+using IoTClient.Models;
 using System;
 using System.Net.Sockets;
 
@@ -61,8 +62,7 @@ namespace IoTClient
             Result result = new Result();
             try
             {
-                if (socket?.Connected ?? false) socket?.Shutdown(SocketShutdown.Both);//正常关闭连接
-                socket?.Close();
+                socket?.SafeClose();
                 return result;
             }
             catch (Exception ex)
@@ -96,8 +96,7 @@ namespace IoTClient
             byte[] receiveBytes = SocketTryRead(socket, receiveCount);
             if (receiveBytes == null)
             {
-                if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                socket?.SafeClose();
                 throw new Exception("连接被断开");
             }
             return receiveBytes;

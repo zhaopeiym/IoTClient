@@ -123,8 +123,7 @@ namespace IoTClient.Tool.Controls
             var readLeng = socket.Receive(receiveBytes, receiveFinish, receiveCount, SocketFlags.None);
             if (readLeng == 0)
             {
-                if (socket.Connected) socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                socket?.SafeClose();
                 throw new Exception("连接已断开");
             }
             return receiveBytes.Take(readLeng).ToArray();

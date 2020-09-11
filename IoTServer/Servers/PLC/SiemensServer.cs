@@ -52,8 +52,7 @@ namespace IoTServer.Servers.PLC
         /// </summary>
         public void Stop()
         {
-            if (socketServer?.Connected ?? false)
-                socketServer.Shutdown(SocketShutdown.Both);
+            if (socketServer?.Connected ?? false) socketServer.Shutdown(SocketShutdown.Both);
             socketServer?.Close();
         }
 
@@ -123,13 +122,16 @@ namespace IoTServer.Servers.PLC
                         case 4:
                             {
                                 var dbNumber = requetData[18];
-                               
+
 
                                 //读取数据长度
                                 var readLength = 0;
                                 for (int i = 0; i < dbNumber; i++)
                                 {
-                                    readLength += requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                    var tempLength = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                    if (tempLength == 1 && i < dbNumber - 1)
+                                        tempLength += 1;
+                                    readLength += tempLength;
                                 }
 
                                 var dataContent = new byte[4 * dbNumber + readLength];//可以从报文中获取Length？
@@ -138,6 +140,9 @@ namespace IoTServer.Servers.PLC
                                 {
                                     var address = requetData[28 + i * 12] * 256 * 256 + requetData[29 + i * 12] * 256 + requetData[30 + i * 12];
                                     var tempReadLenght = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                    if (tempReadLenght == 1 && i < dbNumber - 1)
+                                        tempReadLenght += 1;
+
                                     var typeDB = requetData[27 + i * 12];
                                     var stationNumberKey = $"s200-{typeDB}";
                                     var value = dataPersist.Read(stationNumberKey);//TODO 数据存在 25、26   

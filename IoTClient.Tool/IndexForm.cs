@@ -27,7 +27,7 @@ namespace IoTClient.Tool
                 {
                     //检查版本升级
                     await CheckUpgradeAsync();
-                    await Task.Delay(1000 * 60 * 60 * 1);//一小时
+                    await Task.Delay(1000 * 60 * 60 * 5);//5小时
                 }
             });
 #endif 
@@ -154,6 +154,11 @@ namespace IoTClient.Tool
                         omronFinsTcp.Dock = DockStyle.Fill;
                         tab.Controls.Add(omronFinsTcp);
                         break;
+                    case "MQTT":
+                        var mqtt = new MQTTControl();
+                        mqtt.Dock = DockStyle.Fill;
+                        tab.Controls.Add(mqtt);
+                        break;
                     case "Other":
                         var otherControl = new OtherControl();
                         otherControl.Dock = DockStyle.Fill;
@@ -249,11 +254,11 @@ namespace IoTClient.Tool
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            try
+            Task.Run(async () =>
             {
-                Process.Start("https://github.com/zhaopeiym/IoTClient/releases");
-            }
-            catch (Exception) { }
+                //检查版本升级
+                await CheckUpgradeAsync(true);
+            });
         }
 
         private void cooperationToolStripMenuItem_Click(object sender, EventArgs e)
@@ -277,7 +282,7 @@ namespace IoTClient.Tool
         /// <summary>
         /// 检查当前是否需要升级
         /// </summary>
-        private async Task CheckUpgradeAsync()
+        private async Task CheckUpgradeAsync(bool mandatoryShowLogForm = false)
         {
             UpgradeFileManage();
             HttpClient http = new HttpClient();
@@ -289,7 +294,8 @@ namespace IoTClient.Tool
             //VersionObj.IsSuccess  有问题 TODO
             if (VersionObj.Code == 200 && VersionObj.Data.Code == 1)
             {
-                if (MessageBox.Show("IoTClient有新版本，是否升级到最新版本？", "版本升级", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                //if (MessageBox.Show("IoTClient有新版本，是否升级到最新版本？", "版本升级", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                if (new UpdateLog(true).ShowDialog() == DialogResult.OK)
                 {
                     if (new UpgradeForm().ShowDialog() != DialogResult.OK) return;
                     var newApp = Application.StartupPath + @"\temp." + Path.GetFileName(Application.ExecutablePath);
@@ -301,6 +307,10 @@ namespace IoTClient.Tool
                     Close();
                     Environment.Exit(0);
                 }
+            }
+            else if (mandatoryShowLogForm)
+            {
+                new UpdateLog(false).ShowDialog();
             }
         }
 

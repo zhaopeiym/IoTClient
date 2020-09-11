@@ -211,7 +211,7 @@ namespace IoTClient.Tool
                         addresses.Add(item, datatype);
                     }
 
-                    result = client.Read(addresses);
+                    result = client.BatchRead(addresses);
 
                     if (result.IsSucceed)
                     {

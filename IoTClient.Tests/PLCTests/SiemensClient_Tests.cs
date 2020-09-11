@@ -15,7 +15,7 @@ namespace IoTClient.Tests.PLCTests
         {
             var ip = IPAddress.Parse("SiemensClientIp".GetConfig());
             var port = int.Parse("SiemensClientPort".GetConfig());
-            client = new SiemensClient(SiemensVersion.S7_200Smart, new IPEndPoint(ip, port));
+            client = new SiemensClient(SiemensVersion.S7_1500, new IPEndPoint(ip, port));
         }
 
         [Fact]
@@ -109,9 +109,9 @@ namespace IoTClient.Tests.PLCTests
             //TODO 最多只能批量读取 19个？
             Dictionary<string, DataTypeEnum> addresses = new Dictionary<string, DataTypeEnum>();
 
-            addresses.Add("V1000", DataTypeEnum.Float);
-            addresses.Add("I0.0", DataTypeEnum.Bool);
-            addresses.Add("V4109", DataTypeEnum.Byte);
+            //addresses.Add("V1000", DataTypeEnum.Float);
+            //addresses.Add("I0.0", DataTypeEnum.Bool);
+            //addresses.Add("V4109", DataTypeEnum.Byte);
             //addresses.Add("V1004", DataTypeEnum.Float);
 
             //addresses.Add("V1000", DataTypeEnum.Float);
@@ -137,7 +137,50 @@ namespace IoTClient.Tests.PLCTests
             //addresses.Add("V1254", DataTypeEnum.Float);
             //addresses.Add("V1258", DataTypeEnum.Float);
 
-            var obj = client.Read(addresses);
+
+            //addresses.Add("V1012", DataTypeEnum.Float);
+            //addresses.Add("V1076 ", DataTypeEnum.UInt32);
+            //addresses.Add("V5056 ", DataTypeEnum.Float);
+            //addresses.Add("V5232 ", DataTypeEnum.Float);         
+
+            //addresses.Add("I0.0 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.1 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.2 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.3 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.4 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.5 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.6 ", DataTypeEnum.Bool);
+            //addresses.Add("I0.7 ", DataTypeEnum.Bool);
+
+            //addresses.Add("I1.0 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.1 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.2 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.3 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.4 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.5 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.6 ", DataTypeEnum.Bool);
+            //addresses.Add("I1.7 ", DataTypeEnum.Bool);
+
+
+            //client.Write("DB4.0", (float)6);
+            //client.Write("DB4.12", (float)9);
+            //client.Write("DB1.410.0", false);
+            //client.Write("DB1.410.0", true);
+
+            var result = client.BatchRead(addresses);
+
+            Dictionary<string, object> newAddresses = new Dictionary<string, object>();
+            newAddresses.Add("DB4.24", (float)1);
+            newAddresses.Add("DB4.0", (float)2);
+            newAddresses.Add("DB1.434.0", true);
+            newAddresses.Add("DB1.482.0", true);
+            newAddresses.Add("DB4.12", (float)3);
+            newAddresses.Add("DB1.410.0", true);
+            var result1 = client.BatchWrite(newAddresses);
+
+            var r3 = client.Write("DB1.482.0", false);
+            var result2 = client.Write("DB1.434.0", false);
+            client.Write("DB1.434.0", true);
         }
 
         private void test2(string address, ushort readNumber)

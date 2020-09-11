@@ -57,8 +57,7 @@ namespace IoTServer.Servers.PLC
         /// </summary>
         public void Stop()
         {
-            if (socketServer?.Connected ?? false)
-                socketServer.Shutdown(SocketShutdown.Both);
+            if (socketServer?.Connected ?? false) socketServer.Shutdown(SocketShutdown.Both);
             socketServer?.Close();
         }
 
@@ -118,7 +117,7 @@ namespace IoTServer.Servers.PLC
                         var lenght = requetData1[20] * 2 * 256 + requetData1[19] * 2;
                         //如果是按Bit存储
                         if (requetData1[13] == 0x01) lenght = 1;
-                        byte[] requetData2 = new byte[lenght];                       
+                        byte[] requetData2 = new byte[lenght];
                         requetData2 = SocketRead(newSocket, requetData2.Length);
                         requetData = requetData1.Concat(requetData2).ToArray();
                     }

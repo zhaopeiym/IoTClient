@@ -43,6 +43,7 @@
             this.MitsubishiMC = new System.Windows.Forms.TabPage();
             this.OmronFinsTcp = new System.Windows.Forms.TabPage();
             this.BACnet = new System.Windows.Forms.TabPage();
+            this.MQTT = new System.Windows.Forms.TabPage();
             this.Ports = new System.Windows.Forms.TabPage();
             this.Other = new System.Windows.Forms.TabPage();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -72,6 +73,7 @@
             this.tabControl1.Controls.Add(this.MitsubishiMC);
             this.tabControl1.Controls.Add(this.OmronFinsTcp);
             this.tabControl1.Controls.Add(this.BACnet);
+            this.tabControl1.Controls.Add(this.MQTT);
             this.tabControl1.Controls.Add(this.Ports);
             this.tabControl1.Controls.Add(this.Other);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -211,6 +213,16 @@
             this.BACnet.Text = " BACnet ";
             this.BACnet.UseVisualStyleBackColor = true;
             // 
+            // MQTT
+            // 
+            this.MQTT.Location = new System.Drawing.Point(4, 22);
+            this.MQTT.Name = "MQTT";
+            this.MQTT.Padding = new System.Windows.Forms.Padding(3);
+            this.MQTT.Size = new System.Drawing.Size(886, 448);
+            this.MQTT.TabIndex = 11;
+            this.MQTT.Text = "MQTT";
+            this.MQTT.UseVisualStyleBackColor = true;
+            // 
             // Ports
             // 
             this.Ports.Location = new System.Drawing.Point(4, 22);
@@ -300,8 +312,8 @@
             // 
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 21);
-            this.toolStripMenuItem1.Text = "版本 0.3.9";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(111, 21);
+            this.toolStripMenuItem1.Text = "检查更新  V0.4.0";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // IndexForm
@@ -352,5 +364,6 @@
         private System.Windows.Forms.TabPage Other;
         private System.Windows.Forms.ToolStripMenuItem 商务合作ToolStripMenuItem;
         private System.Windows.Forms.TabPage SiemensS7200;
+        private System.Windows.Forms.TabPage MQTT;
     }
 }
