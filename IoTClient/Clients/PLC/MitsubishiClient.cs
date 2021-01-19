@@ -1,7 +1,10 @@
 ﻿using IoTClient.Common.Helpers;
 using IoTClient.Core;
+using IoTClient.Enums;
+using IoTClient.Interfaces;
 using IoTClient.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,10 +15,17 @@ namespace IoTClient.Clients.PLC
     /// <summary>
     /// 三菱plc 客户端
     /// </summary>
-    public class MitsubishiClient : SocketBase
+    public class MitsubishiClient : SocketBase, IIoTClient
     {
-        private IPEndPoint ipAndPoint;
         private int timeout;
+
+        public string Version => "Mitsubishi";
+
+        public IPEndPoint IpAndPoint { get; }
+
+        public bool Connected => socket?.Connected ?? false;
+
+        public LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
         /// 
@@ -25,7 +35,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="timeout"></param>
         public MitsubishiClient(string ip, int port, int timeout = 1500)
         {
-            ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
+            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
             this.timeout = timeout;
         }
 
@@ -47,7 +57,7 @@ namespace IoTClient.Clients.PLC
 #endif
                 #endregion
 
-                socket.Connect(ipAndPoint);
+                socket.Connect(IpAndPoint);
             }
             catch (Exception ex)
             {
@@ -90,7 +100,7 @@ namespace IoTClient.Clients.PLC
                 //发送读取信息
                 var arg = ConvertAddress(address);
                 byte[] command = GetReadCommand(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, length, isBit);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));                
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var dataPackage = SendPackage(command);
                 var bufferLength = length;
                 byte[] responseValue = new byte[bufferLength];
@@ -349,7 +359,7 @@ namespace IoTClient.Clients.PLC
                 //发送写入信息
                 var arg = ConvertAddress(address);
                 byte[] command = GetWriteCommand(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, data, isBit);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));               
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var dataPackage = SendPackage(command);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
@@ -359,7 +369,7 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");                  
+                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
@@ -739,19 +749,34 @@ namespace IoTClient.Clients.PLC
                     }
             }
             return addressData;
+        }    
+
+        #region TODO
+        public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
+        {
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 获取地址
-        /// </summary>
-        /// <param name="address"></param>
-        /// <returns></returns>
-        private int GetBeingAddress(string address)
+        public Result<byte> ReadByte(string address)
         {
-            //去掉V1025 前面的V
-            address = address.Substring(1);
-            return int.Parse(address);
+            throw new NotImplementedException();
         }
+
+        public Result<string> ReadString(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Result Write(string address, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
         #endregion
     }
 }

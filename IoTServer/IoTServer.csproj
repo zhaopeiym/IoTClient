@@ -30,8 +30,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Servers\BACnet\DeviceStorage.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DeviceStorage.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="IoTClient" Version="0.0.14" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Talk.BACnet" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

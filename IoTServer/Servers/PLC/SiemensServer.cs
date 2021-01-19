@@ -105,7 +105,7 @@ namespace IoTServer.Servers.PLC
                     byte[] requetData1 = new byte[4];
                     //读取客户端发送过来的数据                   
                     requetData1 = SocketRead(newSocket, requetData1.Length);
-                    byte[] requetData2 = new byte[requetData1[3] - 4];
+                    byte[] requetData2 = new byte[requetData1[2] * 256 + requetData1[3] - 4];
                     requetData2 = SocketRead(newSocket, requetData2.Length);
                     var requetData = requetData1.Concat(requetData2).ToArray();
 
@@ -121,74 +121,121 @@ namespace IoTServer.Servers.PLC
                         //读
                         case 4:
                             {
+                                //数据块个数
                                 var dbNumber = requetData[18];
-
-
-                                //读取数据长度
+                                //读取数据总长度
                                 var readLength = 0;
+
                                 for (int i = 0; i < dbNumber; i++)
                                 {
-                                    var tempLength = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
-                                    if (tempLength == 1 && i < dbNumber - 1)
-                                        tempLength += 1;
-                                    readLength += tempLength;
+                                    //访问数据的个数，以byte为单位
+                                    var byteLength = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                    if (byteLength == 1 && i < dbNumber - 1)//非最后一个bit/byte，需要补全。
+                                        byteLength += 1;
+                                    readLength += byteLength;
                                 }
 
-                                var dataContent = new byte[4 * dbNumber + readLength];//可以从报文中获取Length？
+                                var dataContent = new byte[4 * dbNumber + readLength];//数据报文总长度
                                 var cursor = 0;
                                 for (int i = 0; i < dbNumber; i++)
                                 {
-                                    var address = requetData[28 + i * 12] * 256 * 256 + requetData[29 + i * 12] * 256 + requetData[30 + i * 12];
-                                    var tempReadLenght = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
-                                    if (tempReadLenght == 1 && i < dbNumber - 1)
-                                        tempReadLenght += 1;
+                                    //DB块的偏移量
+                                    var beginAddress = requetData[28 + i * 12] * 256 * 256 + requetData[29 + i * 12] * 256 + requetData[30 + i * 12];
+                                    //访问数据的个数
+                                    var byteLength = requetData[23 + i * 12] * 256 + requetData[24 + i * 12];
+                                    if (byteLength == 1 && i < dbNumber - 1)//非最后一个bit/byte，需要补全。
+                                        byteLength += 1;
+                                    //是否是bit类型
+                                    var isBit = requetData[22 + i * 12] == 0x01;
+                                    //访问数据块的类型（V、I、DB...）
+                                    var dbType = requetData[27 + i * 12];
+                                    var dataKey = $"s200-{dbType}";
+                                    var dataValue = dataPersist.Read(dataKey);
+                                    var byteArray = JsonConvert.DeserializeObject<byte[]>(dataValue) ?? new byte[65536];
 
-                                    var typeDB = requetData[27 + i * 12];
-                                    var stationNumberKey = $"s200-{typeDB}";
-                                    var value = dataPersist.Read(stationNumberKey);//TODO 数据存在 25、26   
-                                    var byteArray = JsonConvert.DeserializeObject<byte[]>(value) ?? new byte[65536];
+                                    //DataConvert.StringToByteArray("FF 09 00 04").CopyTo(dataContent, cursor);
+                                    dataContent[0 + cursor] = 0xFF;
+                                    //dataContent[1 + cursor] = readLength == 1 ? (byte)0x03 : (byte)0x04;//04 byte(字节) 03bit（位）
+                                    dataContent[1 + cursor] = isBit ? (byte)0x03 : (byte)0x04;//04 byte(字节) 03bit（位）
+                                    dataContent[2 + cursor] = (byte)(byteLength / 256);//后半截数据数的Length
+                                    dataContent[3 + cursor] = (byte)(byteLength % 256);//后半截数据数的Length
+                                    if (isBit)//按bit
+                                    {
+                                        var bitOffset = beginAddress % 8;
+                                        byte bitOffsetValue = (byte)Math.Pow(2, bitOffset);
+                                        var oldBitValue = byteArray[beginAddress / 8];
+                                        //转成bit的形式所需的返回值
+                                        var bitValue = (oldBitValue & bitOffsetValue) != 0 ? 0x01 : 0x00;
+                                        //[4 + cursor]返回给客户端的数据
+                                        new byte[] { (byte)bitValue }.CopyTo(dataContent, 4 + cursor);
+                                    }
+                                    else
+                                        //[4 + cursor]返回给客户端的数据
+                                        Buffer.BlockCopy(byteArray, beginAddress / 8, dataContent, 4 + cursor, byteLength);
 
-                                    DataConvert.StringToByteArray("FF 09 00 04").CopyTo(dataContent, 0 + cursor);
-                                    dataContent[1 + cursor] = readLength == 1 ? (byte)0x03 : (byte)0x04;//04 byte(字节) 03bit（位）
-                                    dataContent[2 + cursor] = (byte)(readLength / 256);
-                                    dataContent[3 + cursor] = (byte)(readLength % 256);
-
-                                    Buffer.BlockCopy(byteArray, address / 8, dataContent, 4 + cursor, tempReadLenght);
-                                    cursor += 4 + tempReadLenght;
-                                    //dataContent[2] dataContent[3] 后半截数据数组的Length
-                                    //dataContent[4]-[7] 返回给客户端的数据
+                                    cursor += 4 + byteLength;
                                 }
 
-
-                                byte[] responseData1 = new byte[21 + dataContent.Length];
-                                DataConvert.StringToByteArray("03 00 00 1A 02 F0 80 32 03 00 00 00 01 00 02 00 00 00 00 04 01").CopyTo(responseData1, 0);
-                                //responseData1[8] = 0x03;//1  客户端发送命令 3 服务器回复命令 
-                                responseData1[2] = (byte)(responseData1.Length / 256);
-                                responseData1[3] = (byte)(responseData1.Length % 256);
-                                responseData1[15] = (byte)(requetData.Length / 256);
-                                responseData1[16] = (byte)(requetData.Length % 256);
-                                responseData1[20] = requetData[18];
-                                dataContent.CopyTo(responseData1, 21);
-                                //当读取的是字符串的时候[25]存储的后面的数据长度，参考SiemensClient的Write(string address, string value)方法。
-                                //Buffer.BlockCopy(bytes, 0, responseData1, responseData1.Length - bytes.Length, bytes.Length);
-                                newSocket.Send(responseData1);
-
+                                byte[] responseData = new byte[21 + dataContent.Length];
+                                DataConvert.StringToByteArray("03 00 00 1A 02 F0 80 32 03 00 00 00 01 00 02 00 00 00 00 04 01").CopyTo(responseData, 0);
+                                responseData[8] = 0x03;//1  客户端发送命令 3 服务器回复命令 
+                                responseData[2] = (byte)(responseData.Length / 256);//返回数据长度
+                                responseData[3] = (byte)(responseData.Length % 256);
+                                responseData[15] = (byte)(requetData.Length / 256);//读取数据长度
+                                responseData[16] = (byte)(requetData.Length % 256);
+                                responseData[20] = requetData[18];//读取数据块个数
+                                dataContent.CopyTo(responseData, 21);
+                                newSocket.Send(responseData);
                             }
                             break;
                         //写
                         case 5:
                             {
-                                var address = requetData[28] * 256 * 256 + requetData[29] * 256 + requetData[30];
-                                var typeDB = requetData[27];
-                                var stationNumberKey = $"s200-{typeDB}";
+                                var writesLength = requetData[18];//写如数据的个数 Item count
+                                int cursor = 0;
+                                for (int i = 0; i < writesLength; i++)
+                                {
+                                    //DB块的偏移量（存储数据的地址）
+                                    var beginAddress = requetData[28 + i * 12] * 256 * 256 + requetData[29 + i * 12] * 256 + requetData[30 + i * 12];
+                                    //访问数据块的类型（V、I、DB...）
+                                    var dbType = requetData[27 + i * 12];
+                                    var dataKey = $"s200-{dbType}";
 
-                                var value = new byte[requetData.Length - 35];
-                                Buffer.BlockCopy(requetData, 35, value, 0, value.Length);
+                                    //Data之前的下标
+                                    var dataBeforeIndex = 18 + writesLength * 12;
+                                    //[2 + index]是否是bit类型
+                                    var isBit = requetData[dataBeforeIndex + 4 * (i + 1) - 2 + cursor] == 0x03;
+                                    var coefficient = isBit ? 1 : 8;
+                                    //初始化要写入的字节数组长度
+                                    var writeValue = new byte[requetData[dataBeforeIndex + 4 * (i + 1) + cursor] / coefficient];
+                                    //开始写入的地址（报文中的数据的位置）
+                                    var requetBeginLocation = dataBeforeIndex + 4 * (i + 1) + cursor + 1;
 
-                                var byteArray = JsonConvert.DeserializeObject<byte[]>(dataPersist.Read(stationNumberKey)) ?? new byte[65536];
-                                value.CopyTo(byteArray, address / 8);
-                                //存储字节数据到内存
-                                dataPersist.Write(stationNumberKey, JsonConvert.SerializeObject(byteArray));
+                                    //非最后一个bit，需要补全。
+                                    if (writeValue.Length == 1 && i < writesLength - 1)
+                                        cursor++;
+                                    cursor += writeValue.Length;
+                                    //数据赋值到writeValue中
+                                    Buffer.BlockCopy(requetData, requetBeginLocation, writeValue, 0, writeValue.Length);
+
+                                    var byteArray = JsonConvert.DeserializeObject<byte[]>(dataPersist.Read(dataKey)) ?? new byte[65536];
+                                    if (isBit)
+                                    {
+                                        var oldBitValue = byteArray[beginAddress / 8];
+                                        var bitOffset = beginAddress % 8;
+                                        byte bitOffsetValue = (byte)Math.Pow(2, bitOffset);
+                                        if (writeValue[0] == 0x01)//true
+                                            oldBitValue = (byte)(oldBitValue | bitOffsetValue);//组合bitOffsetValue
+                                        else//false
+                                            oldBitValue = (byte)(oldBitValue & ~bitOffsetValue);//去掉bitOffsetValue
+                                        new byte[] { oldBitValue }.CopyTo(byteArray, beginAddress / 8);
+                                    }
+                                    else
+                                        writeValue.CopyTo(byteArray, beginAddress / 8);
+
+                                    //存储字节数据到内存
+                                    dataPersist.Write(dataKey, JsonConvert.SerializeObject(byteArray));
+                                }
 
                                 byte[] responseData1 = new byte[22];
                                 DataConvert.StringToByteArray("03 00 00 16 02 F0 80 32 03 00 00 00 01 00 02 00 01 00 00 05 01 FF").CopyTo(responseData1, 0);

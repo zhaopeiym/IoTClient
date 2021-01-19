@@ -22,6 +22,7 @@ namespace IoTClient.Tool.Controls
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
             Size = new Size(880, 450);
+            comboBox1.SelectedIndex = 0;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -36,78 +37,98 @@ namespace IoTClient.Tool.Controls
         private IManagedMqttClient mqttClient;
         private async void but_start_ClickAsync(object sender, EventArgs even)
         {
-            but_Stop_Click(null, null);
-            var factory = new MqttFactory();
-            mqttClient = factory.CreateManagedMqttClient();
-            var mqttClientOptions = new MqttClientOptionsBuilder()
-                             .WithClientId(txt_ClientID.Text?.Trim())
-                             .WithTcpServer(txt_Address.Text?.Trim(), int.Parse(txt_Port.Text?.Trim()))
-                             .WithCredentials(txt_UserName.Text, txt_Password.Text);
-
-            if (checkBox1.Checked)
+            try
             {
-                if (!File.Exists(txt_ca_file.Text))
+                but_Stop_Click(null, null);
+                var factory = new MqttFactory();
+                mqttClient = factory.CreateManagedMqttClient();
+                var mqttClientOptions = new MqttClientOptionsBuilder()
+                                 .WithClientId(txt_ClientID.Text?.Trim())
+                                 //.WithTcpServer(txt_Address.Text?.Trim(), int.Parse(txt_Port.Text?.Trim()))
+                                 .WithCredentials(txt_UserName.Text, txt_Password.Text);
+
+                if (checkBox1.Checked)
                 {
-                    MessageBox.Show($"没有找到文件:{txt_ca_file.Text}");
-                    return;
-                }
-                if (!File.Exists(txt_pfx_file.Text))
-                {
-                    MessageBox.Show($"没有找到文件:{txt_pfx_file.Text}");
-                    return;
-                }
-                var caCert = X509Certificate.CreateFromCertFile(txt_ca_file.Text);
-                var clientCert = new X509Certificate2(txt_pfx_file.Text);
-                mqttClientOptions = mqttClientOptions.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                {
-                    UseTls = true,
-                    SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                    CertificateValidationHandler = (o) =>
+                    if (!File.Exists(txt_ca_file.Text))
                     {
-                        return true;
-                    },
-                    Certificates = new List<X509Certificate>(){
+                        MessageBox.Show($"没有找到文件:{txt_ca_file.Text}");
+                        return;
+                    }
+                    if (!File.Exists(txt_pfx_file.Text))
+                    {
+                        MessageBox.Show($"没有找到文件:{txt_pfx_file.Text}");
+                        return;
+                    }
+                    var caCert = X509Certificate.CreateFromCertFile(txt_ca_file.Text);
+                    var clientCert = new X509Certificate2(txt_pfx_file.Text);
+                    mqttClientOptions = mqttClientOptions.WithTls(new MqttClientOptionsBuilderTlsParameters()
+                    {
+                        UseTls = true,
+                        SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+                        CertificateValidationHandler = (o) =>
+                        {
+                            return true;
+                        },
+                        Certificates = new List<X509Certificate>(){
                                     caCert, clientCert
                                  }
+                    });
+                }
+
+                if (comboBox1.SelectedIndex == 0)
+                {
+                    mqttClientOptions = mqttClientOptions.WithTcpServer(txt_Address.Text?.Trim(), int.Parse(txt_Port.Text?.Trim()));
+                }
+                else if (comboBox1.SelectedIndex == 1)
+                {
+                    mqttClientOptions = mqttClientOptions.WithWebSocketServer($"{txt_Address.Text?.Trim()}:{txt_Port.Text?.Trim()}/mqtt").WithTls();
+                }
+                else if (comboBox1.SelectedIndex == 2)
+                {
+                    mqttClientOptions = mqttClientOptions.WithWebSocketServer($"{txt_Address.Text?.Trim()}:{txt_Port.Text?.Trim()}/mqtt");
+                }
+
+                var options = new ManagedMqttClientOptionsBuilder()
+                            .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
+                            .WithClientOptions(mqttClientOptions.Build())
+                            .Build();
+
+                await mqttClient.StartAsync(options);
+
+                mqttClient.UseDisconnectedHandler(e =>
+                {
+                    WriteLine_1("### 服务器断开连接 ###");
+                });
+
+
+                mqttClient.UseApplicationMessageReceivedHandler(e =>
+                {
+                    WriteLine_1("### 收到消息 ###");
+                    WriteLine_1($"+ Topic = {e.ApplicationMessage.Topic}");
+                    try
+                    {
+                        WriteLine_1($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
+                    }
+                    catch { }
+                    WriteLine_1($"+ QoS = {e.ApplicationMessage.QualityOfServiceLevel}");
+                    WriteLine_1($"+ Retain = {e.ApplicationMessage.Retain}");
+                    WriteLine_1();
+                });
+
+                mqttClient.UseConnectedHandler(e =>
+                {
+                    WriteLine_1("### 连接到服务 ###");
+
+                    but_Start.Enabled = false;
+                    but_Subscribe.Enabled = true;
+                    but_Publish.Enabled = true;
+                    but_Stop.Enabled = true;
                 });
             }
-
-            var options = new ManagedMqttClientOptionsBuilder()
-                        .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
-                        .WithClientOptions(mqttClientOptions.Build())
-                        .Build();
-
-            await mqttClient.StartAsync(options);
-
-            mqttClient.UseDisconnectedHandler(e =>
+            catch (Exception ex)
             {
-                WriteLine_1("### 服务器断开连接 ###");
-            });
-
-
-            mqttClient.UseApplicationMessageReceivedHandler(e =>
-            {
-                WriteLine_1("### 收到消息 ###");
-                WriteLine_1($"+ Topic = {e.ApplicationMessage.Topic}");
-                try
-                {
-                    WriteLine_1($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
-                }
-                catch { }
-                WriteLine_1($"+ QoS = {e.ApplicationMessage.QualityOfServiceLevel}");
-                WriteLine_1($"+ Retain = {e.ApplicationMessage.Retain}");
-                WriteLine_1();
-            });
-
-            mqttClient.UseConnectedHandler(e =>
-            {
-                WriteLine_1("### 连接到服务 ###");
-
-                but_Start.Enabled = false;
-                but_Subscribe.Enabled = true;
-                but_Publish.Enabled = true;
-                but_Stop.Enabled = true;
-            });
+                WriteLine_1($"err：{ex.Message}");
+            }
         }
 
         private async void but_Stop_Click(object sender, EventArgs e)
@@ -193,6 +214,12 @@ namespace IoTClient.Tool.Controls
                 txt_pfx_file.Text = fileDialog.FileName;//返回文件的完整路径           
                 txt_pfx_file.Select(txt_pfx_file.Text.Length, 1);
             }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            checkBox1.Enabled = comboBox1.SelectedIndex == 0;
+            if (!checkBox1.Enabled) checkBox1.Checked = false;
         }
     }
 }

@@ -5,6 +5,7 @@ using Xunit;
 using IoTServer.Common;
 using System.Collections.Generic;
 using IoTClient.Enums;
+using System;
 
 namespace IoTClient.Tests.PLCTests
 {
@@ -15,7 +16,9 @@ namespace IoTClient.Tests.PLCTests
         {
             var ip = IPAddress.Parse("SiemensClientIp".GetConfig());
             var port = int.Parse("SiemensClientPort".GetConfig());
-            client = new SiemensClient(SiemensVersion.S7_1500, new IPEndPoint(ip, port));
+            ip = IPAddress.Parse("127.0.0.1");
+            port = 102;
+            client = new SiemensClient(SiemensVersion.S7_200Smart, new IPEndPoint(ip, port));
         }
 
         [Fact]
@@ -96,6 +99,98 @@ namespace IoTClient.Tests.PLCTests
             client.Write("V2205", value_string);
             Assert.True(client.ReadString("V2205").Value == value_string);
 
+            client?.Close();
+        }
+
+        [Fact]
+        public void 批量读写()
+        {
+            client.Open();
+
+            var re = new Random(DateTime.Now.Second);
+
+            var number0 = re.Next(0, 255) % 2 == 1;
+            var number1 = re.Next(0, 255) % 2 == 1;
+            var number2 = re.Next(0, 255) % 2 == 1;
+            var number3 = re.Next(0, 255) % 2 == 1;
+            var number4 = re.Next(0, 255) % 2 == 1;
+            var number5 = re.Next(0, 255) % 2 == 1;
+            var number6 = re.Next(0, 255) % 2 == 1;
+            var number7 = re.Next(0, 255) % 2 == 1;
+            byte byte1 = (byte)re.Next(0, 255);
+            byte byte2 = (byte)re.Next(0, 255);
+            byte byte3 = (byte)re.Next(0, 255);
+            var V2642 = (float)re.Next(0, 255);
+            var V2646 = (float)re.Next(0, 255);
+            var V2650 = (float)re.Next(0, 255);
+
+            Dictionary<string, object> writeAddresses = new Dictionary<string, object>();
+            writeAddresses.Add("V2634.0", number0);
+            writeAddresses.Add("V2634.1", number1);
+            writeAddresses.Add("V2634.2", number2);
+            writeAddresses.Add("V2634.3", number3);
+            writeAddresses.Add("V2634.4", number4);
+            writeAddresses.Add("V2634.5", number5);
+            writeAddresses.Add("V2634.6", number6);
+            writeAddresses.Add("V2634.7", number7);
+            writeAddresses.Add("V2642", V2642);
+            writeAddresses.Add("V2646", V2646);
+            writeAddresses.Add("V2650", V2650);
+            writeAddresses.Add("V2654", V2650);
+            writeAddresses.Add("V2658", V2650);
+            writeAddresses.Add("V2662", V2650);
+            writeAddresses.Add("V2666", V2650);
+            writeAddresses.Add("V2670", V2650);
+            writeAddresses.Add("V2674", V2650);
+            writeAddresses.Add("V1650", byte1);
+            writeAddresses.Add("V1651", byte2);
+            writeAddresses.Add("V1652", byte3);
+            client.BatchWrite(writeAddresses);
+
+            Dictionary<string, DataTypeEnum> readAddresses = new Dictionary<string, DataTypeEnum>();
+            readAddresses.Add("V2634.0", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.1", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.2", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.3", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.4", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.5", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.6", DataTypeEnum.Bool);
+            readAddresses.Add("V2634.7", DataTypeEnum.Bool);
+            readAddresses.Add("V2642", DataTypeEnum.Float);
+            readAddresses.Add("V2646", DataTypeEnum.Float);
+            readAddresses.Add("V2650", DataTypeEnum.Float);
+            readAddresses.Add("V2654", DataTypeEnum.Float);
+            readAddresses.Add("V2658", DataTypeEnum.Float);
+            readAddresses.Add("V2662", DataTypeEnum.Float);
+            readAddresses.Add("V2666", DataTypeEnum.Float);
+            readAddresses.Add("V2670", DataTypeEnum.Float);
+            readAddresses.Add("V2674", DataTypeEnum.Float);
+            readAddresses.Add("V1650", DataTypeEnum.Byte);
+            readAddresses.Add("V1651", DataTypeEnum.Byte);
+            readAddresses.Add("V1652", DataTypeEnum.Byte);
+
+            var result = client.BatchRead(readAddresses);
+
+            Assert.True(Convert.ToBoolean(result.Value["V2634.0"]) == number0);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.1"]) == number1);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.2"]) == number2);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.3"]) == number3);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.4"]) == number4);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.5"]) == number5);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.6"]) == number6);
+            Assert.True(Convert.ToBoolean(result.Value["V2634.7"]) == number7);
+            Assert.True(Convert.ToSingle(result.Value["V2642"]) == V2642);
+            Assert.True(Convert.ToSingle(result.Value["V2646"]) == V2646);
+            Assert.True(Convert.ToSingle(result.Value["V2650"]) == V2650);
+            Assert.True(Convert.ToSingle(result.Value["V2654"]) == V2650);
+            Assert.True(Convert.ToSingle(result.Value["V2658"]) == V2650);
+            Assert.True(Convert.ToSingle(result.Value["V2662"]) == V2650);
+            Assert.True(Convert.ToSingle(result.Value["V2666"]) == V2650);
+            Assert.True(Convert.ToSingle(result.Value["V2670"]) == V2650);
+            Assert.True(Convert.ToSingle(result.Value["V2674"]) == V2650);
+            Assert.True(Convert.ToByte(result.Value["V1650"]) == byte1);
+            Assert.True(Convert.ToByte(result.Value["V1651"]) == byte2);
+            Assert.True(Convert.ToByte(result.Value["V1652"]) == byte3);
             client?.Close();
         }
 
@@ -181,17 +276,6 @@ namespace IoTClient.Tests.PLCTests
             var r3 = client.Write("DB1.482.0", false);
             var result2 = client.Write("DB1.434.0", false);
             client.Write("DB1.434.0", true);
-        }
-
-        private void test2(string address, ushort readNumber)
-        {
-
-            var reuslt2 = client.ReadBoolean(address, readNumber);
-
-            var reuslt = client.ReadFloat("V1088", 4);
-            var reuslt3 = client.ReadUInt16("V1", 5);
-
-            var reuslt4 = client.ReadByte("V10", 5);
         }
     }
 }

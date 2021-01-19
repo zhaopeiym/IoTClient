@@ -38,6 +38,7 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.but_Stop = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.txt_pfx_file = new IoTClient.Tool.Controls.TextBoxEx();
             this.txt_ca_file = new IoTClient.Tool.Controls.TextBoxEx();
             this.txt_Password = new IoTClient.Tool.Controls.TextBoxEx();
@@ -156,13 +157,26 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(724, 19);
+            this.checkBox1.Location = new System.Drawing.Point(777, 19);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(90, 16);
             this.checkBox1.TabIndex = 9;
             this.checkBox1.Text = "开启SSL/TLS";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "tcp",
+            "wss",
+            "ws"});
+            this.comboBox1.Location = new System.Drawing.Point(724, 17);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(43, 20);
+            this.comboBox1.TabIndex = 12;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // txt_pfx_file
             // 
@@ -253,6 +267,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.txt_pfx_file);
             this.Controls.Add(this.txt_ca_file);
             this.Controls.Add(this.checkBox1);
@@ -299,5 +314,6 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private TextBoxEx txt_ca_file;
         private TextBoxEx txt_pfx_file;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }

@@ -4,6 +4,7 @@ using IoTClient.Common.Helpers;
 using IoTClient.Core;
 using IoTClient.Core.Models;
 using IoTClient.Enums;
+using IoTClient.Interfaces;
 using IoTClient.Models;
 using System;
 using System.Collections.Generic;
@@ -18,42 +19,47 @@ namespace IoTClient.Clients.PLC
     /// <summary>
     /// 西门子客户端
     /// </summary>
-    public class SiemensClient : SocketBase
+    public class SiemensClient : SocketBase, IIoTClient
     {
         /// <summary>
         /// 版本
         /// </summary>
-        public readonly SiemensVersion version;
-        /// <summary>
-        /// IPEndPoint
-        /// </summary>
-        public readonly IPEndPoint ipAndPoint;
+        private readonly SiemensVersion version;
         /// <summary>
         /// 超时时间
         /// </summary>
-        public readonly int timeout;
+        private readonly int timeout;
+
         /// <summary>
         /// 是否是连接的
         /// </summary>
-        public bool Connected
-        {
-            get
-            {
-                return socket?.Connected ?? false;
-            }
-        }
+        public bool Connected => socket?.Connected ?? false;
+        /// <summary>
+        /// 版本
+        /// </summary>
+        public string Version => version.ToString();
+        /// <summary>
+        /// 连接地址
+        /// </summary>
+        public IPEndPoint IpAndPoint { get; }
+
+        /// <summary>
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+        /// </summary>
+        public LoggerDelegate WarningLog { get; set; }
 
         public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint, int timeout = 1500)
         {
             this.version = version;
-            this.ipAndPoint = ipAndPoint;
+            IpAndPoint = ipAndPoint;
             this.timeout = timeout;
         }
 
         public SiemensClient(SiemensVersion version, string ip, int port, int timeout = 1500)
         {
             this.version = version;
-            ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
+            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
             this.timeout = timeout;
         }
 
@@ -76,7 +82,7 @@ namespace IoTClient.Clients.PLC
                 #endregion
 
                 //连接
-                socket.Connect(ipAndPoint);
+                socket.Connect(IpAndPoint);
 
                 var Command1 = SiemensConstant.Command1;
                 var Command2 = SiemensConstant.Command2;
@@ -160,7 +166,7 @@ namespace IoTClient.Clients.PLC
 
                     socket.Send(command);
                 }
-                var headPackage = SocketTryRead(socket, SiemensConstant.InitHeadLength);
+                var headPackage = SocketTryRead(socket, SiemensConstant.InitHeadLength, WarningLog);
                 //如果出现异常，则进行一次重试
                 if (headPackage == null)
                 {
@@ -908,7 +914,7 @@ namespace IoTClient.Clients.PLC
                             tempData = (bool)item.Value ? new List<byte>() { 0x01 } : new List<byte>() { 0x00 };
                             break;
                         case "Byte":
-                            tempData = BitConverter.GetBytes((byte)item.Value).ToList();
+                            tempData = new List<byte>() { (byte)item.Value };
                             break;
                         case "UInt16":
                             tempData = BitConverter.GetBytes((ushort)item.Value).ToList();
@@ -982,13 +988,14 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 分批写入，默认按19个地址打包读取
+        /// 分批写入，默认按12个地址打包读取
         /// </summary>
         /// <param name="addresses">地址集合</param>
         /// <param name="batchNumber">批量读取数量</param>
         /// <returns></returns>
-        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber = 19)
+        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber = 12)
         {
+            //TODO 为什么只能批量写12个？
             var result = new Result();
             var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
             for (int i = 0; i < batchCount; i++)
@@ -1012,59 +1019,63 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, bool value)
         {
-            if (!socket?.Connected ?? true)
-            {
-                var connectResult = Connect();
-                if (!connectResult.IsSucceed)
-                {
-                    return connectResult;
-                }
-            }
-            Result result = new Result();
-            try
-            {
-                //兼容地址，如VD5012中的D
-                //if (address.Length >= 2 && !"0123456789".Contains(address[1].ToString())) address = address.Remove(1, 1);
-                //发送写入信息
-                var arg = ConvertWriteArg(address, value ? new byte[1] { 0x01 } : new byte[1] { 0x00 }, true);
-                byte[] command = GetWriteCommand(arg);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var sendResult = SendPackage(command);
-                if (!sendResult.IsSucceed)
-                    return sendResult;
+            Dictionary<string, object> writeAddresses = new Dictionary<string, object>();
+            writeAddresses.Add(address, value);
+            return BatchWrite(writeAddresses);
 
-                var dataPackage = sendResult.Value;
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
-                }
-                socket?.SafeClose();
-            }
-            catch (Exception ex)
-            {
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-                result.Exception = ex;
-                result.ErrList.Add(ex.Message);
-                socket?.SafeClose();
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result.EndTime();
+            #region 注释
+            //if (!socket?.Connected ?? true)
+            //{
+            //    var connectResult = Connect();
+            //    if (!connectResult.IsSucceed)
+            //    {
+            //        return connectResult;
+            //    }
+            //}
+            //Result result = new Result();
+            //try
+            //{               
+            //    //发送写入信息
+            //    var arg = ConvertWriteArg(address, value ? new byte[1] { 0x01 } : new byte[1] { 0x00 }, true);
+            //    byte[] command = GetWriteCommand(arg);
+            //    result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
+            //    var sendResult = SendPackage(command);
+            //    if (!sendResult.IsSucceed)
+            //        return sendResult;
+
+            //    var dataPackage = sendResult.Value;
+            //    result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+            //}
+            //catch (SocketException ex)
+            //{
+            //    result.IsSucceed = false;
+            //    if (ex.SocketErrorCode == SocketError.TimedOut)
+            //    {
+            //        result.Err = "连接超时";
+            //        result.ErrList.Add("连接超时");
+            //    }
+            //    else
+            //    {
+            //        result.Err = ex.Message;
+            //        result.Exception = ex;
+            //        result.ErrList.Add(ex.Message);
+            //    }
+            //    socket?.SafeClose();
+            //}
+            //catch (Exception ex)
+            //{
+            //    result.IsSucceed = false;
+            //    result.Err = ex.Message;
+            //    result.Exception = ex;
+            //    result.ErrList.Add(ex.Message);
+            //    socket?.SafeClose();
+            //}
+            //finally
+            //{
+            //    if (isAutoOpen) Dispose();
+            //}
+            //return result.EndTime(); 
+            #endregion
         }
 
         /// <summary>
@@ -1264,48 +1275,57 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         private SiemensData ConvertArg(string address)
         {
-            var data = new SiemensData()
+            try
             {
-                Address = address,
-                DbBlock = 0,
-            };
-            switch (address[0].ToString().ToUpper())
-            {
-                case "I":
-                    data.TypeCode = 0x81;
-                    break;
-                case "Q":
-                    data.TypeCode = 0x82;
-                    break;
-                case "M":
-                    data.TypeCode = 0x83;
-                    break;
-                case "D":
-                    data.TypeCode = 0x84;
-                    string[] adds = address.Split('.');
-                    if (address[1] == 'B')
-                        data.DbBlock = Convert.ToUInt16(adds[0].Substring(2));
-                    else
-                        data.DbBlock = Convert.ToUInt16(adds[0].Substring(1));
-                    //TODO 
-                    data.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 1));
-                    break;
-                case "T":
-                    data.TypeCode = 0x1D;
-                    break;
-                case "C":
-                    data.TypeCode = 0x1C;
-                    break;
-                case "V":
-                    data.TypeCode = 0x84;
-                    data.DbBlock = 1;
-                    break;
-            }
+                //转换成大写
+                address = address.ToUpper();
+                var data = new SiemensData()
+                {
+                    Address = address,
+                    DbBlock = 0,
+                };
+                switch (address[0])
+                {
+                    case 'I':
+                        data.TypeCode = 0x81;
+                        break;
+                    case 'Q':
+                        data.TypeCode = 0x82;
+                        break;
+                    case 'M':
+                        data.TypeCode = 0x83;
+                        break;
+                    case 'D':
+                        data.TypeCode = 0x84;
+                        string[] adds = address.Split('.');
+                        if (address[1] == 'B')
+                            data.DbBlock = Convert.ToUInt16(adds[0].Substring(2));
+                        else
+                            data.DbBlock = Convert.ToUInt16(adds[0].Substring(1));
+                        //TODO 
+                        data.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 1));
+                        break;
+                    case 'T':
+                        data.TypeCode = 0x1D;
+                        break;
+                    case 'C':
+                        data.TypeCode = 0x1C;
+                        break;
+                    case 'V':
+                        data.TypeCode = 0x84;
+                        data.DbBlock = 1;
+                        break;
+                }
 
-            //去掉V1025 前面的V     
-            if (address[0] != 'D' && address[1] != 'B')
-                data.BeginAddress = GetBeingAddress(address.Substring(1));
-            return data;
+                //去掉V1025 前面的V     
+                if (address[0] != 'D' && address[1] != 'B')
+                    data.BeginAddress = GetBeingAddress(address.Substring(1));
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"地址[{address}]解析异常，ConvertArg Err:{ex.Message}");
+            }
         }
 
         private SiemensData[] ConvertArg(Dictionary<string, DataTypeEnum> addresses)
@@ -1382,7 +1402,7 @@ namespace IoTClient.Clients.PLC
 
         #region 获取指令
         /// <summary>
-        /// 获取指令
+        /// 获取读指令
         /// </summary>      
         /// <returns></returns>
         protected byte[] GetReadCommand(SiemensData[] datas)
@@ -1428,7 +1448,7 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 获取指令
+        /// 获取读指令
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
@@ -1436,87 +1456,12 @@ namespace IoTClient.Clients.PLC
         {
             return GetReadCommand(new SiemensData[] { data });
         }
-
-        protected byte[] GetReadBitCommand(byte type, int beginAddress, ushort dbAddress, ushort length = 1)
-        {
-            byte[] command = new byte[31];
-            command[0] = 0x03;
-            command[1] = 0x00;//[0][1]固定报文头
-            command[2] = (byte)(command.Length / 256);
-            command[3] = (byte)(command.Length % 256);//[2][3]整个读取请求长度
-            command[4] = 0x02;
-            command[5] = 0xF0;
-            command[6] = 0x80;
-            command[7] = 0x32;
-            command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
-            command[9] = 0x00;
-            command[10] = 0x00;
-            command[11] = 0x00;
-            command[12] = 0x01;
-            command[13] = (byte)((command.Length - 17) / 256);
-            command[14] = (byte)((command.Length - 17) % 256); //parameter length（减17是因为从[17]到最后属于parameter）
-            command[15] = 0x00;
-            command[16] = 0x00;
-            command[17] = 0x04;//04读 05写
-            command[18] = 0x01;//读取数据块个数
-            command[19] = 0x12;
-            command[20] = 0x0A;
-            command[21] = 0x10;
-            command[22] = 0x01; //此处和 GetReadCommand 的不一样
-            command[23] = (byte)(length / 256);
-            command[24] = (byte)(length % 256);
-            command[25] = (byte)(dbAddress / 256);
-            command[26] = (byte)(dbAddress % 256);//[25][26]DB块的编号
-            command[27] = type;//访问数据块的类型
-            command[28] = (byte)(beginAddress / 256 / 256 % 256);
-            command[29] = (byte)(beginAddress / 256 % 256);
-            command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
-            return command;
-        }
-
-        protected byte[] GetWriteByteCommand(byte type, int beginAddress, ushort dbAddress, bool data)
-        {
-            var length = 1;
-            byte[] command = new byte[35 + length];
-            command[0] = 0x03;
-            command[1] = 0x00;//[0][1]固定报文头
-            command[2] = (byte)((35 + length) / 256);
-            command[3] = (byte)((35 + length) % 256);//[2][3]整个读取请求长度
-            command[4] = 0x02;
-            command[5] = 0xF0;
-            command[6] = 0x80;
-            command[7] = 0x32;
-            command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
-            command[9] = 0x00;
-            command[10] = 0x00;
-            command[11] = 0x00;
-            command[12] = 0x01;
-            command[13] = 0x00;
-            command[14] = 0x0E;//[13][14]固定2个字节
-            command[15] = (byte)((4 + length) / 256);
-            command[16] = (byte)((4 + length) % 256);//[15][16]写入长度+4
-            command[17] = 0x05;//04读 05写
-            command[18] = 0x01;
-            command[19] = 0x12;
-            command[20] = 0x0A;
-            command[21] = 0x10;
-            command[22] = 0x01;//写入方式，1是按位，2是按字
-            command[23] = (byte)(length / 256);
-            command[24] = (byte)(length % 256);
-            command[25] = (byte)(dbAddress / 256);
-            command[26] = (byte)(dbAddress % 256);
-            command[27] = type;
-            command[28] = (byte)(beginAddress / 256 / 256);
-            command[29] = (byte)(beginAddress / 256);
-            command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
-            command[31] = 0x00;
-            command[32] = 0x03;//04 byte(字节) 03bit（位）
-            command[33] = (byte)(length / 256);
-            command[34] = (byte)(length % 256);//按位计算出的长度
-            command[35] = data ? (byte)0x01 : (byte)0x00;
-            return command;
-        }
-
+       
+        /// <summary>
+        /// 获取写指令
+        /// </summary>
+        /// <param name="writes"></param>
+        /// <returns></returns>
         protected byte[] GetWriteCommand(SiemensWrite[] writes)
         {
             //（如果不是最后一个 WriteData.Length == 1 ，则需要填充一个空数据）
@@ -1602,56 +1547,13 @@ namespace IoTClient.Clients.PLC
             return command;
         }
 
+        /// <summary>
+        /// 获取写指令
+        /// </summary>
+        /// <param name="write"></param>
+        /// <returns></returns>
         protected byte[] GetWriteCommand(SiemensWrite write)
-        {
-            #region 注释，之前的实现
-            //var type = write.TypeCode;
-            //var beginAddress = write.BeginAddress;
-            //var dbAddress = write.DbBlock;
-            //var data = write.WriteData;
-            //var coefficient = write.ReadWriteBit ? 1 : 8;
-
-            //byte[] command = new byte[35 + data.Length];
-            //command[0] = 0x03;
-            //command[1] = 0x00;//[0][1]固定报文头
-            //command[2] = (byte)((35 + data.Length) / 256);
-            //command[3] = (byte)((35 + data.Length) % 256);//[2][3]整个读取请求长度
-            //command[4] = 0x02;
-            //command[5] = 0xF0;
-            //command[6] = 0x80;
-            //command[7] = 0x32;//[4]-[7]固定数据
-            //command[8] = 0x01;//1  客户端发送命令 3 服务器回复命令
-            //command[9] = 0x00;
-            //command[10] = 0x00;
-            //command[11] = 0x00;
-            //command[12] = 0x01;//[9]-[12]标识序列号
-            //command[13] = 0x00;
-            //command[14] = 0x0E;
-            //command[15] = (byte)((4 + data.Length) / 256);
-            //command[16] = (byte)((4 + data.Length) % 256);//[15][16]写入长度+4
-            //command[17] = 0x05;//04读 05写
-            //command[18] = 0x01;//写入数据块个数
-            //command[19] = 0x12;
-            //command[20] = 0x0A;
-            //command[21] = 0x10;//[19]-[21]固定
-            //command[22] = write.ReadWriteBit ? (byte)0x01 : (byte)0x02;//写入方式，1是按位，2是按字
-            //command[23] = (byte)(data.Length / 256);
-            //command[24] = (byte)(data.Length % 256);//写入数据个数
-            //command[25] = (byte)(dbAddress / 256);
-            //command[26] = (byte)(dbAddress % 256);//DB块的编号
-            //command[27] = type;
-            //command[28] = (byte)(beginAddress / 256 / 256 % 256); ;
-            //command[29] = (byte)(beginAddress / 256 % 256);
-            //command[30] = (byte)(beginAddress % 256);//[28][29][30]访问DB块的偏移量
-            //command[31] = 0x00;
-            //command[32] = write.ReadWriteBit ? (byte)0x03 : (byte)0x04;//04 byte(字节) 03bit（位）
-            //command[33] = (byte)(data.Length * coefficient / 256);
-            //command[34] = (byte)(data.Length * coefficient % 256);//按位计算出的长度
-
-            //if (write.ReadWriteBit) command[35] = data[0] == 0x01 ? (byte)0x01 : (byte)0x00;
-            //else data.CopyTo(command, 35);
-            //return command; 
-            #endregion
+        {            
             return GetWriteCommand(new SiemensWrite[] { write });
         }
 

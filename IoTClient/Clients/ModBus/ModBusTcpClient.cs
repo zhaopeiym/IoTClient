@@ -1,7 +1,9 @@
 ﻿using IoTClient.Common.Helpers;
 using IoTClient.Core;
+using IoTClient.Enums;
 using IoTClient.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -67,13 +69,17 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         public byte[] SendPackage(byte[] command)
         {
-            //发送命令
-            socket.Send(command);
-            //获取响应报文
-            var headPackage = SocketRead(socket, 8);
-            int length = headPackage[4] * 256 + headPackage[5] - 2;
-            var dataPackage = SocketRead(socket, length);
-            return headPackage.Concat(dataPackage).ToArray();
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                //发送命令
+                socket.Send(command);
+                //获取响应报文
+                var headPackage = SocketRead(socket, 8);
+                int length = headPackage[4] * 256 + headPackage[5] - 2;
+                var dataPackage = SocketRead(socket, length);
+                return headPackage.Concat(dataPackage).ToArray();
+            }
         }
         #endregion
 
@@ -155,6 +161,11 @@ namespace IoTClient.Clients.ModBus
             return result;
         }
 
+        public Result<short> ReadInt16(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadInt16(address.ToString(), stationNumber, functionCode);
+        }
+
         /// <summary>
         /// 读取UInt16
         /// </summary>
@@ -176,6 +187,11 @@ namespace IoTClient.Clients.ModBus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
             return result;
+        }
+
+        public Result<ushort> ReadUInt16(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadUInt16(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -201,6 +217,12 @@ namespace IoTClient.Clients.ModBus
             return result;
         }
 
+        public Result<int> ReadInt32(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadInt32(address.ToString(), stationNumber, functionCode);
+        }
+
+
         /// <summary>
         /// 读取UInt32
         /// </summary>
@@ -222,6 +244,11 @@ namespace IoTClient.Clients.ModBus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
             return result;
+        }
+
+        public Result<uint> ReadUInt32(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadUInt32(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -247,6 +274,11 @@ namespace IoTClient.Clients.ModBus
             return result;
         }
 
+        public Result<long> ReadInt64(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadInt64(address.ToString(), stationNumber, functionCode);
+        }
+
         /// <summary>
         /// 读取UInt64
         /// </summary>
@@ -268,6 +300,11 @@ namespace IoTClient.Clients.ModBus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
             return result;
+        }
+
+        public Result<ulong> ReadUInt64(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadUInt64(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -292,7 +329,12 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
             return result;
         }
-         
+
+        public Result<float> ReadFloat(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadFloat(address.ToString(), stationNumber, functionCode);
+        }
+
         /// <summary>
         /// 读取Double
         /// </summary>
@@ -315,7 +357,12 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
             return result;
         }
-         
+
+        public Result<double> ReadDouble(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadDouble(address.ToString(), stationNumber, functionCode);
+        }
+
         /// <summary>
         /// 读取线圈
         /// </summary>
@@ -338,7 +385,12 @@ namespace IoTClient.Clients.ModBus
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
         }
-         
+
+        public Result<bool> ReadCoil(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadCoil(address.ToString(), stationNumber, functionCode);
+        }
+
         /// <summary>
         /// 读取离散
         /// </summary>
@@ -360,6 +412,11 @@ namespace IoTClient.Clients.ModBus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
+        }
+
+        public Result<bool> ReadDiscrete(int address, byte stationNumber = 1, byte functionCode = 3)
+        {
+            return ReadDiscrete(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -392,6 +449,11 @@ namespace IoTClient.Clients.ModBus
             }
         }
 
+        public Result<short> ReadInt16(int beginAddress, int address, byte[] values)
+        {
+            return ReadInt16(beginAddress.ToString(), address.ToString(), values);
+        }
+
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -420,6 +482,11 @@ namespace IoTClient.Clients.ModBus
                     Err = ex.Message
                 };
             }
+        }
+
+        public Result<ushort> ReadUInt16(int beginAddress, int address, byte[] values)
+        {
+            return ReadUInt16(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -452,6 +519,11 @@ namespace IoTClient.Clients.ModBus
             }
         }
 
+        public Result<int> ReadInt32(int beginAddress, int address, byte[] values)
+        {
+            return ReadInt32(beginAddress.ToString(), address.ToString(), values);
+        }
+
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -480,6 +552,11 @@ namespace IoTClient.Clients.ModBus
                     Err = ex.Message
                 };
             }
+        }
+
+        public Result<uint> ReadUInt32(int beginAddress, int address, byte[] values)
+        {
+            return ReadUInt32(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -512,6 +589,11 @@ namespace IoTClient.Clients.ModBus
             }
         }
 
+        public Result<long> ReadInt64(int beginAddress, int address, byte[] values)
+        {
+            return ReadInt64(beginAddress.ToString(), address.ToString(), values);
+        }
+
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -541,7 +623,12 @@ namespace IoTClient.Clients.ModBus
                 };
             }
         }
-         
+
+        public Result<ulong> ReadUInt64(int beginAddress, int address, byte[] values)
+        {
+            return ReadUInt64(beginAddress.ToString(), address.ToString(), values);
+        }
+
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -571,7 +658,12 @@ namespace IoTClient.Clients.ModBus
                 };
             }
         }
-         
+
+        public Result<float> ReadFloat(int beginAddress, int address, byte[] values)
+        {
+            return ReadFloat(beginAddress.ToString(), address.ToString(), values);
+        }
+
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -600,6 +692,11 @@ namespace IoTClient.Clients.ModBus
                     Err = ex.Message
                 };
             }
+        }
+
+        public Result<double> ReadDouble(int beginAddress, int address, byte[] values)
+        {
+            return ReadDouble(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -636,6 +733,11 @@ namespace IoTClient.Clients.ModBus
             }
         }
 
+        public Result<bool> ReadCoil(int beginAddress, int address, byte[] values)
+        {
+            return ReadCoil(beginAddress.ToString(), address.ToString(), values);
+        }
+
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -669,6 +771,259 @@ namespace IoTClient.Clients.ModBus
                 };
             }
         }
+
+        public Result<bool> ReadDiscrete(int beginAddress, int address, byte[] values)
+        {
+            return ReadDiscrete(beginAddress.ToString(), address.ToString(), values);
+        }
+
+        #region 假的批量 注释
+        ///// <summary>
+        ///// 分批读取【假的批量，内部实际还是循环读取】
+        ///// </summary>
+        ///// <param name="addresses">地址集合</param>
+        ///// <param name="batchNumber">批量读取数量</param>
+        ///// <returns></returns>
+        //public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber = 19)
+        //{
+        //    var result = new Result<Dictionary<string, object>>();
+        //    result.Value = new Dictionary<string, object>();
+
+        //    var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
+        //    for (int i = 0; i < batchCount; i++)
+        //    {
+        //        var tempAddresses = addresses.Skip(i * batchNumber).Take(batchNumber).ToDictionary(t => t.Key, t => t.Value);
+        //        var tempResult = BatchRead(tempAddresses);
+        //        if (tempResult.IsSucceed)
+        //        {
+        //            foreach (var item in tempResult.Value)
+        //            {
+        //                result.Value.Add(item.Key, item.Value);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            result.IsSucceed = false;
+        //            result.Err = tempResult.Err;
+        //        }
+        //    }
+        //    return result.EndTime();
+        //}
+
+        //private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses)
+        //{
+        //    var result = new Result<Dictionary<string, object>>();
+        //    result.Value = new Dictionary<string, object>();
+        //    try
+        //    {
+        //        foreach (var item in addresses)
+        //        {
+        //            var richText = item.Key.Split('_');
+        //            if (richText.Length < 2)
+        //                continue; //必须传入站号
+        //            var stationNumber = byte.Parse(richText[0]);
+        //            var addresse = richText[1];
+        //            var functionCode = richText.Length >= 3 ? byte.Parse(richText[2]) : (byte)3;
+        //            object value;
+        //            switch (item.Value)
+        //            {
+        //                case DataTypeEnum.Bool:
+        //                    value = ReadDiscrete(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                //case DataTypeEnum.Byte:
+        //                //    value = readResut[0];
+        //                //    break;
+        //                case DataTypeEnum.Int16:
+        //                    value = ReadInt16(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.UInt16:
+        //                    value = ReadUInt16(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.Int32:
+        //                    value = ReadInt32(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.UInt32:
+        //                    value = ReadUInt32(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.Int64:
+        //                    value = ReadInt64(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.UInt64:
+        //                    value = ReadUInt64(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.Float:
+        //                    value = ReadFloat(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                case DataTypeEnum.Double:
+        //                    value = ReadDouble(addresse, stationNumber, functionCode).Value;
+        //                    break;
+        //                default:
+        //                    throw new Exception($"未定义数据类型：{item.Value}");
+        //            }
+        //            result.Value.Add(item.Key, value);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        result.IsSucceed = false;
+        //        result.Err = ex.Message;
+        //        result.Exception = ex;
+        //        result.ErrList.Add(ex.Message);
+        //    }
+        //    return result.EndTime();
+        //} 
+        #endregion
+
+        /// <summary>
+        /// 分批读取（是真批量读取，内部进行批量计算读取）
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <returns></returns>
+        public Result<List<ModBusOutput>> BatchRead(List<ModBusInput> addresses)
+        {
+            var result = new Result<List<ModBusOutput>>();
+            result.Value = new List<ModBusOutput>();
+            var functionCodes = addresses.Select(t => t.FunctionCode).Distinct();
+            foreach (var functionCode in functionCodes)
+            {
+                var stationNumbers = addresses.Where(t => t.FunctionCode == functionCode).Select(t => t.StationNumber).Distinct();
+                foreach (var stationNumber in stationNumbers)
+                {
+                    var addressList = addresses.Where(t => t.FunctionCode == functionCode && t.StationNumber == t.StationNumber)
+                        .DistinctBy(t => t.Address)
+                        .ToDictionary(t => t.Address, t => t.DataType);
+                    var tempResult = BatchRead(addressList, stationNumber, functionCode);
+                    if (tempResult.IsSucceed)
+                    {
+                        foreach (var item in tempResult.Value)
+                        {
+                            result.Value.Add(new ModBusOutput()
+                            {
+                                Address = item.Key,
+                                FunctionCode = functionCode,
+                                StationNumber = stationNumber,
+                                Value = item.Value
+                            });
+                        }
+                    }
+                    else
+                    {
+                        result.IsSucceed = tempResult.IsSucceed;
+                        result.Err = tempResult.Err;
+                        result.ErrList.AddRange(tempResult.ErrList);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
+        {
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+
+            var addresses = addressList.Select(t => new KeyValuePair<int, DataTypeEnum>(int.Parse(t.Key), t.Value)).ToList();
+
+            var minAddress = addresses.Select(t => t.Key).Min();
+            var maxAddress = addresses.Select(t => t.Key).Max();
+            while (maxAddress >= minAddress)
+            {
+                int readLength = 121;//125 - 4 = 121
+
+                var tempAddress = addresses.Where(t => t.Key >= minAddress && t.Key <= minAddress + readLength).ToList();
+                //如果范围内没有数据。按正确逻辑不存在这种情况。
+                if (!tempAddress.Any())
+                {
+                    minAddress = minAddress + readLength;
+                    continue;
+                }
+
+                var tempMax = tempAddress.OrderByDescending(t => t.Key).FirstOrDefault();
+                switch (tempMax.Value)
+                {
+                    case DataTypeEnum.Bool:
+                    case DataTypeEnum.Byte:
+                    case DataTypeEnum.Int16:
+                    case DataTypeEnum.UInt16:
+                        readLength = tempMax.Key + 1 - minAddress;
+                        break;
+                    case DataTypeEnum.Int32:
+                    case DataTypeEnum.UInt32:
+                    case DataTypeEnum.Float:
+                        readLength = tempMax.Key + 2 - minAddress;
+                        break;
+                    case DataTypeEnum.Int64:
+                    case DataTypeEnum.UInt64:
+                    case DataTypeEnum.Double:
+                        readLength = tempMax.Key + 4 - minAddress;
+                        break;
+                    default:
+                        throw new Exception("Err BatchRead 未定义类型 -1");
+                }
+
+                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength));
+
+                if (!tempResult.IsSucceed)
+                {
+                    result.IsSucceed = tempResult.IsSucceed;
+                    result.Exception = tempResult.Exception;
+                    result.Err = tempResult.Err;
+                    result.ErrList.AddRange(tempResult.ErrList);
+                    return result;
+                }
+
+                var rValue = tempResult.Value.Reverse().ToArray();
+                foreach (var item in tempAddress)
+                {
+                    object tempVaue = null;
+
+                    switch (item.Value)
+                    {
+                        case DataTypeEnum.Bool:
+                            tempVaue = ReadCoil(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.Byte:
+                            throw new Exception("Err BatchRead 未定义类型 -2");
+                        case DataTypeEnum.Int16:
+                            tempVaue = ReadInt16(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.UInt16:
+                            tempVaue = ReadUInt16(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.Int32:
+                            tempVaue = ReadInt32(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.UInt32:
+                            tempVaue = ReadUInt32(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.Int64:
+                            tempVaue = ReadInt64(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.UInt64:
+                            tempVaue = ReadUInt64(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.Float:
+                            tempVaue = ReadFloat(minAddress, item.Key, rValue).Value;
+                            break;
+                        case DataTypeEnum.Double:
+                            tempVaue = ReadDouble(minAddress, item.Key, rValue).Value;
+                            break;
+                        default:
+                            throw new Exception("Err BatchRead 未定义类型 -3");
+                    }
+
+                    result.Value.Add(item.Key.ToString(), tempVaue);
+                }
+                minAddress = minAddress + readLength;
+
+                if (addresses.Any(t => t.Key >= minAddress))
+                    minAddress = addresses.Where(t => t.Key >= minAddress).OrderBy(t => t.Key).FirstOrDefault().Key;
+                else
+                    return result;
+            }
+            return result;
+        }
+
         #endregion
 
         #region Write 写入

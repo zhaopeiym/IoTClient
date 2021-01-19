@@ -18,11 +18,6 @@ namespace IoTClient
     public abstract class SocketBase
     {
         /// <summary>
-        /// 警告日志委托
-        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
-        /// </summary>
-        public LoggerDelegate WarningLog;
-        /// <summary>
         /// 分批缓冲区大小
         /// </summary>
         protected const int BufferSize = 4096;
@@ -107,8 +102,9 @@ namespace IoTClient
         /// </summary>
         /// <param name="socket"></param>
         /// <param name="receiveCount"></param>
+        /// <param name="warningLog"></param>        
         /// <returns>读到的数据，如果内部出现异常则返回null</returns>
-        protected byte[] SocketTryRead(Socket socket, int receiveCount)
+        protected byte[] SocketTryRead(Socket socket, int receiveCount, LoggerDelegate warningLog = null)
         {
             byte[] receiveBytes = new byte[receiveCount];
             int receiveFinish = 0;
@@ -127,7 +123,7 @@ namespace IoTClient
                 }
                 catch (SocketException ex)
                 {
-                    WarningLog?.Invoke(ex.Message, ex);
+                    warningLog?.Invoke(ex.Message, ex);
                     return null;
                 }
             }

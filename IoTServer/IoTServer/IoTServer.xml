@@ -39,6 +39,16 @@
             初始化加载数据
             </summary>
         </member>
+        <member name="M:IoTServer.Servers.BACnet.BACnetServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.BACnet.BACnetServer.Stop">
+            <summary>
+            停止服务
+            </summary>
+        </member>
         <member name="T:IoTServer.Servers.ModBus.ModBusAsciiServer">
             <summary>
             ModBusAscii 服务端模拟

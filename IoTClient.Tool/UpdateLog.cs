@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IoTClient.Tool
@@ -19,13 +13,22 @@ namespace IoTClient.Tool
             StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedSingle;
             var logs = new List<string>();
-            logs.Add("日志记录\r\n");
-            logs.Add("版本：[0.4.0]");
-            logs.Add($"时间：{DateTime.Now.ToString("yyyy-MM-dd")}");
+            logs.Add("日志记录");
+            logs.Add("\r\n版本：[0.4.0]");
+            logs.Add($"时间：2020-09-11");
             logs.Add("内容");
             logs.Add("1.西门子PLC批量读写，大幅提高读写性能");
             logs.Add("2.手动检查更新");
             logs.Add("3.显示历史更新日志");
+
+            logs.Add("\r\n版本：[0.4.1]");
+            logs.Add($"时间：2021-01-19");
+            logs.Add("内容");
+            logs.Add("1.西门子PLC批量写，服务端模拟的实现");
+            logs.Add("2.西门子PLC批量写Byte类型bug修复");
+            logs.Add("3.ModBusTcp批量读取");
+            logs.Add("4.ModBusTcp线程安全读取");
+
             textBox1.Text = string.Join("\r\n", logs);
             if (hasNew)
             {

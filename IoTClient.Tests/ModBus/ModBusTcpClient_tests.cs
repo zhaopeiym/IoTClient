@@ -1,4 +1,7 @@
 ﻿using IoTClient.Clients.ModBus;
+using IoTClient.Enums;
+using IoTClient.Models;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,6 +17,49 @@ namespace IoTClient.Tests.ModBus
             var ip = IPAddress.Parse("ip".GetConfig());
             var port = int.Parse("port".GetConfig());
             client = new ModBusTcpClient(new IPEndPoint(ip, port));
+        }
+
+        [Fact]
+        public void 批量读取()
+        {
+            Dictionary<string, DataTypeEnum> addresses = new Dictionary<string, DataTypeEnum>();
+            addresses.Add("2", DataTypeEnum.Int16);
+            addresses.Add("5", DataTypeEnum.Int16);
+            addresses.Add("13", DataTypeEnum.Int16);
+            addresses.Add("19", DataTypeEnum.Int16);
+            addresses.Add("198", DataTypeEnum.Int16);
+            addresses.Add("199", DataTypeEnum.Int16);
+
+            var list = new List<ModBusInput>();
+            list.Add(new ModBusInput()
+            {
+                Address = "2",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModBusInput()
+            {
+                Address = "2",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 4,
+                StationNumber = 1
+            });
+            list.Add(new ModBusInput()
+            {
+                Address = "5",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModBusInput()
+            {
+                Address = "199",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            var oo = client.BatchRead(list);
         }
 
         /// <summary>

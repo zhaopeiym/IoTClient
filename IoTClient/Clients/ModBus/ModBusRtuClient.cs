@@ -1,6 +1,8 @@
 ﻿using IoTClient.Common.Helpers;
+using IoTClient.Enums;
 using IoTClient.Models;
 using System;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -642,6 +644,106 @@ namespace IoTClient.Clients.ModBus
                     Err = ex.Message
                 };
             }
+        }
+
+        /// <summary>
+        /// 分批读取，默认按19个地址打包读取
+        /// </summary>
+        /// <param name="addresses">地址集合</param>
+        /// <param name="batchNumber">批量读取数量</param>
+        /// <returns></returns>
+        public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber = 19)
+        {
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+
+            var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
+            for (int i = 0; i < batchCount; i++)
+            {
+                var tempAddresses = addresses.Skip(i * batchNumber).Take(batchNumber).ToDictionary(t => t.Key, t => t.Value);
+                var tempResult = BatchRead(tempAddresses);
+                if (tempResult.IsSucceed)
+                {
+                    foreach (var item in tempResult.Value)
+                    {
+                        result.Value.Add(item.Key, item.Value);
+                    }
+                }
+                else
+                {
+                    result.IsSucceed = false;
+                    result.Err = tempResult.Err;
+                }
+            }
+            return result.EndTime();
+        }
+
+        /// <summary>
+        /// 最多只能批量读取19个数据？        
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <returns></returns>
+        private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses)
+        {
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+            try
+            {
+                foreach (var item in addresses)
+                {
+                    var richText = item.Key.Split('_');
+                    if (richText.Length < 2)
+                        continue; //必须传入站号
+                    var stationNumber = byte.Parse(richText[0]);
+                    var addresse = richText[1];
+                    var functionCode = richText.Length >= 3 ? byte.Parse(richText[2]) : (byte)3;
+                    object value;
+                    switch (item.Value)
+                    {
+                        case DataTypeEnum.Bool:
+                            value = ReadDiscrete(addresse, stationNumber, functionCode).Value;
+                            break;
+                        //case DataTypeEnum.Byte:
+                        //    value = readResut[0];
+                        //    break;
+                        case DataTypeEnum.Int16:
+                            value = ReadInt16(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.UInt16:
+                            value = ReadUInt16(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.Int32:
+                            value = ReadInt32(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.UInt32:
+                            value = ReadUInt32(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.Int64:
+                            value = ReadInt64(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.UInt64:
+                            value = ReadUInt64(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.Float:
+                            value = ReadFloat(addresse, stationNumber, functionCode).Value;
+                            break;
+                        case DataTypeEnum.Double:
+                            value = ReadDouble(addresse, stationNumber, functionCode).Value;
+                            break;
+                        default:
+                            throw new Exception($"未定义数据类型：{item.Value}");
+                    }
+                    result.Value.Add(item.Key, value);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
+            }
+            return result.EndTime();
         }
         #endregion
 

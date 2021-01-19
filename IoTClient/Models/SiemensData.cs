@@ -22,7 +22,7 @@ namespace IoTClient.Core.Models
         /// </summary>
         public ushort DbBlock { get; set; }
         /// <summary>
-        /// 开始地址
+        /// 开始地址(西门子plc地址为8个位的长度，这里展开实际的开始地址。)
         /// </summary>
         public int BeginAddress { get; set; }
         /// <summary>

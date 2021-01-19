@@ -43,6 +43,31 @@ var requst  = result.Requst;
 var response = result.Response;
 //5.5 读取到的值
 var value3 = result.Value;
+
+//6、批量读取
+var list = new List<ModBusInput>();
+list.Add(new ModBusInput()
+{
+    Address = "2",
+    DataType = DataTypeEnum.Int16,
+    FunctionCode = 3,
+    StationNumber = 1
+});
+list.Add(new ModBusInput()
+{
+    Address = "2",
+    DataType = DataTypeEnum.Int16,
+    FunctionCode = 4,
+    StationNumber = 1
+});
+list.Add(new ModBusInput()
+{
+    Address = "199",
+    DataType = DataTypeEnum.Int16,
+    FunctionCode = 3,
+    StationNumber = 1
+});
+var result = client.BatchRead(list);
 ``` 
 
 ## ModBusRtu读写操作
@@ -113,12 +138,15 @@ var result = client.BatchWrite(addresses);
 4、【注意】写入数据的时候需要明确数据类型
 client.Write("DB4.12", 9);          //写入的是int类型
 client.Write("DB4.12", (float)9);   //写入的是float类型
+
+5、SiemensClient是线程安全类
+由于plc长连接有限，SiemensClient被设计成线程安全类。可以把SiemensClient设置成单例，在多个线程之间使用SiemensClient的实例读写操作plc。
 ```
 
 ## 其他更多详细使用请[参考](https://github.com/zhaopeiym/IoTClient/tree/master/IoTClient.Tool/Controls)
 
 # IoTClient Tool效果图   
-![image](https://user-images.githubusercontent.com/5820324/68926947-9c43e800-07c1-11ea-9da7-f431ec52f2fb.png)  
+![image](https://user-images.githubusercontent.com/5820324/93007864-62d63780-f5a0-11ea-9664-89c21d8d98da.png)  
 
 ![image](https://user-images.githubusercontent.com/5820324/68926546-c052f980-07c0-11ea-86ec-8ae36cc9aa3a.png)    
 

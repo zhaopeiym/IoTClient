@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.BACnet;
 using IoTClient.Tool.Helper;
+using IoTServer.Servers.BACnet;
 
 namespace IoTClient.Tool
 {
@@ -22,6 +23,7 @@ namespace IoTClient.Tool
         }
         private static List<BacNode> devicesList = new List<BacNode>();
         private BacnetClient Bacnet_client;
+        //private BACnetServer Bacnet_server = new BACnetServer();
 
         private void BACnetControl_Load(object sender, EventArgs e)
         {
@@ -60,10 +62,20 @@ namespace IoTClient.Tool
         private void button1_Click_1(object sender, EventArgs e)
         {
             txt_msgList.Text = string.Empty;
-            Task.Run(() =>
+            button1.Enabled = false;
+            devicesList = new List<BacNode>();
+            listBox1.Items.Clear();
+            Bacnet_client.WhoIs();
+            Task.Run(async () =>
             {
-                Log("准备扫描...");
+                //Log("准备扫描...");
+                for (int i = 0; i < 10; i++)
+                {
+                    await Task.Delay(100);
+                    Log($"等待扫描...[{9 - i}]");
+                }
                 Scan();
+                button1.Enabled = true;
             });
         }
 
@@ -82,6 +94,7 @@ namespace IoTClient.Tool
             }
             foreach (var device in devicesList)
             {
+                LogEmpty();
                 Log($"开始扫描属性,Address:{device.Address.ToString()} DeviceId:{device.DeviceId}");
                 ScanSubProperties(device);
             }
@@ -247,7 +260,7 @@ namespace IoTClient.Tool
                                     break;
                             }
                         }
-                        ShwoText(string.Format("地址:{0}\t 点名:{1}\t 值:{2}\t 类型:{3}\t 描述:{4} ", $"{subNode.ObjectId.Instance}_{(int)subNode.ObjectId.Type}", subNode.PROP_OBJECT_NAME, subNode.PROP_PRESENT_VALUE, subNode.PROP_PRESENT_VALUE.GetType().ToString().Split('.')[1], subNode.PROP_DESCRIPTION));
+                        ShwoText(string.Format("地址:{0,-6} 值:{2,-8}  类型:{3,-8}  点名:{1}\t 描述:{4} ", $"{subNode.ObjectId.Instance}_{(int)subNode.ObjectId.Type}", subNode.PROP_OBJECT_NAME, subNode.PROP_PRESENT_VALUE, subNode.PROP_PRESENT_VALUE.GetType().ToString().Split('.')[1], subNode.PROP_DESCRIPTION));
                     }
                 }
             }
@@ -255,6 +268,14 @@ namespace IoTClient.Tool
             {
                 Log("【Err】:" + ex.Message);
             }
+        }
+
+        private void LogEmpty()
+        {
+            BeginInvoke(new Action(() =>
+            {
+                txt_msgList.AppendText($"\r\n");
+            }));
         }
 
         private void Log(string str)
@@ -275,24 +296,31 @@ namespace IoTClient.Tool
 
         private async void Read_ClickAsync(object sender, EventArgs e)
         {
+            if (listBox1.SelectedIndex < 0)
+            {
+                Log("请选择要操作的设备");
+                return;
+            }
+            var deviceId = listBox1.SelectedItem.ToString().Split(' ')[1];
+            BacNode bacnet = devicesList.Where(t => t.DeviceId.ToString() == deviceId).FirstOrDefault();
+
             var address = txt_address.Text?.Trim();
             var addressPart = address.Split('_');
-            BacProperty rpop = null;
-            BacNode bacnet = null;
+            BacProperty rpop = null;            
 
             if (addressPart.Length == 1)
             {
-                rpop = devicesList.SelectMany(t => t.Properties).Where(t => t.PROP_OBJECT_NAME == address).FirstOrDefault();
-                bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == address)).FirstOrDefault();
+                rpop = bacnet?.Properties.Where(t => t.PROP_OBJECT_NAME == address).FirstOrDefault();
+                //bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == address)).FirstOrDefault();
             }
             else if (addressPart.Length == 2)
             {
-                rpop = devicesList.SelectMany(t => t.Properties)
+                rpop = bacnet?.Properties
                     .Where(t => t.ObjectId.Instance == uint.Parse(addressPart[0]) && t.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1]))
                     .FirstOrDefault();
-                bacnet = devicesList
-                    .Where(t => t.Properties.Any(p => p.ObjectId.Instance == uint.Parse(addressPart[0]) && p.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1])))
-                    .FirstOrDefault();
+                //bacnet = devicesList
+                //    .Where(t => t.Properties.Any(p => p.ObjectId.Instance == uint.Parse(addressPart[0]) && p.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1])))
+                //    .FirstOrDefault();
             }
             else
             {
@@ -331,26 +359,33 @@ namespace IoTClient.Tool
 
         private async void Write_ClickAsync(object sender, EventArgs e)
         {
+            if (listBox1.SelectedIndex < 0)
+            {
+                Log("请选择要操作的设备");
+                return;
+            }
+            var deviceId = listBox1.SelectedItem.ToString().Split(' ')[1];
+            BacNode bacnet = devicesList.Where(t => t.DeviceId.ToString() == deviceId).FirstOrDefault();
+
             var address = txt_address.Text?.Trim();
             var value = txt_value.Text?.Trim();
             var addressPart = address.Split('_');
 
-            BacProperty rpop = null;
-            BacNode bacnet = null;
+            BacProperty rpop = null; 
 
             if (addressPart.Length == 1)
             {
-                rpop = devicesList.SelectMany(t => t.Properties).Where(t => t.PROP_OBJECT_NAME == address).FirstOrDefault();
-                bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == address)).FirstOrDefault();
+                rpop = bacnet?.Properties.Where(t => t.PROP_OBJECT_NAME == address).FirstOrDefault();
+                //bacnet = devicesList.Where(t => t.Properties.Any(p => p.PROP_OBJECT_NAME == address)).FirstOrDefault();
             }
             else if (addressPart.Length == 2)
             {
-                rpop = devicesList.SelectMany(t => t.Properties)
+                rpop = bacnet?.Properties
                     .Where(t => t.ObjectId.Instance == uint.Parse(addressPart[0]) && t.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1]))
                     .FirstOrDefault();
-                bacnet = devicesList
-                    .Where(t => t.Properties.Any(p => p.ObjectId.Instance == uint.Parse(addressPart[0]) && p.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1])))
-                    .FirstOrDefault();
+                //bacnet = devicesList
+                //    .Where(t => t.Properties.Any(p => p.ObjectId.Instance == uint.Parse(addressPart[0]) && p.ObjectId.Type == (BacnetObjectTypes)int.Parse(addressPart[1])))
+                //    .FirstOrDefault();
             }
             else
             {
@@ -379,6 +414,11 @@ namespace IoTClient.Tool
                 if (retry < 4) goto tag_retry;//强行重试
                 Log($"写入失败:{ex.Message} [{retry - 1}]");
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            new BACnetServer().Start();
         }
     }
 }
