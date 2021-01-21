@@ -57,7 +57,9 @@ namespace IoTClient.Tool
 
             toolTip1.SetToolTip(but_open, "点击打开连接");
             toolTip1.SetToolTip(txt_address, "支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据");
-            txt_content.Text = "小技巧:\r\n1、读取地址支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据，或者直接输入V2634、V2638、V2642。\r\n";
+            txt_content.Text = @"小技巧:
+1、读取地址支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据，或者直接输入V2634、V2638、V2642。
+2、关于PLC地址：VB263、VW263、VD263中的B、W、D分别表示byte、word、doubleword数据类型，分别对应C#中的byte、ushort(UInt16)、uint(UInt32)类型。此工具传入地址的时候不需要带数据类型，直接选择对应的类型然后传入地址即可，如：V263";
         }
 
         private void but_server_Click(object sender, EventArgs e)

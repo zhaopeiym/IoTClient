@@ -89,20 +89,20 @@ namespace IoTClient.Tool
             {
                 switch (tab.Name)
                 {
-                    case "ModBusTcp":
-                        var modBusTcp = new ModBusTcpControl();
-                        modBusTcp.Dock = DockStyle.Fill;
-                        tab.Controls.Add(modBusTcp);
+                    case "ModbusTcp":
+                        var ModbusTcp = new ModbusTcpControl();
+                        ModbusTcp.Dock = DockStyle.Fill;
+                        tab.Controls.Add(ModbusTcp);
                         break;
-                    case "ModBusRtu":
-                        var modBusRtu = new ModBusRtuControl();
-                        modBusRtu.Dock = DockStyle.Fill;
-                        tab.Controls.Add(modBusRtu);
+                    case "ModbusRtu":
+                        var ModbusRtu = new ModbusRtuControl();
+                        ModbusRtu.Dock = DockStyle.Fill;
+                        tab.Controls.Add(ModbusRtu);
                         break;
-                    case "ModBusAscii":
-                        var modBusAscii = new ModBusAsciiControl();
-                        modBusAscii.Dock = DockStyle.Fill;
-                        tab.Controls.Add(modBusAscii);
+                    case "ModbusAscii":
+                        var ModbusAscii = new ModbusAsciiControl();
+                        ModbusAscii.Dock = DockStyle.Fill;
+                        tab.Controls.Add(ModbusAscii);
                         break;
                     case "SiemensS7200Smart":
                         var siemens = new SiemensControl(SiemensVersion.S7_200Smart);
@@ -174,9 +174,9 @@ namespace IoTClient.Tool
                         var portsControl = tab.Controls[0] as PortsControl;
                         portsControl?.UpdatePortNames();
                         break;
-                    case nameof(ModBusRtuControl):
-                        var modBusRtuControl = tab.Controls[0] as ModBusRtuControl;
-                        modBusRtuControl?.UpdatePortNames();
+                    case nameof(ModbusRtuControl):
+                        var modbusRtuControl = tab.Controls[0] as ModbusRtuControl;
+                        modbusRtuControl?.UpdatePortNames();
                         break;
                 }
             }

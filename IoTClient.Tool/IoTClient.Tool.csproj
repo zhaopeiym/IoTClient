@@ -171,17 +171,17 @@
     <Compile Include="Controls\MitsubishiMCControl.Designer.cs">
       <DependentUpon>MitsubishiMCControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ModBusAsciiControl.cs">
+    <Compile Include="Controls\ModbusAsciiControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ModBusAsciiControl.Designer.cs">
-      <DependentUpon>ModBusAsciiControl.cs</DependentUpon>
+    <Compile Include="Controls\ModbusAsciiControl.Designer.cs">
+      <DependentUpon>ModbusAsciiControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ModBusRtuControl.cs">
+    <Compile Include="Controls\ModbusRtuControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ModBusRtuControl.Designer.cs">
-      <DependentUpon>ModBusRtuControl.cs</DependentUpon>
+    <Compile Include="Controls\ModbusRtuControl.Designer.cs">
+      <DependentUpon>ModbusRtuControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\MQTTControl.cs">
       <SubType>UserControl</SubType>
@@ -219,11 +219,11 @@
     <Compile Include="IndexForm.Designer.cs">
       <DependentUpon>IndexForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ModBusTcpControl.cs">
+    <Compile Include="Controls\ModbusTcpControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ModBusTcpControl.Designer.cs">
-      <DependentUpon>ModBusTcpControl.cs</DependentUpon>
+    <Compile Include="Controls\ModbusTcpControl.Designer.cs">
+      <DependentUpon>ModbusTcpControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\ResultBase.cs" />
     <Compile Include="Model\VersionCheckInput.cs" />
@@ -254,11 +254,11 @@
     <EmbeddedResource Include="Controls\MitsubishiMCControl.resx">
       <DependentUpon>MitsubishiMCControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ModBusAsciiControl.resx">
-      <DependentUpon>ModBusAsciiControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ModbusAsciiControl.resx">
+      <DependentUpon>ModbusAsciiControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ModBusRtuControl.resx">
-      <DependentUpon>ModBusRtuControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ModbusRtuControl.resx">
+      <DependentUpon>ModbusRtuControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\MQTTControl.resx">
       <DependentUpon>MQTTControl.cs</DependentUpon>
@@ -275,8 +275,8 @@
     <EmbeddedResource Include="IndexForm.resx">
       <DependentUpon>IndexForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ModBusTcpControl.resx">
-      <DependentUpon>ModBusTcpControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ModbusTcpControl.resx">
+      <DependentUpon>ModbusTcpControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

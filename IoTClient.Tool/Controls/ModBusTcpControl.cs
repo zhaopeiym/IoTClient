@@ -1,7 +1,7 @@
-﻿using IoTClient.Clients.ModBus;
+﻿using IoTClient.Clients.Modbus;
 using IoTClient.Common.Helpers;
 using IoTServer.Common;
-using IoTServer.Servers.ModBus;
+using IoTServer.Servers.Modbus;
 using System;
 using System.Drawing;
 using System.Linq;
@@ -9,11 +9,11 @@ using System.Windows.Forms;
 
 namespace IoTClient.Tool
 {
-    public partial class ModBusTcpControl : UserControl
+    public partial class ModbusTcpControl : UserControl
     {
-        IModBusClient client;
-        ModBusTcpServer server;
-        public ModBusTcpControl()
+        IModbusClient client;
+        ModbusTcpServer server;
+        public ModbusTcpControl()
         {
             InitializeComponent();
             Size = new Size(880, 450);
@@ -46,7 +46,7 @@ namespace IoTClient.Tool
             button2.Enabled = false;
             but_close.Enabled = false;
             but_sendData.Enabled = false;
-            toolTip1.SetToolTip(button1, "开启本地ModBusTcp服务端仿真模拟服务");
+            toolTip1.SetToolTip(button1, "开启本地ModbusTcp服务端仿真模拟服务");
             toolTip1.SetToolTip(but_open, "点击打开连接");
             toolTip1.SetToolTip(txt_address, "支持批量读取，如4-3将会读取4、5、6地址对应的数据");
             txt_content.Text = "小技巧:\r\n1、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据\r\n";
@@ -58,7 +58,7 @@ namespace IoTClient.Tool
             {
                 if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
                 server?.Stop();
-                server = new ModBusTcpServer(502);
+                server = new ModbusTcpServer(502);
                 server.Start();
                 button1.Enabled = false;
                 button2.Enabled = true;
@@ -85,9 +85,9 @@ namespace IoTClient.Tool
                 if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
                 client?.Close();
                 if (chb_rtudata.Checked)
-                    client = new ModBusTcpRtuClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                    client = new ModbusTcpRtuClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
                 else
-                    client = new ModBusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                    client = new ModbusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
                 var result = client.Open();
                 if (result.IsSucceed)
                 {

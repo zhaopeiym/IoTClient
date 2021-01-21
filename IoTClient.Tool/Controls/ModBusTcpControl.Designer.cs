@@ -1,6 +1,6 @@
 ﻿namespace IoTClient.Tool
 {
-    partial class ModBusTcpControl
+    partial class ModbusTcpControl
     {
         /// <summary> 
         /// 必需的设计器变量。
@@ -439,7 +439,7 @@
             this.chb_rtudata.TabIndex = 18;
             this.chb_rtudata.UseVisualStyleBackColor = true;
             // 
-            // ModBusTcpControl
+            // ModbusTcpControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -447,7 +447,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.txt_content);
-            this.Name = "ModBusTcpControl";
+            this.Name = "ModbusTcpControl";
             this.Size = new System.Drawing.Size(880, 450);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();

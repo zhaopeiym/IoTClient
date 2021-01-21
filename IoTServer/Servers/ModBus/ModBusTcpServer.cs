@@ -8,23 +8,23 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace IoTServer.Servers.ModBus
+namespace IoTServer.Servers.Modbus
 {
     /// <summary>
-    /// ModBusTcp 服务端模拟
+    /// ModbusTcp 服务端模拟
     /// </summary>
-    public class ModBusTcpServer : ServerSocketBase
+    public class ModbusTcpServer : ServerSocketBase
     {
         private Socket socketServer;
         private string ip;
         private int port;
         DataPersist dataPersist;
         List<Socket> sockets = new List<Socket>();
-        public ModBusTcpServer(int port, string ip = null)
+        public ModbusTcpServer(int port, string ip = null)
         {
             this.ip = ip;
             this.port = port;
-            dataPersist = new DataPersist("ModBusTcpServer");
+            dataPersist = new DataPersist("ModbusTcpServer");
         }
 
         /// <summary>

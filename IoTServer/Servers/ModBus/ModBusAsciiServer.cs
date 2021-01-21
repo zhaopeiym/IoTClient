@@ -6,16 +6,16 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 
-namespace IoTServer.Servers.ModBus
+namespace IoTServer.Servers.Modbus
 {
     /// <summary>
-    /// ModBusAscii 服务端模拟
+    /// ModbusAscii 服务端模拟
     /// </summary>
-    public class ModBusAsciiServer
+    public class ModbusAsciiServer
     {
         private SerialPort serialPort;
         DataPersist dataPersist;
-        public ModBusAsciiServer(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity)
+        public ModbusAsciiServer(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500)
         {
             if (serialPort == null) serialPort = new SerialPort();
             serialPort.PortName = portName;
@@ -24,11 +24,15 @@ namespace IoTServer.Servers.ModBus
             serialPort.StopBits = stopBits;
             serialPort.Encoding = Encoding.ASCII;
             serialPort.Parity = parity;
-#if !DEBUG
-            serialPort.ReadTimeout = 1000;//1秒
+
+            serialPort.ReadTimeout = timeout;
+            serialPort.WriteTimeout = timeout;
+#if DEBUG
+            serialPort.ReadTimeout *= 10;
+            serialPort.WriteTimeout *= 10;
 #endif
             serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceived);
-            dataPersist = new DataPersist("ModBusTcpServer");
+            dataPersist = new DataPersist("ModbusTcpServer");
         }
 
         /// <summary>

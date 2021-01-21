@@ -1,30 +1,31 @@
 ﻿using IoTClient.Common.Helpers;
+using IoTClient.Enums;
 using IoTClient.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace IoTClient.Clients.ModBus
+namespace IoTClient.Clients.Modbus
 {
     /// <summary>
-    /// Tcp的方式发送ModBusRtu协议报文 - 客户端
+    /// Tcp的方式发送ModbusRtu协议报文 - 客户端
     /// </summary>
-    public class ModBusTcpRtuClient : SocketBase, IModBusClient
+    public class ModbusTcpRtuClient : SocketBase, IModbusClient
     {
         private IPEndPoint ipAndPoint;
-        private int timeout = 1500;
+        private int timeout = -1;
+
         /// <summary>
         /// 构造函数
         /// </summary>
-        /// <param name="portName">COM端口名称</param>
-        /// <param name="baudRate">波特率</param>
-        /// <param name="dataBits">数据位</param>
-        /// <param name="stopBits">停止位</param>
-        /// <param name="parity">奇偶校验</param>
-        public ModBusTcpRtuClient(string ip, int port, int? timeout = null)
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="timeout">超时时间（毫秒）</param>
+        public ModbusTcpRtuClient(string ip, int port, int timeout = 1500)
         {
-            if (timeout.HasValue) this.timeout = timeout.Value;
+            this.timeout = timeout;
             this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
         }
 
@@ -35,12 +36,13 @@ namespace IoTClient.Clients.ModBus
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                #region 超时时间设置
-#if !DEBUG
+
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
-#endif 
-                #endregion
+#if DEBUG
+                socket.ReceiveTimeout *= 10;
+                socket.SendTimeout *= 10;
+#endif                 
 
                 //连接
                 socket.Connect(ipAndPoint);
@@ -63,11 +65,15 @@ namespace IoTClient.Clients.ModBus
         /// <returns></returns>
         public byte[] SendPackage(byte[] command, int lenght)
         {
-            //发送命令
-            socket.Send(command);
-            //获取响应报文           
-            var dataPackage = SocketRead(socket, lenght);
-            return dataPackage;
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                //发送命令
+                socket.Send(command);
+                //获取响应报文           
+                var dataPackage = SocketRead(socket, lenght);
+                return dataPackage;
+            }
         }
 
         public byte[] SendPackage(byte[] command)
@@ -671,6 +677,157 @@ namespace IoTClient.Clients.ModBus
                 };
             }
         }
+
+        /// <summary>
+        /// 分批读取（批量读取，内部进行批量计算读取）
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <returns></returns>
+        public Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses)
+        {
+            var result = new Result<List<ModbusOutput>>();
+            result.Value = new List<ModbusOutput>();
+            var functionCodes = addresses.Select(t => t.FunctionCode).Distinct();
+            foreach (var functionCode in functionCodes)
+            {
+                var stationNumbers = addresses.Where(t => t.FunctionCode == functionCode).Select(t => t.StationNumber).Distinct();
+                foreach (var stationNumber in stationNumbers)
+                {
+                    var addressList = addresses.Where(t => t.FunctionCode == functionCode && t.StationNumber == t.StationNumber)
+                        .DistinctBy(t => t.Address)
+                        .ToDictionary(t => t.Address, t => t.DataType);
+                    var tempResult = BatchRead(addressList, stationNumber, functionCode);
+                    if (tempResult.IsSucceed)
+                    {
+                        foreach (var item in tempResult.Value)
+                        {
+                            result.Value.Add(new ModbusOutput()
+                            {
+                                Address = item.Key,
+                                FunctionCode = functionCode,
+                                StationNumber = stationNumber,
+                                Value = item.Value
+                            });
+                        }
+                    }
+                    else
+                    {
+                        result.IsSucceed = tempResult.IsSucceed;
+                        result.Err = tempResult.Err;
+                        result.ErrList.AddRange(tempResult.ErrList);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
+        {
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+
+            var addresses = addressList.Select(t => new KeyValuePair<int, DataTypeEnum>(int.Parse(t.Key), t.Value)).ToList();
+
+            var minAddress = addresses.Select(t => t.Key).Min();
+            var maxAddress = addresses.Select(t => t.Key).Max();
+            while (maxAddress >= minAddress)
+            {
+                int readLength = 121;//125 - 4 = 121
+
+                var tempAddress = addresses.Where(t => t.Key >= minAddress && t.Key <= minAddress + readLength).ToList();
+                //如果范围内没有数据。按正确逻辑不存在这种情况。
+                if (!tempAddress.Any())
+                {
+                    minAddress = minAddress + readLength;
+                    continue;
+                }
+
+                var tempMax = tempAddress.OrderByDescending(t => t.Key).FirstOrDefault();
+                switch (tempMax.Value)
+                {
+                    case DataTypeEnum.Bool:
+                    case DataTypeEnum.Byte:
+                    case DataTypeEnum.Int16:
+                    case DataTypeEnum.UInt16:
+                        readLength = tempMax.Key + 1 - minAddress;
+                        break;
+                    case DataTypeEnum.Int32:
+                    case DataTypeEnum.UInt32:
+                    case DataTypeEnum.Float:
+                        readLength = tempMax.Key + 2 - minAddress;
+                        break;
+                    case DataTypeEnum.Int64:
+                    case DataTypeEnum.UInt64:
+                    case DataTypeEnum.Double:
+                        readLength = tempMax.Key + 4 - minAddress;
+                        break;
+                    default:
+                        throw new Exception("Err BatchRead 未定义类型 -1");
+                }
+
+                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength));
+
+                if (!tempResult.IsSucceed)
+                {
+                    result.IsSucceed = tempResult.IsSucceed;
+                    result.Exception = tempResult.Exception;
+                    result.Err = tempResult.Err;
+                    result.ErrList.AddRange(tempResult.ErrList);
+                    return result;
+                }
+
+                var rValue = tempResult.Value.Reverse().ToArray();
+                foreach (var item in tempAddress)
+                {
+                    object tempVaue = null;
+
+                    switch (item.Value)
+                    {
+                        case DataTypeEnum.Bool:
+                            tempVaue = ReadCoil(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.Byte:
+                            throw new Exception("Err BatchRead 未定义类型 -2");
+                        case DataTypeEnum.Int16:
+                            tempVaue = ReadInt16(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.UInt16:
+                            tempVaue = ReadUInt16(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.Int32:
+                            tempVaue = ReadInt32(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.UInt32:
+                            tempVaue = ReadUInt32(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.Int64:
+                            tempVaue = ReadInt64(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.UInt64:
+                            tempVaue = ReadUInt64(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.Float:
+                            tempVaue = ReadFloat(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        case DataTypeEnum.Double:
+                            tempVaue = ReadDouble(minAddress.ToString(), item.Key.ToString(), rValue).Value;
+                            break;
+                        default:
+                            throw new Exception("Err BatchRead 未定义类型 -3");
+                    }
+
+                    result.Value.Add(item.Key.ToString(), tempVaue);
+                }
+                minAddress = minAddress + readLength;
+
+                if (addresses.Any(t => t.Key >= minAddress))
+                    minAddress = addresses.Where(t => t.Key >= minAddress).OrderBy(t => t.Key).FirstOrDefault().Key;
+                else
+                    return result;
+            }
+            return result;
+        }
+
         #endregion
 
         #region Write 写入
@@ -940,7 +1097,8 @@ namespace IoTClient.Clients.ModBus
             buffer[4] = (byte)(value ? 0xFF : 0x00);     //此处只可以是FF表示闭合00表示断开，其他数值非法
             buffer[5] = 0x00;
             return buffer;
-        }       
+        }
+
         #endregion
     }
 }

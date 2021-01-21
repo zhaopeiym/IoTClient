@@ -1,11 +1,12 @@
 ﻿using IoTClient.Models;
+using System.Collections.Generic;
 
-namespace IoTClient.Clients.ModBus
+namespace IoTClient.Clients.Modbus
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IModBusClient
+    public interface IModbusClient
     {
         /// <summary>
         /// 关闭连接
@@ -216,6 +217,13 @@ namespace IoTClient.Clients.ModBus
         /// <param name="values"></param>
         /// <returns></returns>
         Result<bool> ReadDiscrete(string beginAddress, string address, byte[] values);
+
+        /// <summary>
+        /// 分批读取（批量读取，内部进行批量计算读取）
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <returns></returns>
+        Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses);
         #endregion
 
         #region Write 写入

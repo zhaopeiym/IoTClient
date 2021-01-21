@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>这是一个物联网设备通讯协议实现客户端，将会包括主流PLC通信读取、ModBus协议、Bacnet协议等常用工业通讯协议。本组件终身开源免费，采用最宽松的MIT开源协议，您可以随意修改和商业使用（商业使用请做好评估和测试）。
+    <Description>这是一个物联网设备通讯协议实现客户端，将会包括主流PLC通信读取、Modbus协议、Bacnet协议等常用工业通讯协议。本组件终身开源免费，采用最宽松的MIT开源协议，您可以随意修改和商业使用（商业使用请做好评估和测试）。
 </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/zhaopeiym/IoTClient</PackageProjectUrl>
@@ -12,7 +12,7 @@
     <Copyright>Copyright (c) 2019 擎呐科技.  All rights reserved.</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zhaopeiym/IoTClient</RepositoryUrl>
-    <PackageTags>IoT,物联网,PLC,ModBus,Bacnet</PackageTags>
+    <PackageTags>IoT,物联网,PLC,Modbus,Bacnet</PackageTags>
     <PackageIconUrl>https://user-images.githubusercontent.com/5820324/66972725-12bccf80-f0c8-11e9-9468-3cfc57915dc9.png</PackageIconUrl>
   </PropertyGroup>
 

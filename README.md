@@ -6,7 +6,7 @@
 - 本组件终身开源免费，采用最宽松MIT协议，您也可以随意修改和商业使用（商业使用请做好评估和测试）。  
 - 开发工具：Visual Studio 2019 
 - QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
-- IoTClient Tool [下载1](https://github.com/zhaopeiym/IoTClient/releases) [下载2](https://files-cdn.cnblogs.com/files/zhaopei/IoTClient.rar) 
+- IoTClient Tool [下载1](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) [下载2](https://download.haojima.net/api/IoTClient/Download) 
 
 # 使用说明
 ## 引用组件
@@ -108,6 +108,13 @@ var requst  = result.Requst;
 var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
+
+//6、注意：关于西门子PLC读取地址
+VB263、VW263、VD263中的B、W、D分别表示byte型、word型、doubleword型，分别对应C#中的byte、ushort(UInt16)、uint(UInt32)类型。
+在本组件传入地址的时候不需要带数据类型，直接使用对应方法读取对应类型即可，如：
+client.ReadByte("V263")
+client.ReadUInt16("V263")
+client.ReadUInt32("V263")
 ```
 
 ## SiemensClient最佳实践

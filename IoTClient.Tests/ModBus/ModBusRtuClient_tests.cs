@@ -1,17 +1,55 @@
-﻿using IoTClient.Clients.ModBus;
+﻿using IoTClient.Clients.Modbus;
+using IoTClient.Enums;
+using IoTClient.Models;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace IoTClient.Tests.ModBus
+namespace IoTClient.Tests.Modbus
 {
-    public class ModBusRtuClient_tests
+    public class ModbusRtuClient_tests
     {
-        private ModBusRtuClient client;
+        private ModbusRtuClient client;
         byte stationNumber = 1;//站号
-        public ModBusRtuClient_tests()
+        public ModbusRtuClient_tests()
         {
-            client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Parity.None);
+            client = new ModbusRtuClient("COM3", 9600, 8, StopBits.One, Parity.None);
+        }
+
+        [Fact]
+        public void 批量读取()
+        {          
+            var list = new List<ModbusInput>();
+            list.Add(new ModbusInput()
+            {
+                Address = "2",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "2",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 4,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "5",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "199",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            var result = client.BatchRead(list);
         }
 
         [Fact]

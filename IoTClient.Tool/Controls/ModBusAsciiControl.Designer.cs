@@ -1,6 +1,6 @@
 ﻿namespace IoTClient.Tool.Controls
 {
-    partial class ModBusAsciiControl
+    partial class ModbusAsciiControl
     {
         /// <summary> 
         /// 必需的设计器变量。
@@ -512,7 +512,7 @@
             this.txt_content.Size = new System.Drawing.Size(855, 272);
             this.txt_content.TabIndex = 35;
             // 
-            // ModBusAsciiControl
+            // ModbusAsciiControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -520,7 +520,7 @@
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.txt_content);
-            this.Name = "ModBusAsciiControl";
+            this.Name = "ModbusAsciiControl";
             this.Size = new System.Drawing.Size(880, 450);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();

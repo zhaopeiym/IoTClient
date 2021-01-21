@@ -30,10 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IndexForm));
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.ModBusTcp = new System.Windows.Forms.TabPage();
-            this.modBusTcpControl1 = new IoTClient.Tool.ModBusTcpControl();
-            this.ModBusRtu = new System.Windows.Forms.TabPage();
-            this.ModBusAscii = new System.Windows.Forms.TabPage();
+            this.ModbusTcp = new System.Windows.Forms.TabPage();
+            this.ModbusTcpControl1 = new IoTClient.Tool.ModbusTcpControl();
+            this.ModbusRtu = new System.Windows.Forms.TabPage();
+            this.ModbusAscii = new System.Windows.Forms.TabPage();
             this.SiemensS7200 = new System.Windows.Forms.TabPage();
             this.SiemensS7200Smart = new System.Windows.Forms.TabPage();
             this.SiemensS7300 = new System.Windows.Forms.TabPage();
@@ -55,15 +55,15 @@
             this.商务合作ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
-            this.ModBusTcp.SuspendLayout();
+            this.ModbusTcp.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.ModBusTcp);
-            this.tabControl1.Controls.Add(this.ModBusRtu);
-            this.tabControl1.Controls.Add(this.ModBusAscii);
+            this.tabControl1.Controls.Add(this.ModbusTcp);
+            this.tabControl1.Controls.Add(this.ModbusRtu);
+            this.tabControl1.Controls.Add(this.ModbusAscii);
             this.tabControl1.Controls.Add(this.SiemensS7200);
             this.tabControl1.Controls.Add(this.SiemensS7200Smart);
             this.tabControl1.Controls.Add(this.SiemensS7300);
@@ -84,44 +84,44 @@
             this.tabControl1.TabIndex = 2;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
-            // ModBusTcp
+            // ModbusTcp
             // 
-            this.ModBusTcp.Controls.Add(this.modBusTcpControl1);
-            this.ModBusTcp.Location = new System.Drawing.Point(4, 22);
-            this.ModBusTcp.Name = "ModBusTcp";
-            this.ModBusTcp.Padding = new System.Windows.Forms.Padding(3);
-            this.ModBusTcp.Size = new System.Drawing.Size(886, 448);
-            this.ModBusTcp.TabIndex = 0;
-            this.ModBusTcp.Text = "ModBusTcp";
-            this.ModBusTcp.UseVisualStyleBackColor = true;
+            this.ModbusTcp.Controls.Add(this.ModbusTcpControl1);
+            this.ModbusTcp.Location = new System.Drawing.Point(4, 22);
+            this.ModbusTcp.Name = "ModbusTcp";
+            this.ModbusTcp.Padding = new System.Windows.Forms.Padding(3);
+            this.ModbusTcp.Size = new System.Drawing.Size(886, 448);
+            this.ModbusTcp.TabIndex = 0;
+            this.ModbusTcp.Text = "ModbusTcp";
+            this.ModbusTcp.UseVisualStyleBackColor = true;
             // 
-            // modBusTcpControl1
+            // ModbusTcpControl1
             // 
-            this.modBusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modBusTcpControl1.Location = new System.Drawing.Point(3, 3);
-            this.modBusTcpControl1.Name = "modBusTcpControl1";
-            this.modBusTcpControl1.Size = new System.Drawing.Size(880, 442);
-            this.modBusTcpControl1.TabIndex = 0;
+            this.ModbusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ModbusTcpControl1.Location = new System.Drawing.Point(3, 3);
+            this.ModbusTcpControl1.Name = "ModbusTcpControl1";
+            this.ModbusTcpControl1.Size = new System.Drawing.Size(880, 442);
+            this.ModbusTcpControl1.TabIndex = 0;
             // 
-            // ModBusRtu
+            // ModbusRtu
             // 
-            this.ModBusRtu.Location = new System.Drawing.Point(4, 22);
-            this.ModBusRtu.Name = "ModBusRtu";
-            this.ModBusRtu.Padding = new System.Windows.Forms.Padding(3);
-            this.ModBusRtu.Size = new System.Drawing.Size(886, 448);
-            this.ModBusRtu.TabIndex = 4;
-            this.ModBusRtu.Text = "ModBusRtu";
-            this.ModBusRtu.UseVisualStyleBackColor = true;
+            this.ModbusRtu.Location = new System.Drawing.Point(4, 22);
+            this.ModbusRtu.Name = "ModbusRtu";
+            this.ModbusRtu.Padding = new System.Windows.Forms.Padding(3);
+            this.ModbusRtu.Size = new System.Drawing.Size(886, 448);
+            this.ModbusRtu.TabIndex = 4;
+            this.ModbusRtu.Text = "ModbusRtu";
+            this.ModbusRtu.UseVisualStyleBackColor = true;
             // 
-            // ModBusAscii
+            // ModbusAscii
             // 
-            this.ModBusAscii.Location = new System.Drawing.Point(4, 22);
-            this.ModBusAscii.Name = "ModBusAscii";
-            this.ModBusAscii.Padding = new System.Windows.Forms.Padding(3);
-            this.ModBusAscii.Size = new System.Drawing.Size(886, 448);
-            this.ModBusAscii.TabIndex = 7;
-            this.ModBusAscii.Text = "ModBusAscii";
-            this.ModBusAscii.UseVisualStyleBackColor = true;
+            this.ModbusAscii.Location = new System.Drawing.Point(4, 22);
+            this.ModbusAscii.Name = "ModbusAscii";
+            this.ModbusAscii.Padding = new System.Windows.Forms.Padding(3);
+            this.ModbusAscii.Size = new System.Drawing.Size(886, 448);
+            this.ModbusAscii.TabIndex = 7;
+            this.ModbusAscii.Text = "ModbusAscii";
+            this.ModbusAscii.UseVisualStyleBackColor = true;
             // 
             // SiemensS7200
             // 
@@ -330,7 +330,7 @@
             this.Text = "IoTClient Tool";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IndexForm_FormClosing);
             this.tabControl1.ResumeLayout(false);
-            this.ModBusTcp.ResumeLayout(false);
+            this.ModbusTcp.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -341,9 +341,9 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage ModBusTcp;
+        private System.Windows.Forms.TabPage ModbusTcp;
         private System.Windows.Forms.TabPage SiemensS7200Smart;
-        private ModBusTcpControl modBusTcpControl1;
+        private ModbusTcpControl ModbusTcpControl1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
@@ -353,10 +353,10 @@
         private System.Windows.Forms.TabPage BACnet;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.TabPage Ports;
-        private System.Windows.Forms.TabPage ModBusRtu;
+        private System.Windows.Forms.TabPage ModbusRtu;
         private System.Windows.Forms.TabPage MitsubishiMC;
         private System.Windows.Forms.TabPage OmronFinsTcp;
-        private System.Windows.Forms.TabPage ModBusAscii;
+        private System.Windows.Forms.TabPage ModbusAscii;
         private System.Windows.Forms.TabPage SiemensS7300;
         private System.Windows.Forms.TabPage SiemensS7400;
         private System.Windows.Forms.TabPage SiemensS71200;

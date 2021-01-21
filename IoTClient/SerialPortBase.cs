@@ -97,12 +97,16 @@ namespace IoTClient
         /// <returns></returns>
         protected byte[] SerialPortRead(SerialPort serialPort)
         {
-            //延时处理
-            if (serialPort.BytesToRead == 0) Thread.Sleep(20);
-            if (serialPort.BytesToRead == 0) Thread.Sleep(40);
-            if (serialPort.BytesToRead == 0) Thread.Sleep(80);
+            DateTime beginTime = DateTime.Now;
+            //在没有取到数据且没有超时的情况，延时处理
+            while (serialPort.BytesToRead == 0 && DateTime.Now - beginTime <= TimeSpan.FromMilliseconds(serialPort.ReadTimeout))
+            {
+                //延时处理
+                Thread.Sleep(20);
+            }          
             byte[] buffer = new byte[serialPort.BytesToRead];
             var length = serialPort.Read(buffer, 0, buffer.Length);
+            //TODO 是否 length 可能 不等于 buffer.Length ??
             return buffer;
         }
     }

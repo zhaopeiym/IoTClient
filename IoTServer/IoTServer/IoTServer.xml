@@ -49,72 +49,72 @@
             停止服务
             </summary>
         </member>
-        <member name="T:IoTServer.Servers.ModBus.ModBusAsciiServer">
+        <member name="T:IoTServer.Servers.Modbus.ModbusAsciiServer">
             <summary>
-            ModBusAscii 服务端模拟
+            ModbusAscii 服务端模拟
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusAsciiServer.Start">
+        <member name="M:IoTServer.Servers.Modbus.ModbusAsciiServer.Start">
             <summary>
             启动服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusAsciiServer.Stop">
+        <member name="M:IoTServer.Servers.Modbus.ModbusAsciiServer.Stop">
             <summary>
             停止服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusAsciiServer.DataReceived(System.Object,System.IO.Ports.SerialDataReceivedEventArgs)">
+        <member name="M:IoTServer.Servers.Modbus.ModbusAsciiServer.DataReceived(System.Object,System.IO.Ports.SerialDataReceivedEventArgs)">
             <summary>
             接收数据回调用
             </summary>
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="T:IoTServer.Servers.ModBus.ModBusRtuServer">
+        <member name="T:IoTServer.Servers.Modbus.ModbusRtuServer">
             <summary>
-            ModBusRtu 服务端模拟
+            ModbusRtu 服务端模拟
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.Start">
+        <member name="M:IoTServer.Servers.Modbus.ModbusRtuServer.Start">
             <summary>
             启动服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.Stop">
+        <member name="M:IoTServer.Servers.Modbus.ModbusRtuServer.Stop">
             <summary>
             停止服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusRtuServer.DataReceived(System.Object,System.IO.Ports.SerialDataReceivedEventArgs)">
+        <member name="M:IoTServer.Servers.Modbus.ModbusRtuServer.DataReceived(System.Object,System.IO.Ports.SerialDataReceivedEventArgs)">
             <summary>
             接收数据回调用
             </summary>
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="T:IoTServer.Servers.ModBus.ModBusTcpServer">
+        <member name="T:IoTServer.Servers.Modbus.ModbusTcpServer">
             <summary>
-            ModBusTcp 服务端模拟
+            ModbusTcp 服务端模拟
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Start">
+        <member name="M:IoTServer.Servers.Modbus.ModbusTcpServer.Start">
             <summary>
             启动服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Stop">
+        <member name="M:IoTServer.Servers.Modbus.ModbusTcpServer.Stop">
             <summary>
             停止服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Accept(System.Net.Sockets.Socket)">
+        <member name="M:IoTServer.Servers.Modbus.ModbusTcpServer.Accept(System.Net.Sockets.Socket)">
             <summary>
             客户端连接到服务端
             </summary>
             <param name="socket"></param>
         </member>
-        <member name="M:IoTServer.Servers.ModBus.ModBusTcpServer.Receive(System.Net.Sockets.Socket)">
+        <member name="M:IoTServer.Servers.Modbus.ModbusTcpServer.Receive(System.Net.Sockets.Socket)">
             <summary>
             接收客户端发送的消息
             </summary>

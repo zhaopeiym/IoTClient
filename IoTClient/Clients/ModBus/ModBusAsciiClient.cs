@@ -3,15 +3,13 @@ using IoTClient.Models;
 using System;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
-namespace IoTClient.Clients.ModBus
+namespace IoTClient.Clients.Modbus
 {
     /// <summary>
-    /// ModBusAscii
+    /// ModbusAscii
     /// </summary>
-    public class ModBusAsciiClient : SerialPortBase
+    public class ModbusAsciiClient : ModbusSerialBase, IModbusClient
     {
         /// <summary>
         /// 构造函数
@@ -20,34 +18,12 @@ namespace IoTClient.Clients.ModBus
         /// <param name="baudRate">波特率</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
-        public ModBusAsciiClient(string portName, int baudRate, int dataBits, StopBits stopBits)
+        /// <param name="parity">奇偶校验</param>
+        /// <param name="timeout">超时时间（毫秒）</param>
+        public ModbusAsciiClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500)
+            : base(portName, baudRate, dataBits, stopBits, parity, timeout)
         {
-            if (serialPort == null) serialPort = new SerialPort();
-            serialPort.PortName = portName;
-            serialPort.BaudRate = baudRate;
-            serialPort.DataBits = dataBits;
-            serialPort.StopBits = stopBits;
-            serialPort.Encoding = Encoding.ASCII;
-#if !DEBUG
-            serialPort.ReadTimeout = 1000;//1秒
-#endif
-
         }
-
-        #region 发送报文，并获取响应报文
-        /// <summary>
-        /// 发送报文，并获取响应报文
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        public byte[] SendPackage(byte[] command)
-        {
-            //发送命令
-            serialPort.Write(command, 0, command.Length);
-            //获取响应报文
-            return SerialPortRead(serialPort);
-        }
-        #endregion
 
         #region  Read 读取
         /// <summary>
@@ -58,7 +34,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
+        public override Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
         {
             if (isAutoOpen) Connect();
 
@@ -113,236 +89,6 @@ namespace IoTClient.Clients.ModBus
             }
             return result;
         }
-
-        /// <summary>
-        /// 读取Int16
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<short> ReadInt16(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<short>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToInt16(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取UInt16
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<ushort> ReadUInt16(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<ushort>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToUInt16(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取Int32
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<int> ReadInt32(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 2);
-            var result = new Result<int>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToInt32(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取UInt32
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<uint> ReadUInt32(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 2);
-            var result = new Result<uint>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToUInt32(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取Int64
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<long> ReadInt64(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 4);
-            var result = new Result<long>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToInt64(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取UInt64
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<ulong> ReadUInt64(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 4);
-            var result = new Result<ulong>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToUInt64(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取Float
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<float> ReadFloat(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 2);
-            var result = new Result<float>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToSingle(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取Double
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<double> ReadDouble(string address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            var readResut = Read(address, stationNumber, functionCode, readLength: 4);
-            var result = new Result<double>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToDouble(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取线圈
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public Result<bool> ReadCoil(string address, byte stationNumber = 1, byte functionCode = 1)
-        {
-            var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<bool>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
-        }
-
-        /// <summary>
-        /// 读取离散
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="stationNumber"></param>
-        /// <param name="functionCode"></param>
-        /// <returns></returns>
-        public Result<bool> ReadDiscrete(string address, byte stationNumber = 1, byte functionCode = 2)
-        {
-            var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<bool>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
-            if (result.IsSucceed)
-                result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
-        }
         #endregion
 
         #region Write 写入
@@ -353,7 +99,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="value"></param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
-        public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
+        public override Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
         {
             if (isAutoOpen) Connect();
             var result = new Result();
@@ -411,7 +157,7 @@ namespace IoTClient.Clients.ModBus
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
         /// <returns></returns>
-        public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
+        public override Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
         {
             if (isAutoOpen) Connect();
 
@@ -459,178 +205,6 @@ namespace IoTClient.Clients.ModBus
                 if (isAutoOpen) Dispose();
             }
             return result;
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, short value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, ushort value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, int value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, uint value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, long value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, ulong value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, float value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-
-        /// <summary>
-        /// 写入
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value">写入的值</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        public Result Write(string address, double value, byte stationNumber = 1, byte functionCode = 16)
-        {
-            var values = BitConverter.GetBytes(value).Reverse().ToArray();
-            return Write(address, values, stationNumber, functionCode);
-        }
-        #endregion
-
-        #region 获取命令
-
-        /// <summary>
-        /// 获取读取命令
-        /// </summary>
-        /// <param name="address">寄存器起始地址</param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <param name="length">读取长度</param>
-        /// <returns></returns>
-        public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length)
-        {
-            var readAddress = ushort.Parse(address?.Trim());
-            byte[] buffer = new byte[6];
-            buffer[0] = stationNumber;  //站号
-            buffer[1] = functionCode;   //功能码
-            buffer[2] = BitConverter.GetBytes(readAddress)[1];
-            buffer[3] = BitConverter.GetBytes(readAddress)[0];//寄存器地址
-            buffer[4] = BitConverter.GetBytes(length)[1];
-            buffer[5] = BitConverter.GetBytes(length)[0];//表示request 寄存器的长度(寄存器个数)
-            return buffer;
-        }
-
-        /// <summary>
-        /// 获取写入命令
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="values"></param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode)
-        {
-            var writeAddress = ushort.Parse(address?.Trim());
-            byte[] buffer = new byte[7 + values.Length];
-            buffer[0] = stationNumber; //站号
-            buffer[1] = functionCode;  //功能码
-            buffer[2] = BitConverter.GetBytes(writeAddress)[1];
-            buffer[3] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
-            buffer[4] = (byte)(values.Length / 2 / 256);
-            buffer[5] = (byte)(values.Length / 2 % 256);//写寄存器数量(除2是两个字节一个寄存器，寄存器16位。除以256是byte最大存储255。)              
-            buffer[6] = (byte)(values.Length);          //写字节的个数
-            values.CopyTo(buffer, 7);                   //把目标值附加到数组后面
-            return buffer;
-        }
-
-        /// <summary>
-        /// 获取线圈写入命令
-        /// </summary>
-        /// <param name="address">寄存器地址</param>
-        /// <param name="value"></param>
-        /// <param name="stationNumber">站号</param>
-        /// <param name="functionCode">功能码</param>
-        /// <returns></returns>
-        public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode)
-        {
-            var writeAddress = ushort.Parse(address?.Trim());
-            byte[] buffer = new byte[6];
-            buffer[0] = stationNumber;//站号
-            buffer[1] = functionCode; //功能码
-            buffer[2] = BitConverter.GetBytes(writeAddress)[1];
-            buffer[3] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
-            buffer[4] = (byte)(value ? 0xFF : 0x00);     //此处只可以是FF表示闭合00表示断开，其他数值非法
-            buffer[5] = 0x00;
-            return buffer;
         }
 
         #endregion

@@ -1,14 +1,14 @@
 ﻿using IoTServer.Common;
-using IoTServer.Servers.ModBus;
+using IoTServer.Servers.Modbus;
 using IoTServer.Servers.PLC;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace IoTClient.Tests.Server_tests
 {
-    public class ModBusTcpServer_test
+    public class ModbusTcpServer_test
     {
-        public ModBusTcpServer_test()
+        public ModbusTcpServer_test()
         {
             DataPersist.LoadData();
         }
@@ -16,7 +16,7 @@ namespace IoTClient.Tests.Server_tests
         [Fact]
         public async Task StartAsync()
         {
-            ModBusTcpServer server = new ModBusTcpServer(int.Parse("LocalPort".GetConfig()));
+            ModbusTcpServer server = new ModbusTcpServer(int.Parse("LocalPort".GetConfig()));
 
             server.Start();
 

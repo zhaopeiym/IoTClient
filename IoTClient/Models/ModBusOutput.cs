@@ -4,7 +4,7 @@ using System.Text;
 
 namespace IoTClient.Models
 {
-    public class ModBusOutput
+    public class ModbusOutput
     {
         /// <summary>
         /// 地址

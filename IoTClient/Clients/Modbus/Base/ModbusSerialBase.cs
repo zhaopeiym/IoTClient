@@ -3,73 +3,40 @@ using IoTClient.Enums;
 using IoTClient.Models;
 using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
+using System.Text;
 
 namespace IoTClient.Clients.Modbus
 {
-    /// <summary>
-    /// ModbusTcp协议客户端
-    /// </summary>
-    public class ModbusTcpClient : SocketBase, IModbusClient
+    public abstract class ModbusSerialBase : SerialPortBase, IModbusClient
     {
-        private IPEndPoint ipAndPoint;
-        private int timeout = -1;
-
         /// <summary>
-        /// 
+        /// 构造函数
         /// </summary>
-        /// <param name="ipAndPoint"></param>
+        /// <param name="portName">COM端口名称</param>
+        /// <param name="baudRate">波特率</param>
+        /// <param name="dataBits">数据位</param>
+        /// <param name="stopBits">停止位</param>
+        /// <param name="parity">奇偶校验</param>
         /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusTcpClient(IPEndPoint ipAndPoint, int timeout = 1500)
+        public ModbusSerialBase(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500)
         {
-            this.timeout = timeout;
-            this.ipAndPoint = ipAndPoint;
-        }
+            if (serialPort == null) serialPort = new SerialPort();
+            serialPort.PortName = portName;
+            serialPort.BaudRate = baudRate;
+            serialPort.DataBits = dataBits;
+            serialPort.StopBits = stopBits;
+            serialPort.Encoding = Encoding.ASCII;
+            serialPort.Parity = parity;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusTcpClient(string ip, int port, int timeout = 1500)
-        {
-            this.timeout = timeout;
-            this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-        }
+            serialPort.ReadTimeout = timeout;
+            serialPort.WriteTimeout = timeout;
+#if DEBUG
+            serialPort.ReadTimeout *= 10;
+            serialPort.WriteTimeout *= 10;
+#endif
 
-        /// <summary>
-        /// 连接
-        /// </summary>
-        /// <returns></returns>
-        protected override Result Connect()
-        {
-            var result = new Result();
-            socket?.Close();
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
-                //超时时间设置
-                socket.ReceiveTimeout = timeout;
-                socket.SendTimeout = timeout;
-#if DEBUG               
-                socket.ReceiveTimeout *= 10;
-                socket.SendTimeout *= 10;
-#endif                 
-
-                //连接
-                socket.Connect(ipAndPoint);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                socket?.SafeClose();
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-                return result;
-            }
         }
 
         #region 发送报文，并获取响应报文
@@ -84,17 +51,14 @@ namespace IoTClient.Clients.Modbus
             lock (this)
             {
                 //发送命令
-                socket.Send(command);
+                serialPort.Write(command, 0, command.Length);
                 //获取响应报文
-                var headPackage = SocketRead(socket, 8);
-                int length = headPackage[4] * 256 + headPackage[5] - 2;
-                var dataPackage = SocketRead(socket, length);
-                return headPackage.Concat(dataPackage).ToArray();
+                return SerialPortRead(serialPort);
             }
         }
         #endregion
 
-        #region Read 读取
+        #region  Read 读取
         /// <summary>
         /// 读取数据
         /// </summary>
@@ -103,51 +67,7 @@ namespace IoTClient.Clients.Modbus
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
-        {
-            if (!socket?.Connected ?? true) Connect();
-            var result = new Result<byte[]>();
-            try
-            {
-                var chenkHead = GetCheckHead(functionCode);
-                //1 获取命令（组装报文）
-                byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength, chenkHead);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                //获取响应报文
-                var dataPackage = SendPackage(command);
-                byte[] resultBuffer = new byte[dataPackage.Length - 9];
-                Array.Copy(dataPackage, 9, resultBuffer, 0, resultBuffer.Length);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                //4 获取响应报文数据（字节数组形式）                
-                result.Value = resultBuffer.Reverse().ToArray();
-                if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
-                {
-                    result.IsSucceed = false;
-                    result.Err = "响应结果校验失败";
-                    result.ErrList.Add("响应结果校验失败");
-                }
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                    socket?.SafeClose();
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result;
-        }
+        public abstract Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1);
 
         /// <summary>
         /// 读取Int16
@@ -170,11 +90,6 @@ namespace IoTClient.Clients.Modbus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
             return result;
-        }
-
-        public Result<short> ReadInt16(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadInt16(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -200,11 +115,6 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<ushort> ReadUInt16(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadUInt16(address.ToString(), stationNumber, functionCode);
-        }
-
         /// <summary>
         /// 读取Int32
         /// </summary>
@@ -228,12 +138,6 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<int> ReadInt32(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadInt32(address.ToString(), stationNumber, functionCode);
-        }
-
-
         /// <summary>
         /// 读取UInt32
         /// </summary>
@@ -255,11 +159,6 @@ namespace IoTClient.Clients.Modbus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
             return result;
-        }
-
-        public Result<uint> ReadUInt32(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadUInt32(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -285,11 +184,6 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<long> ReadInt64(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadInt64(address.ToString(), stationNumber, functionCode);
-        }
-
         /// <summary>
         /// 读取UInt64
         /// </summary>
@@ -311,11 +205,6 @@ namespace IoTClient.Clients.Modbus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
             return result;
-        }
-
-        public Result<ulong> ReadUInt64(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadUInt64(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -341,11 +230,6 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<float> ReadFloat(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadFloat(address.ToString(), stationNumber, functionCode);
-        }
-
         /// <summary>
         /// 读取Double
         /// </summary>
@@ -367,11 +251,6 @@ namespace IoTClient.Clients.Modbus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
             return result;
-        }
-
-        public Result<double> ReadDouble(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadDouble(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -397,15 +276,10 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<bool> ReadCoil(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadCoil(address.ToString(), stationNumber, functionCode);
-        }
-
         /// <summary>
         /// 读取离散
         /// </summary>
-        /// <param name="address">读取地址</param>
+        /// <param name="address"></param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
         /// <returns></returns>
@@ -423,11 +297,6 @@ namespace IoTClient.Clients.Modbus
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result;
-        }
-
-        public Result<bool> ReadDiscrete(int address, byte stationNumber = 1, byte functionCode = 3)
-        {
-            return ReadDiscrete(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
@@ -460,11 +329,6 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
-        public Result<short> ReadInt16(int beginAddress, int address, byte[] values)
-        {
-            return ReadInt16(beginAddress.ToString(), address.ToString(), values);
-        }
-
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -493,11 +357,6 @@ namespace IoTClient.Clients.Modbus
                     Err = ex.Message
                 };
             }
-        }
-
-        public Result<ushort> ReadUInt16(int beginAddress, int address, byte[] values)
-        {
-            return ReadUInt16(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -530,11 +389,6 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
-        public Result<int> ReadInt32(int beginAddress, int address, byte[] values)
-        {
-            return ReadInt32(beginAddress.ToString(), address.ToString(), values);
-        }
-
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -563,11 +417,6 @@ namespace IoTClient.Clients.Modbus
                     Err = ex.Message
                 };
             }
-        }
-
-        public Result<uint> ReadUInt32(int beginAddress, int address, byte[] values)
-        {
-            return ReadUInt32(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -600,11 +449,6 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
-        public Result<long> ReadInt64(int beginAddress, int address, byte[] values)
-        {
-            return ReadInt64(beginAddress.ToString(), address.ToString(), values);
-        }
-
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -633,11 +477,6 @@ namespace IoTClient.Clients.Modbus
                     Err = ex.Message
                 };
             }
-        }
-
-        public Result<ulong> ReadUInt64(int beginAddress, int address, byte[] values)
-        {
-            return ReadUInt64(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -670,11 +509,6 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
-        public Result<float> ReadFloat(int beginAddress, int address, byte[] values)
-        {
-            return ReadFloat(beginAddress.ToString(), address.ToString(), values);
-        }
-
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -703,11 +537,6 @@ namespace IoTClient.Clients.Modbus
                     Err = ex.Message
                 };
             }
-        }
-
-        public Result<double> ReadDouble(int beginAddress, int address, byte[] values)
-        {
-            return ReadDouble(beginAddress.ToString(), address.ToString(), values);
         }
 
         /// <summary>
@@ -744,11 +573,6 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
-        public Result<bool> ReadCoil(int beginAddress, int address, byte[] values)
-        {
-            return ReadCoil(beginAddress.ToString(), address.ToString(), values);
-        }
-
         /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
@@ -782,108 +606,6 @@ namespace IoTClient.Clients.Modbus
                 };
             }
         }
-
-        public Result<bool> ReadDiscrete(int beginAddress, int address, byte[] values)
-        {
-            return ReadDiscrete(beginAddress.ToString(), address.ToString(), values);
-        }
-
-        #region 假的批量 注释
-        ///// <summary>
-        ///// 分批读取【假的批量，内部实际还是循环读取】
-        ///// </summary>
-        ///// <param name="addresses">地址集合</param>
-        ///// <param name="batchNumber">批量读取数量</param>
-        ///// <returns></returns>
-        //public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber = 19)
-        //{
-        //    var result = new Result<Dictionary<string, object>>();
-        //    result.Value = new Dictionary<string, object>();
-
-        //    var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
-        //    for (int i = 0; i < batchCount; i++)
-        //    {
-        //        var tempAddresses = addresses.Skip(i * batchNumber).Take(batchNumber).ToDictionary(t => t.Key, t => t.Value);
-        //        var tempResult = BatchRead(tempAddresses);
-        //        if (tempResult.IsSucceed)
-        //        {
-        //            foreach (var item in tempResult.Value)
-        //            {
-        //                result.Value.Add(item.Key, item.Value);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            result.IsSucceed = false;
-        //            result.Err = tempResult.Err;
-        //        }
-        //    }
-        //    return result.EndTime();
-        //}
-
-        //private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses)
-        //{
-        //    var result = new Result<Dictionary<string, object>>();
-        //    result.Value = new Dictionary<string, object>();
-        //    try
-        //    {
-        //        foreach (var item in addresses)
-        //        {
-        //            var richText = item.Key.Split('_');
-        //            if (richText.Length < 2)
-        //                continue; //必须传入站号
-        //            var stationNumber = byte.Parse(richText[0]);
-        //            var addresse = richText[1];
-        //            var functionCode = richText.Length >= 3 ? byte.Parse(richText[2]) : (byte)3;
-        //            object value;
-        //            switch (item.Value)
-        //            {
-        //                case DataTypeEnum.Bool:
-        //                    value = ReadDiscrete(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                //case DataTypeEnum.Byte:
-        //                //    value = readResut[0];
-        //                //    break;
-        //                case DataTypeEnum.Int16:
-        //                    value = ReadInt16(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.UInt16:
-        //                    value = ReadUInt16(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Int32:
-        //                    value = ReadInt32(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.UInt32:
-        //                    value = ReadUInt32(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Int64:
-        //                    value = ReadInt64(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.UInt64:
-        //                    value = ReadUInt64(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Float:
-        //                    value = ReadFloat(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Double:
-        //                    value = ReadDouble(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                default:
-        //                    throw new Exception($"未定义数据类型：{item.Value}");
-        //            }
-        //            result.Value.Add(item.Key, value);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.IsSucceed = false;
-        //        result.Err = ex.Message;
-        //        result.Exception = ex;
-        //        result.ErrList.Add(ex.Message);
-        //    }
-        //    return result.EndTime();
-        //} 
-        #endregion
 
         /// <summary>
         /// 分批读取（批量读取，内部进行批量计算读取）
@@ -991,33 +713,33 @@ namespace IoTClient.Clients.Modbus
                     switch (item.Value)
                     {
                         case DataTypeEnum.Bool:
-                            tempVaue = ReadCoil(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadCoil(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.Byte:
                             throw new Exception("Err BatchRead 未定义类型 -2");
                         case DataTypeEnum.Int16:
-                            tempVaue = ReadInt16(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadInt16(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.UInt16:
-                            tempVaue = ReadUInt16(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadUInt16(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.Int32:
-                            tempVaue = ReadInt32(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadInt32(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.UInt32:
-                            tempVaue = ReadUInt32(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadUInt32(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.Int64:
-                            tempVaue = ReadInt64(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadInt64(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.UInt64:
-                            tempVaue = ReadUInt64(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadUInt64(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.Float:
-                            tempVaue = ReadFloat(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadFloat(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         case DataTypeEnum.Double:
-                            tempVaue = ReadDouble(minAddress, item.Key, rValue).Value;
+                            tempVaue = ReadDouble(minAddress.ToString(), item.Key.ToString(), rValue).Value;
                             break;
                         default:
                             throw new Exception("Err BatchRead 未定义类型 -3");
@@ -1038,102 +760,24 @@ namespace IoTClient.Clients.Modbus
         #endregion
 
         #region Write 写入
-
         /// <summary>
         /// 线圈写入
         /// </summary>
-        /// <param name="address">读取地址</param>
+        /// <param name="address"></param>
         /// <param name="value"></param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
-        public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
-        {
-            if (!socket?.Connected ?? true) Connect();
-            var result = new Result();
-            try
-            {
-                var chenkHead = GetCheckHead(functionCode);
-                var command = GetWriteCoilCommand(address, value, stationNumber, functionCode, chenkHead);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var dataPackage = SendPackage(command);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
-                {
-                    result.IsSucceed = false;
-                    result.Err = "响应结果校验失败";
-                    result.ErrList.Add("响应结果校验失败");
-                }
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                    socket?.SafeClose();
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result;
-        }
+        public abstract Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5);
 
         /// <summary>
         /// 写入
         /// </summary>
-        /// <param name="address">读取地址</param>
-        /// <param name="values">批量读取的值</param>
+        /// <param name="address"></param>
+        /// <param name="values"></param>
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
         /// <returns></returns>
-        public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
-        {
-            if (!socket?.Connected ?? true) Connect();
-
-            var result = new Result();
-            try
-            {
-                var chenkHead = GetCheckHead(functionCode);
-                var command = GetWriteCommand(address, values, stationNumber, functionCode, chenkHead);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var dataPackage = SendPackage(command);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
-                {
-                    result.IsSucceed = false;
-                    result.Err = "响应结果校验失败";
-                    result.ErrList.Add("响应结果校验失败");
-                }
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                    socket?.SafeClose();
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
-                }
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result;
-        }
+        public abstract Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16);
 
         /// <summary>
         /// 写入
@@ -1243,16 +887,6 @@ namespace IoTClient.Clients.Modbus
         #region 获取命令
 
         /// <summary>
-        /// 获取随机校验头
-        /// </summary>
-        /// <returns></returns>
-        private byte[] GetCheckHead(int seed)
-        {
-            var random = new Random(DateTime.Now.Millisecond + seed);
-            return new byte[] { (byte)random.Next(255), (byte)random.Next(255) };
-        }
-
-        /// <summary>
         /// 获取读取命令
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
@@ -1260,23 +894,16 @@ namespace IoTClient.Clients.Modbus
         /// <param name="functionCode">功能码</param>
         /// <param name="length">读取长度</param>
         /// <returns></returns>
-        public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length, byte[] check = null)
+        public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length)
         {
             var readAddress = ushort.Parse(address?.Trim());
-            byte[] buffer = new byte[12];
-            buffer[0] = check?[0] ?? 0x19;
-            buffer[1] = check?[1] ?? 0xB2;//Client发出的检验信息
-            buffer[2] = 0x00;
-            buffer[3] = 0x00;//表示tcp/ip 的协议的Modbus的协议
-            buffer[4] = 0x00;
-            buffer[5] = 0x06;//表示的是该字节以后的字节长度
-
-            buffer[6] = stationNumber;  //站号
-            buffer[7] = functionCode;   //功能码
-            buffer[8] = BitConverter.GetBytes(readAddress)[1];
-            buffer[9] = BitConverter.GetBytes(readAddress)[0];//寄存器地址
-            buffer[10] = BitConverter.GetBytes(length)[1];
-            buffer[11] = BitConverter.GetBytes(length)[0];//表示request 寄存器的长度(寄存器个数)
+            byte[] buffer = new byte[6];
+            buffer[0] = stationNumber;  //站号
+            buffer[1] = functionCode;   //功能码
+            buffer[2] = BitConverter.GetBytes(readAddress)[1];
+            buffer[3] = BitConverter.GetBytes(readAddress)[0];//寄存器地址
+            buffer[4] = BitConverter.GetBytes(length)[1];
+            buffer[5] = BitConverter.GetBytes(length)[0];//表示request 寄存器的长度(寄存器个数)
             return buffer;
         }
 
@@ -1284,27 +911,22 @@ namespace IoTClient.Clients.Modbus
         /// 获取写入命令
         /// </summary>
         /// <param name="address">寄存器地址</param>
-        /// <param name="values">批量读取的值</param>
+        /// <param name="values"></param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode, byte[] check = null)
+        public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode)
         {
             var writeAddress = ushort.Parse(address?.Trim());
-            byte[] buffer = new byte[13 + values.Length];
-            buffer[0] = check?[0] ?? 0x19;
-            buffer[1] = check?[1] ?? 0xB2;//检验信息，用来验证response是否串数据了           
-            buffer[4] = BitConverter.GetBytes(7 + values.Length)[1];
-            buffer[5] = BitConverter.GetBytes(7 + values.Length)[0];//表示的是header handle后面还有多长的字节
-
-            buffer[6] = stationNumber; //站号
-            buffer[7] = functionCode;  //功能码
-            buffer[8] = BitConverter.GetBytes(writeAddress)[1];
-            buffer[9] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
-            buffer[10] = (byte)(values.Length / 2 / 256);
-            buffer[11] = (byte)(values.Length / 2 % 256);//写寄存器数量(除2是两个字节一个寄存器，寄存器16位。除以256是byte最大存储255。)              
-            buffer[12] = (byte)(values.Length);          //写字节的个数
-            values.CopyTo(buffer, 13);                   //把目标值附加到数组后面
+            byte[] buffer = new byte[7 + values.Length];
+            buffer[0] = stationNumber; //站号
+            buffer[1] = functionCode;  //功能码
+            buffer[2] = BitConverter.GetBytes(writeAddress)[1];
+            buffer[3] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
+            buffer[4] = (byte)(values.Length / 2 / 256);
+            buffer[5] = (byte)(values.Length / 2 % 256);//写寄存器数量(除2是两个字节一个寄存器，寄存器16位。除以256是byte最大存储255。)              
+            buffer[6] = (byte)(values.Length);          //写字节的个数
+            values.CopyTo(buffer, 7);                   //把目标值附加到数组后面
             return buffer;
         }
 
@@ -1316,24 +938,19 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <returns></returns>
-        public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode, byte[] check = null)
+        public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode)
         {
             var writeAddress = ushort.Parse(address?.Trim());
-            byte[] buffer = new byte[12];
-            buffer[0] = check?[0] ?? 0x19;
-            buffer[1] = check?[1] ?? 0xB2;//Client发出的检验信息     
-            buffer[4] = 0x00;
-            buffer[5] = 0x06;//表示的是该字节以后的字节长度
-
-            buffer[6] = stationNumber;//站号
-            buffer[7] = functionCode; //功能码
-            buffer[8] = BitConverter.GetBytes(writeAddress)[1];
-            buffer[9] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
-            buffer[10] = (byte)(value ? 0xFF : 0x00);     //此处只可以是FF表示闭合00表示断开，其他数值非法
-            buffer[11] = 0x00;
+            byte[] buffer = new byte[6];
+            buffer[0] = stationNumber;//站号
+            buffer[1] = functionCode; //功能码
+            buffer[2] = BitConverter.GetBytes(writeAddress)[1];
+            buffer[3] = BitConverter.GetBytes(writeAddress)[0];//寄存器地址
+            buffer[4] = (byte)(value ? 0xFF : 0x00);     //此处只可以是FF表示闭合00表示断开，其他数值非法
+            buffer[5] = 0x00;
             return buffer;
         }
 
-        #endregion      
+        #endregion
     }
 }

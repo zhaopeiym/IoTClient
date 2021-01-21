@@ -1,7 +1,7 @@
-﻿using IoTClient.Clients.ModBus;
+﻿using IoTClient.Clients.Modbus;
 using IoTClient.Common.Helpers;
 using IoTServer.Common;
-using IoTServer.Servers.ModBus;
+using IoTServer.Servers.Modbus;
 using System;
 using System.Drawing;
 using System.IO.Ports;
@@ -11,17 +11,17 @@ using System.Windows.Forms;
 
 namespace IoTClient.Tool.Controls
 {
-    public partial class ModBusRtuControl : UserControl
+    public partial class ModbusRtuControl : UserControl
     {
-        private ModBusRtuClient client;
-        private ModBusRtuServer server;
+        private ModbusRtuClient client;
+        private ModbusRtuServer server;
 
         int[] BaudRateList = new int[] { 9600, 4800, 2400, 1200, 600, 14400, 300, 19200, 110, 38400, 56000, 57600, 115200, 128000, 256000 };
         int[] DataBitList = new int[] { 8, 7, 6 };
         StopBits[] StopBitsList = new StopBits[] { StopBits.One, StopBits.Two, StopBits.OnePointFive };
         Parity[] ParityList = new Parity[] { Parity.None, Parity.Odd, Parity.Even };
 
-        public ModBusRtuControl()
+        public ModbusRtuControl()
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
@@ -72,8 +72,8 @@ namespace IoTClient.Tool.Controls
         /// </summary>
         public void UpdatePortNames()
         {
-            cb_portNameSend.DataSource = ModBusRtuClient.GetPortNames();
-            cb_portNameSend_server.DataSource = ModBusRtuClient.GetPortNames();
+            cb_portNameSend.DataSource = ModbusRtuClient.GetPortNames();
+            cb_portNameSend_server.DataSource = ModbusRtuClient.GetPortNames();
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace IoTClient.Tool.Controls
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
                 var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 client?.Close();
-                client = new ModBusRtuClient(PortName, BaudRate, DataBits, StopBits, parity);
+                client = new ModbusRtuClient(PortName, BaudRate, DataBits, StopBits, parity);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -154,7 +154,7 @@ namespace IoTClient.Tool.Controls
                                     stationNumber = (byte)(i + 1);
                                     if (but_open.Enabled) return;
                                     client?.Close();
-                                    client = new ModBusRtuClient(cb_portNameSend.Text.ToString(), baudRate, dataBit, stopBits, parity);
+                                    client = new ModbusRtuClient(cb_portNameSend.Text.ToString(), baudRate, dataBit, stopBits, parity);
                                     var result = client.Open();
                                     if (result.IsSucceed)
                                     {
@@ -458,8 +458,9 @@ namespace IoTClient.Tool.Controls
                 var BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
+                var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 server?.Stop();
-                server = new ModBusRtuServer(PortName, BaudRate, DataBits, StopBits);
+                server = new ModbusRtuServer(PortName, BaudRate, DataBits, StopBits, parity);
                 server.Start();
                 AppendText("开启仿真服务");
                 but_server_open.Enabled = false;

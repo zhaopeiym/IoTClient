@@ -7,18 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using IoTServer.Servers.ModBus;
-using IoTClient.Clients.ModBus;
+using IoTServer.Servers.Modbus;
+using IoTClient.Clients.Modbus;
 using System.IO.Ports;
 using IoTClient.Common.Helpers;
 
 namespace IoTClient.Tool.Controls
 {
-    public partial class ModBusAsciiControl : UserControl
+    public partial class ModbusAsciiControl : UserControl
     {
-        private ModBusAsciiServer server;
-        private ModBusAsciiClient client;
-        public ModBusAsciiControl()
+        private ModbusAsciiServer server;
+        private ModbusAsciiClient client;
+        public ModbusAsciiControl()
         {
             InitializeComponent();
 
@@ -65,8 +65,8 @@ namespace IoTClient.Tool.Controls
         /// </summary>
         public void UpdatePortNames()
         {
-            cb_portNameSend.DataSource = ModBusRtuClient.GetPortNames();
-            cb_portNameSend_server.DataSource = ModBusRtuClient.GetPortNames();
+            cb_portNameSend.DataSource = ModbusRtuClient.GetPortNames();
+            cb_portNameSend_server.DataSource = ModbusRtuClient.GetPortNames();
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace IoTClient.Tool.Controls
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
                 var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 server?.Stop();
-                server = new ModBusAsciiServer(PortName, BaudRate, DataBits, StopBits, parity);
+                server = new ModbusAsciiServer(PortName, BaudRate, DataBits, StopBits, parity);
                 server.Start();
                 AppendText("开启仿真服务");
                 but_server_open.Enabled = false;
@@ -113,8 +113,9 @@ namespace IoTClient.Tool.Controls
                 var BaudRate = int.Parse(cb_baudRate.Text.ToString());
                 var DataBits = int.Parse(txt_dataBit.Text.ToString());
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
+                var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 client?.Close();
-                client = new ModBusAsciiClient(PortName, BaudRate, DataBits, StopBits);
+                client = new ModbusAsciiClient(PortName, BaudRate, DataBits, StopBits, parity);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -157,7 +158,7 @@ namespace IoTClient.Tool.Controls
             {
                 if (txt_address.Text.Contains("-"))
                 {
-                    AppendText($"ModBusAsciiClient 暂不支持批量读取");
+                    AppendText($"ModbusAsciiClient 暂不支持批量读取");
                     return;
                 }
                 dynamic result = null;

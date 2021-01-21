@@ -1,6 +1,6 @@
 ﻿namespace IoTClient.Tool.Controls
 {
-    partial class ModBusRtuControl
+    partial class ModbusRtuControl
     {
         /// <summary> 
         /// 必需的设计器变量。
@@ -513,7 +513,7 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "波特率";
             // 
-            // ModBusRtuControl
+            // ModbusRtuControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -521,7 +521,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.txt_content);
             this.Controls.Add(this.groupBox2);
-            this.Name = "ModBusRtuControl";
+            this.Name = "ModbusRtuControl";
             this.Size = new System.Drawing.Size(880, 450);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
