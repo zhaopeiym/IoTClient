@@ -56,10 +56,10 @@ namespace IoTClient.Tool
             but_sendData.Enabled = false;
 
             toolTip1.SetToolTip(but_open, "点击打开连接");
-            toolTip1.SetToolTip(txt_address, "支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据");
+            toolTip1.SetToolTip(txt_address, "支持批量读取，如V2634、V2638、V2642");
             txt_content.Text = @"小技巧:
-1、读取地址支持批量读取，如V2634-3将会读取V2634、V2638、V2642地址对应的数据，或者直接输入V2634、V2638、V2642。
-2、关于PLC地址：VB263、VW263、VD263中的B、W、D分别表示byte、word、doubleword数据类型，分别对应C#中的byte、ushort(UInt16)、uint(UInt32)类型。此工具传入地址的时候不需要带数据类型，直接选择对应的类型然后传入地址即可，如：V263";
+1、读取地址支持批量读取，如V2634、V2638、V2642。
+2、关于PLC地址：VB263、VW263、VD263中的B、W、D分别表示byte、word、doubleword数据类型，分别对应C#中的byte、ushort(UInt16)、uint(UInt32)类型。此工具直接传入地址（如:V263）即可。";
         }
 
         private void but_server_Click(object sender, EventArgs e)
@@ -150,50 +150,10 @@ namespace IoTClient.Tool
                 }
                 dynamic result = null;
 
-                //bool类型不进行批量读取
-                if (rd_bit.Checked) txt_address.Text = txt_address.Text.Split('-')[0];
-                var addressAndReadLength = txt_address.Text.Split('-');
                 var addressAndReadNumber = txt_address.Text.Split(',', '、', '，');
 
                 //批量读取
-                if (addressAndReadLength.Length == 2)
-                {
-                    var address = addressAndReadLength[0];
-                    var readNumber = ushort.Parse(addressAndReadLength[1]);
-
-                    if (rd_short.Checked)
-                        result = client.ReadInt16(address, readNumber);
-                    else if (rd_ushort.Checked)
-                        result = client.ReadUInt16(address, readNumber);
-                    else if (rd_int.Checked)
-                        result = client.ReadInt32(address, readNumber);
-                    else if (rd_uint.Checked)
-                        result = client.ReadUInt32(address, readNumber);
-                    else if (rd_long.Checked)
-                        result = client.ReadInt64(address, readNumber);
-                    else if (rd_ulong.Checked)
-                        result = client.ReadUInt64(address, readNumber);
-                    else if (rd_float.Checked)
-                        result = client.ReadFloat(address, readNumber);
-                    else if (rd_double.Checked)
-                        result = client.ReadDouble(address, readNumber);
-                    else if (rd_byte.Checked)
-                        result = client.ReadByte(address, readNumber);
-                    else if (rd_bit.Checked)
-                        result = client.ReadBoolean(address, readNumber);
-
-                    if (result.IsSucceed)
-                    {
-                        AppendEmptyText();
-                        foreach (var item in result.Value)
-                        {
-                            AppendText($"[读取 {item.Key} 成功]：{item.Value}\t\t耗时：{result.TimeConsuming}ms");
-                        }
-                    }
-                    else
-                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
-                }
-                else if (addressAndReadNumber.Length >= 2)
+                if (addressAndReadNumber.Length >= 2)
                 {
                     DataTypeEnum datatype = DataTypeEnum.None;
                     if (rd_byte.Checked) datatype = DataTypeEnum.Byte;

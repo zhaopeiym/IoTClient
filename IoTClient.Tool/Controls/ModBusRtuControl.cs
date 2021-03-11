@@ -1,8 +1,11 @@
 ﻿using IoTClient.Clients.Modbus;
 using IoTClient.Common.Helpers;
+using IoTClient.Enums;
+using IoTClient.Models;
 using IoTServer.Common;
 using IoTServer.Servers.Modbus;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
@@ -13,7 +16,7 @@ namespace IoTClient.Tool.Controls
 {
     public partial class ModbusRtuControl : UserControl
     {
-        private ModbusRtuClient client;
+        private IModbusClient client;
         private ModbusRtuServer server;
 
         int[] BaudRateList = new int[] { 9600, 4800, 2400, 1200, 600, 14400, 300, 19200, 110, 38400, 56000, 57600, 115200, 128000, 256000 };
@@ -64,7 +67,10 @@ namespace IoTClient.Tool.Controls
             cb_baudRate.SelectedIndex = 2;
             toolTip1.SetToolTip(but_open, "按住Ctrl后连接将自动扫描串口连接参数");
             toolTip1.SetToolTip(txt_address, "支持批量读取，如4-3将会读取4、5、6地址对应的数据");
-            txt_content.Text = "小技巧:\r\n1、按住Ctrl后点击连接将自动扫描串口连接参数组合\r\n2、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据\r\n";
+            txt_content.Text = @"小技巧:
+1、按住Ctrl后点击连接将自动扫描串口连接参数组合
+2、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据
+3、读取地址支持批量读取，如4、5、6、8、12";
         }
 
         /// <summary>
@@ -233,6 +239,7 @@ namespace IoTClient.Tool.Controls
             try
             {
                 var addressAndReadLength = txt_address.Text.Split('-');
+                var addressAndReadNumber = txt_address.Text.Split(',', '、', '，');
                 //批量读取
                 if (addressAndReadLength.Length == 2)
                 {
@@ -286,6 +293,57 @@ namespace IoTClient.Tool.Controls
                     }
                     else
                         AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                }
+                //批量读取
+                else if (addressAndReadNumber.Length >= 2)
+                {
+                    DataTypeEnum datatype = DataTypeEnum.None;
+                    byte functionCode = 3;
+                    //线圈
+                    if (rd_bit.Checked)
+                    {
+                        datatype = DataTypeEnum.Bool;
+                        functionCode = 1;
+                    }
+                    //离散
+                    else if (rd_discrete.Checked)
+                    {
+                        datatype = DataTypeEnum.Bool;
+                        functionCode = 2;
+                    }
+                    else if (rd_short.Checked) datatype = DataTypeEnum.Int16;
+                    else if (rd_ushort.Checked) datatype = DataTypeEnum.UInt16;
+                    else if (rd_int.Checked) datatype = DataTypeEnum.Int32;
+                    else if (rd_uint.Checked) datatype = DataTypeEnum.UInt32;
+                    else if (rd_long.Checked) datatype = DataTypeEnum.Int64;
+                    else if (rd_ulong.Checked) datatype = DataTypeEnum.UInt64;
+                    else if (rd_float.Checked) datatype = DataTypeEnum.Float;
+                    else if (rd_double.Checked) datatype = DataTypeEnum.Double;
+
+                    List<ModbusInput> addresses = new List<ModbusInput>();
+                    foreach (var item in addressAndReadNumber)
+                    {
+                        addresses.Add(new ModbusInput()
+                        {
+                            Address = item,
+                            DataType = datatype,
+                            FunctionCode = functionCode,
+                            StationNumber = stationNumber,
+                        });
+                    }
+
+                    result = client.BatchRead(addresses);
+
+                    if (result.IsSucceed)
+                    {
+                        AppendEmptyText();
+                        foreach (var item in result.Value)
+                        {
+                            AppendText($"[读取 {item.Address} 成功]：{item.Value}\t\t耗时：{result.TimeConsuming}ms");
+                        }
+                    }
+                    else
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\t\t耗时：{result.TimeConsuming}ms");
                 }
                 //单个读取
                 else

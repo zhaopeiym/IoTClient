@@ -1,8 +1,11 @@
 ﻿using IoTClient.Clients.Modbus;
 using IoTClient.Common.Helpers;
+using IoTClient.Enums;
+using IoTClient.Models;
 using IoTServer.Common;
 using IoTServer.Servers.Modbus;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -49,7 +52,9 @@ namespace IoTClient.Tool
             toolTip1.SetToolTip(button1, "开启本地ModbusTcp服务端仿真模拟服务");
             toolTip1.SetToolTip(but_open, "点击打开连接");
             toolTip1.SetToolTip(txt_address, "支持批量读取，如4-3将会读取4、5、6地址对应的数据");
-            txt_content.Text = "小技巧:\r\n1、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据\r\n";
+            txt_content.Text = @"小技巧:
+1、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据
+2、读取地址支持批量读取，如4、5、6、8、12";
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -128,6 +133,7 @@ namespace IoTClient.Tool
             try
             {
                 var addressAndReadLength = txt_address.Text.Split('-');
+                var addressAndReadNumber = txt_address.Text.Split(',', '、', '，');
                 //批量读取
                 if (addressAndReadLength.Length == 2)
                 {
@@ -181,6 +187,57 @@ namespace IoTClient.Tool
                     }
                     else
                         AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}");
+                }
+                //批量读取
+                else if (addressAndReadNumber.Length >= 2)
+                {
+                    DataTypeEnum datatype = DataTypeEnum.None;
+                    byte functionCode = 3;
+                    //线圈
+                    if (rd_bit.Checked)
+                    {
+                        datatype = DataTypeEnum.Bool;
+                        functionCode = 1;
+                    }
+                    //离散
+                    else if (rd_discrete.Checked)
+                    {
+                        datatype = DataTypeEnum.Bool;
+                        functionCode = 2;
+                    }
+                    else if (rd_short.Checked) datatype = DataTypeEnum.Int16;
+                    else if (rd_ushort.Checked) datatype = DataTypeEnum.UInt16;
+                    else if (rd_int.Checked) datatype = DataTypeEnum.Int32;
+                    else if (rd_uint.Checked) datatype = DataTypeEnum.UInt32;
+                    else if (rd_long.Checked) datatype = DataTypeEnum.Int64;
+                    else if (rd_ulong.Checked) datatype = DataTypeEnum.UInt64;
+                    else if (rd_float.Checked) datatype = DataTypeEnum.Float;
+                    else if (rd_double.Checked) datatype = DataTypeEnum.Double;
+
+                    List<ModbusInput> addresses = new List<ModbusInput>();
+                    foreach (var item in addressAndReadNumber)
+                    {
+                        addresses.Add(new ModbusInput()
+                        {
+                            Address = item,
+                            DataType = datatype,
+                            FunctionCode = functionCode,
+                            StationNumber = stationNumber,
+                        });
+                    }
+
+                    result = client.BatchRead(addresses);
+
+                    if (result.IsSucceed)
+                    {
+                        AppendEmptyText();
+                        foreach (var item in result.Value)
+                        {
+                            AppendText($"[读取 {item.Address} 成功]：{item.Value}\t\t耗时：{result.TimeConsuming}ms");
+                        }
+                    }
+                    else
+                        AppendText($"[读取 {txt_address.Text?.Trim()} 失败]：{result.Err}\t\t耗时：{result.TimeConsuming}ms");
                 }
                 //单个读取
                 else

@@ -1899,7 +1899,7 @@
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadDouble(System.String,System.UInt16)">
             <summary>
-            读取Float
+            读取Double
             </summary>
             <param name="address">地址</param>
             <param name="readNumber">读取数量</param>

@@ -29,6 +29,11 @@ namespace IoTClient.Tool
             logs.Add("3.ModbusTcp批量读取");
             logs.Add("4.ModbusTcp线程安全读取");
 
+            logs.Add("\r\n版本：[0.4.2]");
+            logs.Add($"时间：2021-03-10");
+            logs.Add("内容");
+            logs.Add("1.修复相关bug"); 
+
             textBox1.Text = string.Join("\r\n", logs);
             if (hasNew)
             {

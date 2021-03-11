@@ -900,7 +900,7 @@ namespace IoTClient.Clients.Modbus
                 var stationNumbers = addresses.Where(t => t.FunctionCode == functionCode).Select(t => t.StationNumber).Distinct();
                 foreach (var stationNumber in stationNumbers)
                 {
-                    var addressList = addresses.Where(t => t.FunctionCode == functionCode && t.StationNumber == t.StationNumber)
+                    var addressList = addresses.Where(t => t.FunctionCode == functionCode && t.StationNumber == stationNumber)
                         .DistinctBy(t => t.Address)
                         .ToDictionary(t => t.Address, t => t.DataType);
                     var tempResult = BatchRead(addressList, stationNumber, functionCode);
@@ -925,7 +925,7 @@ namespace IoTClient.Clients.Modbus
                     }
                 }
             }
-            return result;
+            return result.EndTime();
         }
 
         private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)

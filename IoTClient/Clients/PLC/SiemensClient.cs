@@ -486,6 +486,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, bool>>> ReadBoolean(string address, ushort readNumber)
         {
             var length = 1;
@@ -525,6 +526,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, byte>>> ReadByte(string address, ushort readNumber)
         {
             var length = 1;
@@ -564,6 +566,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, short>>> ReadInt16(string address, ushort readNumber)
         {
             var length = 2;
@@ -603,6 +606,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, ushort>>> ReadUInt16(string address, ushort readNumber)
         {
             var length = 2;
@@ -642,6 +646,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, int>>> ReadInt32(string address, ushort readNumber)
         {
             var length = 4;
@@ -681,6 +686,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, uint>>> ReadUInt32(string address, ushort readNumber)
         {
             var length = 4;
@@ -720,6 +726,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, long>>> ReadInt64(string address, ushort readNumber)
         {
             var length = 8;
@@ -759,6 +766,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, ulong>>> ReadUInt64(string address, ushort readNumber)
         {
             var length = 8;
@@ -798,6 +806,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, float>>> ReadFloat(string address, ushort readNumber)
         {
             var length = 4;
@@ -832,11 +841,12 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 读取Float
+        /// 读取Double
         /// </summary>
         /// <param name="address">地址</param>
         /// <param name="readNumber">读取数量</param>
         /// <returns></returns>
+        [Obsolete("批量读取请使用BatchRead方法")]
         public Result<List<KeyValuePair<string, double>>> ReadDouble(string address, ushort readNumber)
         {
             var length = 8;
@@ -1456,7 +1466,7 @@ namespace IoTClient.Clients.PLC
         {
             return GetReadCommand(new SiemensData[] { data });
         }
-       
+
         /// <summary>
         /// 获取写指令
         /// </summary>
@@ -1553,7 +1563,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="write"></param>
         /// <returns></returns>
         protected byte[] GetWriteCommand(SiemensWrite write)
-        {            
+        {
             return GetWriteCommand(new SiemensWrite[] { write });
         }
 

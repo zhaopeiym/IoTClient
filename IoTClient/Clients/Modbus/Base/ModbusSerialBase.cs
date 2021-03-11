@@ -647,7 +647,7 @@ namespace IoTClient.Clients.Modbus
                     }
                 }
             }
-            return result;
+            return result.EndTime();
         }
 
         private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
