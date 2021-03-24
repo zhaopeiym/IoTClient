@@ -4,7 +4,12 @@
         <name>IoTClient</name>
     </assembly>
     <members>
-        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32)">
+        <member name="P:IoTClient.Clients.Modbus.ModbusSerialBase.WarningLog">
+            <summary>
+            警告日志委托        
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             构造函数
             </summary>
@@ -14,6 +19,7 @@
             <param name="stopBits">停止位</param>
             <param name="parity">奇偶校验</param>
             <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.SendPackage(System.Byte[])">
             <summary>
@@ -22,7 +28,7 @@
             <param name="command"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.Read(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
@@ -357,6 +363,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="P:IoTClient.Clients.Modbus.IModbusClient.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            </summary>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.SendPackage(System.Byte[])">
             <summary>
             发送报文，并获取响应报文
@@ -364,7 +376,7 @@
             <param name="dataPackage"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.IModbusClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
@@ -657,7 +669,7 @@
             ModbusAscii
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             构造函数
             </summary>
@@ -667,8 +679,9 @@
             <param name="stopBits">停止位</param>
             <param name="parity">奇偶校验</param>
             <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
@@ -702,7 +715,7 @@
             ModbusRtu协议客户端
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             构造函数
             </summary>
@@ -712,8 +725,9 @@
             <param name="stopBits">停止位</param>
             <param name="parity">奇偶校验</param>
             <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
@@ -721,6 +735,7 @@
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
             <param name="readLength">读取长度</param>
+            <param name="byteFormatting"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
@@ -747,20 +762,28 @@
             ModbusTcp协议客户端
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32)">
+        <member name="P:IoTClient.Clients.Modbus.ModbusTcpClient.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             
             </summary>
             <param name="ipAndPoint"></param>
             <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.String,System.Int32,System.Int32)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             
             </summary>
             <param name="ip"></param>
             <param name="port"></param>
             <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Connect">
             <summary>
@@ -775,7 +798,7 @@
             <param name="command"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
@@ -783,6 +806,7 @@
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
             <param name="readLength">读取长度</param>
+            <param name="byteFormatting">大小端转换</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadInt16(System.String,System.Byte,System.Byte)">
@@ -1104,13 +1128,19 @@
             Tcp的方式发送ModbusRtu协议报文 - 客户端
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpRtuClient.#ctor(System.String,System.Int32,System.Int32)">
+        <member name="P:IoTClient.Clients.Modbus.ModbusTcpRtuClient.WarningLog">
+            <summary>
+            警告日志委托        
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpRtuClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             构造函数
             </summary>
             <param name="ip"></param>
             <param name="port"></param>
             <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpRtuClient.SendPackage(System.Byte[],System.Int32)">
             <summary>
@@ -1119,7 +1149,7 @@
             <param name="command"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpRtuClient.Read(System.String,System.Byte,System.Byte,System.UInt16)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpRtuClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
@@ -1127,6 +1157,7 @@
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
             <param name="readLength">读取长度</param>
+            <param name="byteFormatting"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpRtuClient.ReadInt16(System.String,System.Byte,System.Byte)">
@@ -2169,6 +2200,19 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="T:IoTClient.Common.Helpers.EndianConversion">
+            <summary>
+            大小端转换
+            </summary>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.EndianConversion.ByteFormatting(System.Byte[],IoTClient.Enums.EndianFormat)">
+            <summary>
+            字节格式转换
+            </summary>
+            <param name="value"></param>
+            <param name="format"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTClient.Common.Helpers.EnumerableExtension">
             <summary>
             
@@ -2352,6 +2396,32 @@
         <member name="F:IoTClient.Enums.DataTypeEnum.Double">
             <summary>
             Double
+            </summary>
+        </member>
+        <member name="T:IoTClient.Enums.EndianFormat">
+            <summary>
+            字节格式
+            https://cloud.tencent.com/developer/article/1601823
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.EndianFormat.ABCD">
+            <summary>
+            大端序 ABCD
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.EndianFormat.BADC">
+            <summary>
+            中端序 BADC, PDP-11 风格
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.EndianFormat.CDAB">
+            <summary>
+            中端序 CDAB, Honeywell 316 风格
+            </summary>
+        </member>
+        <member name="F:IoTClient.Enums.EndianFormat.DCBA">
+            <summary>
+            小端序 DCBA
             </summary>
         </member>
         <member name="T:IoTClient.Interfaces.IIoTClient">

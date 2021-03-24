@@ -32,7 +32,12 @@ namespace IoTClient.Tool
             logs.Add("\r\n版本：[0.4.2]");
             logs.Add($"时间：2021-03-10");
             logs.Add("内容");
-            logs.Add("1.修复相关bug"); 
+            logs.Add("1.修复相关bug");
+
+            logs.Add("\r\n版本：[0.4.4]");
+            logs.Add($"时间：2021-03-21");
+            logs.Add("内容");
+            logs.Add("1.Modbus 大小端设置");
 
             textBox1.Text = string.Join("\r\n", logs);
             if (hasNew)

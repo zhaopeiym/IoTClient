@@ -31,6 +31,9 @@
             this.components = new System.ComponentModel.Container();
             this.chb_show_package = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.chb_rtudata = new System.Windows.Forms.CheckBox();
             this.but_close = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -64,8 +67,6 @@
             this.lab_value = new System.Windows.Forms.Label();
             this.txt_content = new System.Windows.Forms.TextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.label3 = new System.Windows.Forms.Label();
-            this.chb_rtudata = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -83,6 +84,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.comboBox1);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.chb_rtudata);
             this.groupBox2.Controls.Add(this.but_close);
@@ -100,6 +102,37 @@
             this.groupBox2.Size = new System.Drawing.Size(855, 55);
             this.groupBox2.TabIndex = 29;
             this.groupBox2.TabStop = false;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "ABCD",
+            "BADC",
+            "CDAB",
+            "DCBA"});
+            this.comboBox1.Location = new System.Drawing.Point(495, 20);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(52, 20);
+            this.comboBox1.TabIndex = 20;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(582, 24);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(47, 12);
+            this.label3.TabIndex = 19;
+            this.label3.Text = "Rtu报文";
+            // 
+            // chb_rtudata
+            // 
+            this.chb_rtudata.AutoSize = true;
+            this.chb_rtudata.Location = new System.Drawing.Point(630, 23);
+            this.chb_rtudata.Name = "chb_rtudata";
+            this.chb_rtudata.Size = new System.Drawing.Size(15, 14);
+            this.chb_rtudata.TabIndex = 18;
+            this.chb_rtudata.UseVisualStyleBackColor = true;
             // 
             // but_close
             // 
@@ -144,7 +177,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(427, 23);
+            this.label5.Location = new System.Drawing.Point(410, 23);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(29, 12);
             this.label5.TabIndex = 15;
@@ -160,7 +193,7 @@
             // 
             // txt_stationNumber
             // 
-            this.txt_stationNumber.Location = new System.Drawing.Point(462, 19);
+            this.txt_stationNumber.Location = new System.Drawing.Point(445, 19);
             this.txt_stationNumber.Name = "txt_stationNumber";
             this.txt_stationNumber.Size = new System.Drawing.Size(35, 21);
             this.txt_stationNumber.TabIndex = 14;
@@ -421,24 +454,6 @@
             this.txt_content.Size = new System.Drawing.Size(855, 272);
             this.txt_content.TabIndex = 27;
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(515, 24);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(47, 12);
-            this.label3.TabIndex = 19;
-            this.label3.Text = "Rtu报文";
-            // 
-            // chb_rtudata
-            // 
-            this.chb_rtudata.AutoSize = true;
-            this.chb_rtudata.Location = new System.Drawing.Point(563, 23);
-            this.chb_rtudata.Name = "chb_rtudata";
-            this.chb_rtudata.Size = new System.Drawing.Size(15, 14);
-            this.chb_rtudata.TabIndex = 18;
-            this.chb_rtudata.UseVisualStyleBackColor = true;
-            // 
             // ModbusTcpControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -499,5 +514,6 @@
         private System.Windows.Forms.TextBox txt_dataPackage;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox chb_rtudata;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }

@@ -68,6 +68,10 @@ list.Add(new ModBusInput()
     StationNumber = 1
 });
 var result = client.BatchRead(list);
+
+//7、构造函数其他参数
+//IP、端口、超时时间、大小端设置
+ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502, 1500, EndianFormat.ABCD);
 ``` 
 
 ## ModBusRtu读写操作
@@ -109,13 +113,25 @@ var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
 
-//6、注意：关于西门子PLC读取地址
-VB263、VW263、VD263中的B、W、D分别表示byte型、word型、doubleword型，分别对应C#中的byte、ushort(UInt16)、uint(UInt32)类型。
-在本组件传入地址的时候不需要带数据类型，直接使用对应方法读取对应类型即可，如：
-client.ReadByte("V263")
-client.ReadUInt16("V263")
-client.ReadUInt32("V263")
 ```
+## 注意：关于Siemens的PLC地址
+```
+VB263、VW263、VD263中的B、W、D分别表示：byte型(8位)、word型(16位)、doubleword型(32位)。
+
+在本组件传入地址的时候不需要带数据类型，直接使用对应方法读取对应类型即可，如：
+VB263       - client.ReadByte("V263")
+VD263       - client.ReadFloat("V263")
+VD263       - client.ReadInt32("V263")
+DB108.DBW4  - client.ReadUInt16("DB108.4")
+DB1.DBX0.0  - client.ReadBoolean("DB1.0.0")
+DB1.DBD0    - client.ReadFloat("DB1.0")
+```
+|C#数据类型 | smart200 | 1200/1500/300
+|---|---|---
+|bit | V1.0 | DB1.DBX1.0
+|byte | VB1 | DB1.DBB1
+|shor <br> ushort  | VW2 | DB1.DBW2
+|int <br> uint <br> float | VD4 | DB1.DBD4
 
 ## SiemensClient最佳实践
 ```

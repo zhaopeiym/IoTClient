@@ -16,16 +16,25 @@ namespace IoTClient.Clients.Modbus
     {
         private IPEndPoint ipAndPoint;
         private int timeout = -1;
+        private EndianFormat format;
+
+        /// <summary>
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+        /// </summary>
+        public LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ipAndPoint"></param>
         /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusTcpClient(IPEndPoint ipAndPoint, int timeout = 1500)
+        /// <param name="format">大小端设置</param>
+        public ModbusTcpClient(IPEndPoint ipAndPoint, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             this.timeout = timeout;
             this.ipAndPoint = ipAndPoint;
+            this.format = format;
         }
 
         /// <summary>
@@ -34,10 +43,12 @@ namespace IoTClient.Clients.Modbus
         /// <param name="ip"></param>
         /// <param name="port"></param>
         /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusTcpClient(string ip, int port, int timeout = 1500)
+        /// <param name="format">大小端设置</param>
+        public ModbusTcpClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             this.timeout = timeout;
             this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            this.format = format;
         }
 
         /// <summary>
@@ -83,10 +94,31 @@ namespace IoTClient.Clients.Modbus
             //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
             lock (this)
             {
-                //发送命令
-                socket.Send(command);
+                //发送命令               
+                try
+                {
+                    socket.Send(command);
+                }
+                catch (Exception ex)
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    //如果出现异常，则进行一次重试         
+                    Connect();
+                    //TODO 
+                    //1、判断result.IsSucceed
+                    //2、Rtu、Ascii、TcpRtu 没进行重试
+                    socket.Send(command);
+                }
+
                 //获取响应报文
-                var headPackage = SocketRead(socket, 8);
+                //如果出现异常，则进行一次重试  
+                var headPackage = SocketTryRead(socket, 8, WarningLog);
+                if (headPackage == null)
+                {
+                    Connect();
+                    socket.Send(command);
+                    headPackage = SocketRead(socket, 8);
+                }
                 int length = headPackage[4] * 256 + headPackage[5] - 2;
                 var dataPackage = SocketRead(socket, length);
                 return headPackage.Concat(dataPackage).ToArray();
@@ -102,8 +134,9 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
+        /// <param name="byteFormatting">大小端转换</param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
+        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true)
         {
             if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
@@ -118,8 +151,12 @@ namespace IoTClient.Clients.Modbus
                 byte[] resultBuffer = new byte[dataPackage.Length - 9];
                 Array.Copy(dataPackage, 9, resultBuffer, 0, resultBuffer.Length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                //4 获取响应报文数据（字节数组形式）                
-                result.Value = resultBuffer.Reverse().ToArray();
+                //4 获取响应报文数据（字节数组形式）             
+                if (byteFormatting)
+                    result.Value = resultBuffer.Reverse().ToArray().ByteFormatting(format);
+                else
+                    result.Value = resultBuffer.Reverse().ToArray();
+
                 if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
                     result.IsSucceed = false;
@@ -514,7 +551,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<int>
                 {
                     Value = BitConverter.ToInt32(byteArry, 0)
@@ -549,7 +586,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<uint>
                 {
                     Value = BitConverter.ToUInt32(byteArry, 0)
@@ -584,7 +621,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<long>
                 {
                     Value = BitConverter.ToInt64(byteArry, 0)
@@ -619,7 +656,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<ulong>
                 {
                     Value = BitConverter.ToUInt64(byteArry, 0)
@@ -654,7 +691,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<float>
                 {
                     Value = BitConverter.ToSingle(byteArry, 0)
@@ -689,7 +726,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<double>
                 {
                     Value = BitConverter.ToDouble(byteArry, 0)
@@ -972,7 +1009,7 @@ namespace IoTClient.Clients.Modbus
                         throw new Exception("Err BatchRead 未定义类型 -1");
                 }
 
-                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength));
+                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength), false);
 
                 if (!tempResult.IsSucceed)
                 {
@@ -1101,6 +1138,7 @@ namespace IoTClient.Clients.Modbus
             var result = new Result();
             try
             {
+                values = values.ByteFormatting(format);
                 var chenkHead = GetCheckHead(functionCode);
                 var command = GetWriteCommand(address, values, stationNumber, functionCode, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));

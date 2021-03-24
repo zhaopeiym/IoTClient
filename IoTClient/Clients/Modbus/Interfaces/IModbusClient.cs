@@ -21,6 +21,12 @@ namespace IoTClient.Clients.Modbus
         Result Open();
 
         /// <summary>
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+        /// </summary>
+        LoggerDelegate WarningLog { get; set; }
+
+        /// <summary>
         /// 发送报文，并获取响应报文
         /// </summary>
         /// <param name="dataPackage"></param>
@@ -36,7 +42,7 @@ namespace IoTClient.Clients.Modbus
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
         /// <returns></returns>
-        Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1);
+        Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true);
 
         /// <summary>
         /// 读取Int16

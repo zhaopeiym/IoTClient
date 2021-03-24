@@ -36,6 +36,7 @@
             this.button6 = new System.Windows.Forms.Button();
             this.rd_float = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.cb_baudRate = new System.Windows.Forms.ComboBox();
             this.cb_parity = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -140,6 +141,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.comboBox1);
             this.groupBox2.Controls.Add(this.cb_baudRate);
             this.groupBox2.Controls.Add(this.cb_parity);
             this.groupBox2.Controls.Add(this.label3);
@@ -163,6 +165,19 @@
             this.groupBox2.Size = new System.Drawing.Size(855, 50);
             this.groupBox2.TabIndex = 37;
             this.groupBox2.TabStop = false;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "ABCD",
+            "BADC",
+            "CDAB",
+            "DCBA"});
+            this.comboBox1.Location = new System.Drawing.Point(420, 17);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(52, 20);
+            this.comboBox1.TabIndex = 46;
             // 
             // cb_baudRate
             // 
@@ -261,9 +276,9 @@
             // 
             // but_close
             // 
-            this.but_close.Location = new System.Drawing.Point(495, 16);
+            this.but_close.Location = new System.Drawing.Point(526, 16);
             this.but_close.Name = "but_close";
-            this.but_close.Size = new System.Drawing.Size(75, 23);
+            this.but_close.Size = new System.Drawing.Size(44, 23);
             this.but_close.TabIndex = 35;
             this.but_close.Text = "断开";
             this.but_close.UseVisualStyleBackColor = true;
@@ -291,9 +306,9 @@
             // 
             // but_open
             // 
-            this.but_open.Location = new System.Drawing.Point(416, 16);
+            this.but_open.Location = new System.Drawing.Point(478, 16);
             this.but_open.Name = "but_open";
-            this.but_open.Size = new System.Drawing.Size(75, 23);
+            this.but_open.Size = new System.Drawing.Size(44, 23);
             this.but_open.TabIndex = 29;
             this.but_open.Text = "连接";
             this.but_open.UseVisualStyleBackColor = true;
@@ -577,5 +592,6 @@
         private System.Windows.Forms.TextBox txt_stationNumber;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }

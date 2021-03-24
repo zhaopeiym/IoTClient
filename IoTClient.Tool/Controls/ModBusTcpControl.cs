@@ -44,6 +44,9 @@ namespace IoTClient.Tool
 
             chb_show_package.Location = new Point(776, 19);
 
+            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox1.SelectedIndex = 0;
+
             but_read.Enabled = false;
             but_write.Enabled = false;
             button2.Enabled = false;
@@ -89,10 +92,28 @@ namespace IoTClient.Tool
             {
                 if (txt_content.Text.Contains("小技巧")) txt_content.Text = string.Empty;
                 client?.Close();
+
+                EndianFormat format = EndianFormat.ABCD;
+                switch (comboBox1.SelectedIndex)
+                {
+                    case 0:
+                        format = EndianFormat.ABCD;
+                        break;
+                    case 1:
+                        format = EndianFormat.BADC;
+                        break;
+                    case 2:
+                        format = EndianFormat.CDAB;
+                        break;
+                    case 3:
+                        format = EndianFormat.DCBA;
+                        break;
+                }
+
                 if (chb_rtudata.Checked)
-                    client = new ModbusTcpRtuClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                    client = new ModbusTcpRtuClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()), format: format);
                 else
-                    client = new ModbusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()));
+                    client = new ModbusTcpClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text?.Trim()), format: format);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -102,6 +123,7 @@ namespace IoTClient.Tool
                     but_close.Enabled = true;
                     but_sendData.Enabled = true;
                     AppendText($"连接成功");
+                    ControlEnabledFalse();
                 }
                 else
                     MessageBox.Show($"连接失败：{result.Err}");
@@ -112,6 +134,22 @@ namespace IoTClient.Tool
             }
         }
 
+        private void ControlEnabledFalse()
+        {
+            comboBox1.Enabled = false;
+            txt_ip.Enabled = false;
+            txt_port.Enabled = false;
+            txt_stationNumber.Enabled = false;
+        }
+
+        private void ControlEnabledTrue()
+        {
+            comboBox1.Enabled = true;
+            txt_ip.Enabled = true;
+            txt_port.Enabled = true;
+            txt_stationNumber.Enabled = true;
+        }
+
         private void but_close_Click(object sender, EventArgs e)
         {
             client?.Close();
@@ -119,6 +157,7 @@ namespace IoTClient.Tool
             but_close.Enabled = false;
             but_sendData.Enabled = false;
             AppendText($"连接关闭");
+            ControlEnabledTrue();
         }
 
         private void button3_Click(object sender, EventArgs e)

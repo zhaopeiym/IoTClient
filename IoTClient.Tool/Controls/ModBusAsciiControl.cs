@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using IoTServer.Servers.Modbus;
-using IoTClient.Clients.Modbus;
-using System.IO.Ports;
+﻿using IoTClient.Clients.Modbus;
 using IoTClient.Common.Helpers;
+using IoTClient.Enums;
+using IoTServer.Servers.Modbus;
+using System;
+using System.Data;
+using System.Drawing;
+using System.IO.Ports;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace IoTClient.Tool.Controls
 {
@@ -46,6 +43,8 @@ namespace IoTClient.Tool.Controls
             but_sendData.Location = new Point(620, 17);
 
             chb_show_package.Location = new Point(776, 19);
+            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox1.SelectedIndex = 0;
 
             but_read.Enabled = false;
             but_write.Enabled = false;
@@ -115,7 +114,24 @@ namespace IoTClient.Tool.Controls
                 var StopBits = (StopBits)int.Parse(txt_stopBit.Text.ToString());
                 var parity = cb_parity.SelectedIndex == 0 ? Parity.None : (cb_parity.SelectedIndex == 1 ? Parity.Odd : Parity.Even);
                 client?.Close();
-                client = new ModbusAsciiClient(PortName, BaudRate, DataBits, StopBits, parity);
+
+                EndianFormat format = EndianFormat.ABCD;
+                switch (comboBox1.SelectedIndex)
+                {
+                    case 0:
+                        format = EndianFormat.ABCD;
+                        break;
+                    case 1:
+                        format = EndianFormat.BADC;
+                        break;
+                    case 2:
+                        format = EndianFormat.CDAB;
+                        break;
+                    case 3:
+                        format = EndianFormat.DCBA;
+                        break;
+                }
+                client = new ModbusAsciiClient(PortName, BaudRate, DataBits, StopBits, parity, format: format);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -127,14 +143,37 @@ namespace IoTClient.Tool.Controls
                     but_close.Enabled = true;
                     but_sendData.Enabled = true;
                     AppendText("连接成功");
+                    ControlEnabledFalse();
                 }
                 else
-                    AppendText($"连接失败：{result.Err}");
+                    AppendText($"连接失败：{result.Err}");               
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void ControlEnabledFalse()
+        {
+            comboBox1.Enabled = false;
+            cb_portNameSend.Enabled = false;
+            cb_baudRate.Enabled = false;
+            txt_dataBit.Enabled = false;
+            txt_stopBit.Enabled = false;
+            cb_parity.Enabled = false;
+            txt_stationNumber.Enabled = false;
+        }
+
+        private void ControlEnabledTrue()
+        {
+            comboBox1.Enabled = true;
+            cb_portNameSend.Enabled = true;
+            cb_baudRate.Enabled = true;
+            txt_dataBit.Enabled = true;
+            txt_stopBit.Enabled = true;
+            cb_parity.Enabled = true;
+            txt_stationNumber.Enabled = true;
         }
 
         private void but_server_close_Click(object sender, EventArgs e)
@@ -344,6 +383,7 @@ namespace IoTClient.Tool.Controls
             but_close.Enabled = false;
             cb_portNameSend.Enabled = true;
             but_sendData.Enabled = false;
+            ControlEnabledTrue();
         }
 
         //private void AppendText(string content)

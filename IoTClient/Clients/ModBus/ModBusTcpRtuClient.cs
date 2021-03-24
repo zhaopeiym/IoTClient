@@ -16,6 +16,12 @@ namespace IoTClient.Clients.Modbus
     {
         private IPEndPoint ipAndPoint;
         private int timeout = -1;
+        private EndianFormat format;
+
+        /// <summary>
+        /// 警告日志委托        
+        /// </summary>
+        public LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -23,10 +29,12 @@ namespace IoTClient.Clients.Modbus
         /// <param name="ip"></param>
         /// <param name="port"></param>
         /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusTcpRtuClient(string ip, int port, int timeout = 1500)
+        /// <param name="format">大小端设置</param>
+        public ModbusTcpRtuClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             this.timeout = timeout;
             this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            this.format = format;
         }
 
         protected override Result Connect()
@@ -90,8 +98,9 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
+        /// <param name="byteFormatting"></param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
+        public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true)
         {
             if (isAutoOpen) Connect();
 
@@ -124,8 +133,11 @@ namespace IoTClient.Clients.Modbus
                 byte[] resultData = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultData, 0, resultData.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
-                //4 获取响应报文数据（字节数组形式）                
-                result.Value = resultData.Reverse().ToArray();
+                //4 获取响应报文数据（字节数组形式）       
+                if (byteFormatting)
+                    result.Value = resultData.Reverse().ToArray().ByteFormatting(format);
+                else
+                    result.Value = resultData.Reverse().ToArray();
             }
             catch (Exception ex)
             {
@@ -444,7 +456,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<int>
                 {
                     Value = BitConverter.ToInt32(byteArry, 0)
@@ -474,7 +486,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<uint>
                 {
                     Value = BitConverter.ToUInt32(byteArry, 0)
@@ -504,7 +516,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<long>
                 {
                     Value = BitConverter.ToInt64(byteArry, 0)
@@ -534,7 +546,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<ulong>
                 {
                     Value = BitConverter.ToUInt64(byteArry, 0)
@@ -564,7 +576,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<float>
                 {
                     Value = BitConverter.ToSingle(byteArry, 0)
@@ -594,7 +606,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<double>
                 {
                     Value = BitConverter.ToDouble(byteArry, 0)
@@ -765,7 +777,7 @@ namespace IoTClient.Clients.Modbus
                         throw new Exception("Err BatchRead 未定义类型 -1");
                 }
 
-                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength));
+                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength), false);
 
                 if (!tempResult.IsSucceed)
                 {
@@ -893,6 +905,7 @@ namespace IoTClient.Clients.Modbus
             var result = new Result();
             try
             {
+                values = values.ByteFormatting(format);
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
 
                 var commandCRC16 = CRC16.GetCRC16(command);

@@ -1,4 +1,5 @@
 ﻿using IoTClient.Common.Helpers;
+using IoTClient.Enums;
 using IoTClient.Models;
 using System;
 using System.IO.Ports;
@@ -20,8 +21,9 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stopBits">停止位</param>
         /// <param name="parity">奇偶校验</param>
         /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500)
-            : base(portName, baudRate, dataBits, stopBits, parity, timeout)
+        /// <param name="format">大小端设置</param>
+        public ModbusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
+            : base(portName, baudRate, dataBits, stopBits, parity, timeout, format)
         { }
 
         #region  Read 读取
@@ -32,8 +34,9 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
+        /// <param name="byteFormatting"></param>
         /// <returns></returns>
-        public override Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1)
+        public override Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true)
         {
             if (isAutoOpen) Connect();
 
@@ -64,7 +67,10 @@ namespace IoTClient.Clients.Modbus
                 Array.Copy(responsePackage, 3, resultData, 0, resultData.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）                
-                result.Value = resultData.Reverse().ToArray();
+                if (byteFormatting)
+                    result.Value = resultData.Reverse().ToArray().ByteFormatting(format);
+                else
+                    result.Value = resultData.Reverse().ToArray();
             }
             catch (Exception ex)
             {
@@ -143,6 +149,7 @@ namespace IoTClient.Clients.Modbus
             var result = new Result();
             try
             {
+                values = values.ByteFormatting(format);
                 var command = GetWriteCommand(address, values, stationNumber, functionCode);
 
                 var commandCRC16 = CRC16.GetCRC16(command);

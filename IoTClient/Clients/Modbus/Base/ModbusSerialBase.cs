@@ -11,6 +11,13 @@ namespace IoTClient.Clients.Modbus
 {
     public abstract class ModbusSerialBase : SerialPortBase, IModbusClient
     {
+        protected EndianFormat format;
+
+        /// <summary>
+        /// 警告日志委托        
+        /// </summary>
+        public LoggerDelegate WarningLog { get; set; }
+
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -20,7 +27,8 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stopBits">停止位</param>
         /// <param name="parity">奇偶校验</param>
         /// <param name="timeout">超时时间（毫秒）</param>
-        public ModbusSerialBase(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500)
+        /// <param name="format">大小端设置</param>
+        public ModbusSerialBase(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             if (serialPort == null) serialPort = new SerialPort();
             serialPort.PortName = portName;
@@ -32,6 +40,8 @@ namespace IoTClient.Clients.Modbus
 
             serialPort.ReadTimeout = timeout;
             serialPort.WriteTimeout = timeout;
+
+            this.format = format;
 #if DEBUG
             serialPort.ReadTimeout *= 10;
             serialPort.WriteTimeout *= 10;
@@ -67,7 +77,7 @@ namespace IoTClient.Clients.Modbus
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
         /// <returns></returns>
-        public abstract Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1);
+        public abstract Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true);
 
         /// <summary>
         /// 读取Int16
@@ -373,7 +383,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<int>
                 {
                     Value = BitConverter.ToInt32(byteArry, 0)
@@ -403,7 +413,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<uint>
                 {
                     Value = BitConverter.ToUInt32(byteArry, 0)
@@ -433,7 +443,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<long>
                 {
                     Value = BitConverter.ToInt64(byteArry, 0)
@@ -463,7 +473,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<ulong>
                 {
                     Value = BitConverter.ToUInt64(byteArry, 0)
@@ -493,7 +503,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<float>
                 {
                     Value = BitConverter.ToSingle(byteArry, 0)
@@ -523,7 +533,7 @@ namespace IoTClient.Clients.Modbus
             try
             {
                 var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray();
+                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<double>
                 {
                     Value = BitConverter.ToDouble(byteArry, 0)
@@ -694,7 +704,7 @@ namespace IoTClient.Clients.Modbus
                         throw new Exception("Err BatchRead 未定义类型 -1");
                 }
 
-                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength));
+                var tempResult = Read(minAddress.ToString(), stationNumber, functionCode, Convert.ToUInt16(readLength), false);
 
                 if (!tempResult.IsSucceed)
                 {
