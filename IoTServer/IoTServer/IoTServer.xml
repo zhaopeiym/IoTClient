@@ -120,35 +120,79 @@
             </summary>
             <param name="newSocket"></param>
         </member>
-        <member name="T:IoTServer.Servers.PLC.MitsubishiServer">
+        <member name="M:IoTServer.Servers.PLC.IIoTServer.Start">
             <summary>
-            三菱plc 服务端模拟
+            启动服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.#ctor(System.Int32,System.String)">
+        <member name="M:IoTServer.Servers.PLC.IIoTServer.Stop">
+            <summary>
+            停止服务
+            </summary>
+        </member>
+        <member name="T:IoTServer.Servers.PLC.MitsubishiA1EServer">
+            <summary>
+            三菱MC A-1E 服务端模拟
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiA1EServer.#ctor(System.Int32,System.String)">
             <summary>
             
             </summary>
             <param name="port"></param>
             <param name="ip"></param>
         </member>
-        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Start">
+        <member name="M:IoTServer.Servers.PLC.MitsubishiA1EServer.Start">
             <summary>
             启动服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Stop">
+        <member name="M:IoTServer.Servers.PLC.MitsubishiA1EServer.Stop">
             <summary>
             停止服务
             </summary>
         </member>
-        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Accept(System.Net.Sockets.Socket)">
+        <member name="M:IoTServer.Servers.PLC.MitsubishiA1EServer.Accept(System.Net.Sockets.Socket)">
             <summary>
             客户端连接到服务端
             </summary>
             <param name="socket"></param>
         </member>
-        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Receive(System.Net.Sockets.Socket)">
+        <member name="M:IoTServer.Servers.PLC.MitsubishiA1EServer.Receive(System.Net.Sockets.Socket)">
+            <summary>
+            接收客户端发送的消息
+            </summary>
+            <param name="newSocket"></param>
+        </member>
+        <member name="T:IoTServer.Servers.PLC.MitsubishiQna3EServer">
+            <summary>
+            三菱MC Qna-3E  服务端模拟
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiQna3EServer.#ctor(System.Int32,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="port"></param>
+            <param name="ip"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiQna3EServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiQna3EServer.Stop">
+            <summary>
+            停止服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiQna3EServer.Accept(System.Net.Sockets.Socket)">
+            <summary>
+            客户端连接到服务端
+            </summary>
+            <param name="socket"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiQna3EServer.Receive(System.Net.Sockets.Socket)">
             <summary>
             接收客户端发送的消息
             </summary>

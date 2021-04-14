@@ -39,6 +39,14 @@ namespace IoTClient.Tool
             logs.Add("内容");
             logs.Add("1.Modbus 大小端设置");
 
+            logs.Add("\r\n版本：[0.4.5]");
+            logs.Add($"时间：2021-04-14");
+            logs.Add("内容");
+            logs.Add("1.三菱MC_Qna-3E帧客户端实现");
+            logs.Add("2.三菱MC_A-1E帧客户端实现");
+            logs.Add("3.三菱MC_Qna-3E帧模拟服务端实现");
+            logs.Add("4.三菱MC_A-1E帧模拟服务端实现");
+
             textBox1.Text = string.Join("\r\n", logs);
             if (hasNew)
             {

@@ -162,6 +162,7 @@ namespace IoTClient.Clients.Modbus
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
                     result.ErrList.Add("响应结果校验失败");
+                    socket?.SafeClose();
                 }
             }
             catch (SocketException ex)
@@ -480,8 +481,8 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = addressInt - beginAddressInt;
-                var byteArry = values.Skip(i * 2).Take(2).Reverse().ToArray();
+                var interval = addressInt - beginAddressInt;
+                var byteArry = values.Skip(interval * 2).Take(2).Reverse().ToArray();
                 return new Result<short>
                 {
                     Value = BitConverter.ToInt16(byteArry, 0)
@@ -515,8 +516,8 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = addressInt - beginAddressInt;
-                var byteArry = values.Skip(i * 2).Take(2).Reverse().ToArray();
+                var interval = addressInt - beginAddressInt;
+                var byteArry = values.Skip(interval * 2).Take(2).Reverse().ToArray();
                 return new Result<ushort>
                 {
                     Value = BitConverter.ToUInt16(byteArry, 0)
@@ -550,8 +551,9 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
+                var interval = (addressInt - beginAddressInt) / 2;
+                var offset = (addressInt - beginAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<int>
                 {
                     Value = BitConverter.ToInt32(byteArry, 0)
@@ -585,8 +587,9 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
+                var interval = (addressInt - beginAddressInt) / 2;
+                var offset = (addressInt - beginAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<uint>
                 {
                     Value = BitConverter.ToUInt32(byteArry, 0)
@@ -620,8 +623,9 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
+                var interval = (addressInt - beginAddressInt) / 4;
+                var offset = (addressInt - beginAddressInt) % 4 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<long>
                 {
                     Value = BitConverter.ToInt64(byteArry, 0)
@@ -655,8 +659,9 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
+                var interval = (addressInt - beginAddressInt) / 4;
+                var offset = (addressInt - beginAddressInt) % 4 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<ulong>
                 {
                     Value = BitConverter.ToUInt64(byteArry, 0)
@@ -690,8 +695,9 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = (addressInt - beginAddressInt) / 2;
-                var byteArry = values.Skip(i * 2 * 2).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
+                var interval = (addressInt - beginAddressInt) / 2;
+                var offset = (addressInt - beginAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).Reverse().ToArray().ByteFormatting(format);
                 return new Result<float>
                 {
                     Value = BitConverter.ToSingle(byteArry, 0)
@@ -725,8 +731,9 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = (addressInt - beginAddressInt) / 4;
-                var byteArry = values.Skip(i * 2 * 4).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
+                var interval = (addressInt - beginAddressInt) / 4;
+                var offset = (addressInt - beginAddressInt) % 4 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).Reverse().ToArray().ByteFormatting(format);
                 return new Result<double>
                 {
                     Value = BitConverter.ToDouble(byteArry, 0)
@@ -760,12 +767,12 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = addressInt - beginAddressInt;
-                var index = (i + 1) % 8 == 0 ? (i + 1) / 8 : (i + 1) / 8 + 1;
+                var interval = addressInt - beginAddressInt;
+                var index = (interval + 1) % 8 == 0 ? (interval + 1) / 8 : (interval + 1) / 8 + 1;
                 var binaryArray = Convert.ToInt32(values[index - 1]).IntToBinaryArray().ToArray().Reverse().ToArray();
                 var isBit = false;
-                if ((index - 1) * 8 + binaryArray.Length > i)
-                    isBit = binaryArray[i - (index - 1) * 8].ToString() == 1.ToString();
+                if ((index - 1) * 8 + binaryArray.Length > interval)
+                    isBit = binaryArray[interval - (index - 1) * 8].ToString() == 1.ToString();
                 return new Result<bool>()
                 {
                     Value = isBit
@@ -799,12 +806,12 @@ namespace IoTClient.Clients.Modbus
                 throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
             try
             {
-                var i = addressInt - beginAddressInt;
-                var index = (i + 1) % 8 == 0 ? (i + 1) / 8 : (i + 1) / 8 + 1;
+                var interval = addressInt - beginAddressInt;
+                var index = (interval + 1) % 8 == 0 ? (interval + 1) / 8 : (interval + 1) / 8 + 1;
                 var binaryArray = Convert.ToInt32(values[index - 1]).IntToBinaryArray().ToArray().Reverse().ToArray();
                 var isBit = false;
-                if ((index - 1) * 8 + binaryArray.Length > i)
-                    isBit = binaryArray[i - (index - 1) * 8].ToString() == 1.ToString();
+                if ((index - 1) * 8 + binaryArray.Length > interval)
+                    isBit = binaryArray[interval - (index - 1) * 8].ToString() == 1.ToString();
                 return new Result<bool>()
                 {
                     Value = isBit
@@ -1099,6 +1106,7 @@ namespace IoTClient.Clients.Modbus
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
                     result.ErrList.Add("响应结果校验失败");
+                    socket?.SafeClose();
                 }
             }
             catch (SocketException ex)
@@ -1149,6 +1157,7 @@ namespace IoTClient.Clients.Modbus
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
                     result.ErrList.Add("响应结果校验失败");
+                    socket?.SafeClose();
                 }
             }
             catch (SocketException ex)

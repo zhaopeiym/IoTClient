@@ -163,7 +163,7 @@
             this.txt_port.Name = "txt_port";
             this.txt_port.Size = new System.Drawing.Size(39, 21);
             this.txt_port.TabIndex = 5;
-            this.txt_port.Text = "5007";
+            this.txt_port.Text = "6000";
             // 
             // rd_ulong
             // 
@@ -353,7 +353,7 @@
             this.txt_address.Name = "txt_address";
             this.txt_address.Size = new System.Drawing.Size(121, 21);
             this.txt_address.TabIndex = 9;
-            this.txt_address.Text = "M2634";
+            this.txt_address.Text = "D263";
             // 
             // but_write
             // 

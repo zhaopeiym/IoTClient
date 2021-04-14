@@ -1,4 +1,5 @@
 ﻿using IoTClient.Common.Enums;
+using IoTClient.Enums;
 using IoTClient.Tool.Controls;
 using IoTClient.Tool.Model;
 using IoTServer.Common;
@@ -144,10 +145,15 @@ namespace IoTClient.Tool
                         ports.Dock = DockStyle.Fill;
                         tab.Controls.Add(ports);
                         break;
-                    case "MitsubishiMC":
-                        var mitsubishiMC = new MitsubishiMCControl();
+                    case "三菱_MC_Qna_3E":
+                        var mitsubishiMC = new MitsubishiMCControl(MitsubishiVersion.Qna_3E);
                         mitsubishiMC.Dock = DockStyle.Fill;
                         tab.Controls.Add(mitsubishiMC);
+                        break;
+                    case "三菱_MC_A_1E":
+                        var mitsubishiA1E = new MitsubishiMCControl(MitsubishiVersion.A_1E);
+                        mitsubishiA1E.Dock = DockStyle.Fill;
+                        tab.Controls.Add(mitsubishiA1E);
                         break;
                     case "OmronFinsTcp":
                         var omronFinsTcp = new OmronFinsTcpControl();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 
 namespace IoTClient.Models
 {
@@ -92,7 +91,7 @@ namespace IoTClient.Models
         {
             Assignment(result);
             Value = data;
-        } 
+        }
 
         /// <summary>
         /// 数据结果

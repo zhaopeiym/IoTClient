@@ -13,13 +13,14 @@ using System.Text;
 namespace IoTClient.Clients.PLC
 {
     /// <summary>
-    /// 三菱plc 客户端
+    /// 三菱plc客户端 - Beta
     /// </summary>
     public class MitsubishiClient : SocketBase, IIoTClient
     {
         private int timeout;
 
-        public string Version => "Mitsubishi";
+        public string Version => version.ToString();
+        private MitsubishiVersion version;
 
         public IPEndPoint IpAndPoint { get; }
 
@@ -33,8 +34,9 @@ namespace IoTClient.Clients.PLC
         /// <param name="ip"></param>
         /// <param name="port"></param>
         /// <param name="timeout"></param>
-        public MitsubishiClient(string ip, int port, int timeout = 1500)
+        public MitsubishiClient(MitsubishiVersion version, string ip, int port, int timeout = 1500)
         {
+            this.version = version;
             IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
             this.timeout = timeout;
         }
@@ -81,6 +83,13 @@ namespace IoTClient.Clients.PLC
             var dataPackage = SocketRead(socket, GetContentLength(headPackage));
             return headPackage.Concat(dataPackage).ToArray();
         }
+
+        public byte[] SendPackage(byte[] command, int receiveCount)
+        {
+            socket.Send(command);
+            var dataPackage = SocketRead(socket, receiveCount);
+            return dataPackage.ToArray();
+        }
         #endregion
 
         #region 读
@@ -98,22 +107,68 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //发送读取信息
-                var arg = ConvertAddress(address);
-                byte[] command = GetReadCommand(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, length, isBit);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var dataPackage = SendPackage(command);
-                var bufferLength = length;
-                byte[] responseValue = new byte[bufferLength];
-                Array.Copy(dataPackage, dataPackage.Length - bufferLength, responseValue, 0, bufferLength);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                if (isBit)
+                MitsubishiMCData arg = null;
+                byte[] command = null;
+
+                switch (version)
                 {
-                    if (responseValue.Length == 2 && responseValue[0] == 0 && responseValue[1] == 16)
-                    {
-                        responseValue[0] = 1;
-                        responseValue[1] = 0;
-                    }
+                    case MitsubishiVersion.A_1E:
+                        arg = ConvertAddress_A_1E(address);
+                        command = GetReadCommand_A_1E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, length, isBit);
+                        break;
+                    case MitsubishiVersion.Qna_3E:
+                        arg = ConvertAddress_Qna_3E(address);
+                        command = GetReadCommand_Qna_3E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, length, isBit);
+                        break;
                 }
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
+                byte[] dataPackage = null;
+                switch (version)
+                {
+                    case MitsubishiVersion.A_1E:
+                        var lenght = command[10] + command[11] * 256;
+                        if (isBit)
+                            dataPackage = SendPackage(command, lenght + 2);
+                        else
+                            dataPackage = SendPackage(command, lenght * 2 + 2);
+                        break;
+                    case MitsubishiVersion.Qna_3E:
+                        dataPackage = SendPackage(command);
+                        break;
+                }
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+
+                var bufferLength = length;
+                byte[] responseValue = null;
+
+                switch (version)
+                {
+                    case MitsubishiVersion.A_1E:
+                        responseValue = new byte[dataPackage.Length - 2];
+                        Array.Copy(dataPackage, 2, responseValue, 0, responseValue.Length);
+                        //if (isBit)
+                        //{
+                        //    if (responseValue.Length == 2 && responseValue[0] == 0 && responseValue[1] == 16)
+                        //    {
+                        //        responseValue[0] = 1;
+                        //        responseValue[1] = 0;
+                        //    }
+                        //}
+                        break;
+                    case MitsubishiVersion.Qna_3E:
+                        responseValue = new byte[bufferLength];
+                        Array.Copy(dataPackage, dataPackage.Length - bufferLength, responseValue, 0, bufferLength);
+                        if (isBit)
+                        {
+                            if (responseValue.Length == 2 && responseValue[0] == 0 && responseValue[1] == 16)
+                            {
+                                responseValue[0] = 1;
+                                responseValue[1] = 0;
+                            }
+                        }
+                        break;
+                }
+
                 result.Value = responseValue;
             }
             catch (SocketException ex)
@@ -349,18 +404,46 @@ namespace IoTClient.Clients.PLC
         /// <param name="data"></param>
         /// <param name="isBit"></param>
         /// <returns></returns>
-        public Result Write(string address, byte[] data, bool isBit = false)
+        private Result Write(string address, byte[] data, bool isBit = false)
         {
-            if (!socket?.Connected ?? true) Connect();
+            if (!socket?.Connected ?? true)
+            {
+                var connectResult = Connect();
+                if (!connectResult.IsSucceed)
+                {
+                    return connectResult;
+                }
+            }
             Result result = new Result();
             try
             {
                 Array.Reverse(data);
+
                 //发送写入信息
-                var arg = ConvertAddress(address);
-                byte[] command = GetWriteCommand(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, data, isBit);
+                MitsubishiMCData arg = null;
+                byte[] command = null;
+                switch (version)
+                {
+                    case MitsubishiVersion.A_1E:
+                        arg = ConvertAddress_A_1E(address);
+                        command = GetWriteCommand_A_1E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, data, isBit);
+                        break;
+                    case MitsubishiVersion.Qna_3E:
+                        arg = ConvertAddress_Qna_3E(address);
+                        command = GetWriteCommand_Qna_3E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, data, isBit);
+                        break;
+                }
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var dataPackage = SendPackage(command);
+                byte[] dataPackage = null;
+                switch (version)
+                {
+                    case MitsubishiVersion.A_1E:
+                        dataPackage = SendPackage(command, 2);
+                        break;
+                    case MitsubishiVersion.Qna_3E:
+                        dataPackage = SendPackage(command);
+                        break;
+                }
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
@@ -374,15 +457,35 @@ namespace IoTClient.Clients.PLC
                 else
                 {
                     result.Err = ex.Message;
+                    result.Exception = ex;
                     result.ErrList.Add(ex.Message);
                 }
+                socket?.SafeClose();
+            }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public Result Write(string address, byte[] data)
+        {
+            return Write(address, data, false);
         }
 
         /// <summary>
@@ -514,77 +617,134 @@ namespace IoTClient.Clients.PLC
 
         #region 生成报文命令
         /// <summary>
-        /// 获取读取命令
+        /// 获取Qna_3E读取命令
         /// </summary>
         /// <param name="beginAddress"></param>
         /// <param name="typeCode"></param>
         /// <param name="length"></param>
         /// <param name="isBit"></param>
         /// <returns></returns>
-        protected byte[] GetReadCommand(int beginAddress, byte typeCode, ushort length, bool isBit)
+        protected byte[] GetReadCommand_Qna_3E(int beginAddress, byte[] typeCode, ushort length, bool isBit)
         {
             length = (ushort)(length / 2);
             byte[] command = new byte[21];
             command[0] = 0x50;
-            command[1] = 0x00;
-            command[2] = 0x00;
-            command[3] = 0xFF;
+            command[1] = 0x00; //副头部
+            command[2] = 0x00; //网络编号
+            command[3] = 0xFF; //PLC编号
             command[4] = 0xFF;
-            command[5] = 0x03;
-            command[6] = 0x00;
-            command[7] = (byte)((command.Length - 9) % 256);// 请求数据长度
-            command[8] = (byte)((command.Length - 9) / 256);
+            command[5] = 0x03; //IO编号
+            command[6] = 0x00; //模块站号
+            command[7] = (byte)((command.Length - 9) % 256);
+            command[8] = (byte)((command.Length - 9) / 256); // 请求数据长度
             command[9] = 0x0A;
-            command[10] = 0x00;
+            command[10] = 0x00; //时钟
             command[11] = 0x01;
-            command[12] = 0x04;//读
-            command[13] = isBit ? (byte)0x01 : (byte)0x00;// 位 或 字节为单位
+            command[12] = 0x04;//指令（0x01 0x04读 0x01 0x14写）
+            command[13] = isBit ? (byte)0x01 : (byte)0x00;//子指令（位 或 字节为单位）
             command[14] = 0x00;
             command[15] = BitConverter.GetBytes(beginAddress)[0];// 起始地址的地位
             command[16] = BitConverter.GetBytes(beginAddress)[1];
             command[17] = BitConverter.GetBytes(beginAddress)[2];
-            command[18] = typeCode;
+            command[18] = typeCode[0]; //数据类型
             command[19] = (byte)(length % 256);
-            command[20] = (byte)(length / 256);
+            command[20] = (byte)(length / 256); //长度
             return command;
         }
 
         /// <summary>
-        /// 获取写入命令
+        /// 获取A_1E读取命令
+        /// </summary>
+        /// <param name="beginAddress"></param>
+        /// <param name="typeCode"></param>
+        /// <param name="length"></param>
+        /// <param name="isBit"></param>
+        /// <returns></returns>
+        protected byte[] GetReadCommand_A_1E(int beginAddress, byte[] typeCode, ushort length, bool isBit)
+        {
+            length = (ushort)(length / 2);
+            byte[] command = new byte[12];
+            command[0] = isBit ? (byte)0x00 : (byte)0x01;//副头部
+            command[1] = 0xFF; //PLC编号
+            command[2] = 0x0A;
+            command[3] = 0x00;
+            command[4] = BitConverter.GetBytes(beginAddress)[0]; // 
+            command[5] = BitConverter.GetBytes(beginAddress)[1]; // 开始读取的地址
+            command[6] = 0x00;
+            command[7] = 0x00;
+            command[8] = typeCode[1];
+            command[9] = typeCode[0];
+            command[10] = (byte)(length % 256);//长度
+            command[11] = (byte)(length / 256);
+            return command;
+        }
+
+        /// <summary>
+        /// 获取Qna_3E写入命令
         /// </summary>
         /// <param name="beginAddress"></param>
         /// <param name="typeCode"></param>
         /// <param name="data"></param>
         /// <param name="isBit"></param>
         /// <returns></returns>
-        protected byte[] GetWriteCommand(int beginAddress, byte typeCode, byte[] data, bool isBit)
+        protected byte[] GetWriteCommand_Qna_3E(int beginAddress, byte[] typeCode, byte[] data, bool isBit)
         {
             var length = data.Length / 2;
             if (isBit) length = 1;
 
             byte[] command = new byte[21 + data.Length];
             command[0] = 0x50;
-            command[1] = 0x00;
-            command[2] = 0x00;
-            command[3] = 0xFF;
+            command[1] = 0x00; //副头部
+            command[2] = 0x00; //网络编号
+            command[3] = 0xFF; //PLC编号
             command[4] = 0xFF;
-            command[5] = 0x03;
-            command[6] = 0x00;
+            command[5] = 0x03; //IO编号
+            command[6] = 0x00; //模块站号
             command[7] = (byte)((command.Length - 9) % 256);// 请求数据长度
             command[8] = (byte)((command.Length - 9) / 256);
             command[9] = 0x0A;
-            command[10] = 0x00;
+            command[10] = 0x00; //时钟
             command[11] = 0x01;
-            command[12] = 0x14;//写
-            command[13] = isBit ? (byte)0x01 : (byte)0x00;// 位 或 字节为单位
+            command[12] = 0x14;//指令（0x01 0x04读 0x01 0x14写）
+            command[13] = isBit ? (byte)0x01 : (byte)0x00;//子指令（位 或 字节为单位）
             command[14] = 0x00;
             command[15] = BitConverter.GetBytes(beginAddress)[0];// 起始地址的地位
             command[16] = BitConverter.GetBytes(beginAddress)[1];
             command[17] = BitConverter.GetBytes(beginAddress)[2];
-            command[18] = typeCode;
+            command[18] = typeCode[0];//数据类型
             command[19] = (byte)(length % 256);
-            command[20] = (byte)(length / 256);
+            command[20] = (byte)(length / 256); //长度
             data.Reverse().ToArray().CopyTo(command, 21);
+            return command;
+        }
+
+        /// <summary>
+        /// 获取A_1E写入命令
+        /// </summary>
+        /// <param name="beginAddress"></param>
+        /// <param name="typeCode"></param>
+        /// <param name="data"></param>
+        /// <param name="isBit"></param>
+        /// <returns></returns>
+        protected byte[] GetWriteCommand_A_1E(int beginAddress, byte[] typeCode, byte[] data, bool isBit)
+        {
+            var length = data.Length / 2;
+            if (isBit) length = data.Length;
+
+            byte[] command = new byte[12 + data.Length];
+            command[0] = isBit ? (byte)0x02 : (byte)0x03;     //副标题
+            command[1] = 0xFF;                             // PLC号
+            command[2] = 0x0A;
+            command[3] = 0x00;
+            command[4] = BitConverter.GetBytes(beginAddress)[0];        //
+            command[5] = BitConverter.GetBytes(beginAddress)[1];        //起始地址的地位
+            command[6] = 0x00;
+            command[7] = 0x00;
+            command[8] = typeCode[1];        //
+            command[9] = typeCode[0];        //数据类型
+            command[10] = (byte)(length % 256);
+            command[11] = (byte)(length / 256);
+            data.Reverse().ToArray().CopyTo(command, 12);
             return command;
         }
         #endregion
@@ -605,7 +765,7 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
-        private MitsubishiMCData ConvertAddress(string address)
+        private MitsubishiMCData ConvertAddress_Qna_3E(string address)
         {
             address = address.ToUpper();
             var addressData = new MitsubishiMCData();
@@ -749,7 +909,61 @@ namespace IoTClient.Clients.PLC
                     }
             }
             return addressData;
-        }    
+        }
+
+        private MitsubishiMCData ConvertAddress_A_1E(string address)
+        {
+            address = address.ToUpper();
+            var addressData = new MitsubishiMCData();
+            switch (address[0])
+            {
+                case 'X':
+                    {
+                        addressData.MitsubishiMCType = MitsubishiA1Type.X;
+                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.X.Format);
+                    }
+                    break;
+                case 'Y':
+                    {
+                        addressData.MitsubishiMCType = MitsubishiA1Type.Y;
+                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.Y.Format);
+                    }
+                    break;
+                case 'M':
+                    {
+                        addressData.MitsubishiMCType = MitsubishiA1Type.M;
+                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.M.Format);
+                    }
+                    break;
+                case 'S':
+                    {
+                        addressData.MitsubishiMCType = MitsubishiA1Type.S;
+                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.S.Format);
+                    }
+                    break;
+                case 'D':
+                    {
+                        addressData.MitsubishiMCType = MitsubishiA1Type.D;
+                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.D.Format);
+                    }
+                    break;
+                case 'R':
+                    {
+                        addressData.MitsubishiMCType = MitsubishiA1Type.R;
+                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.R.Format);
+                    }
+                    break;
+            }
+            return addressData;
+        }
+
+        private MitsubishiMCWrite ConvertWriteArg_Qna_3E(string address, byte[] writeData)
+        {
+            MitsubishiMCWrite arg = new MitsubishiMCWrite(ConvertAddress_Qna_3E(address));
+            arg.WriteData = writeData;
+            //arg.ReadWriteBit = bit;
+            return arg;
+        }
 
         #region TODO
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
@@ -772,10 +986,6 @@ namespace IoTClient.Clients.PLC
             throw new NotImplementedException();
         }
 
-        public Result Write(string address, byte[] data)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
         #endregion
     }

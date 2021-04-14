@@ -1470,10 +1470,10 @@
         </member>
         <member name="T:IoTClient.Clients.PLC.MitsubishiClient">
             <summary>
-            三菱plc 客户端
+            三菱plc客户端 - Beta
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.#ctor(System.String,System.Int32,System.Int32)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.#ctor(IoTClient.Enums.MitsubishiVersion,System.String,System.Int32,System.Int32)">
             <summary>
             
             </summary>
@@ -1583,6 +1583,14 @@
             <param name="isBit"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Byte[])">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Byte)">
             <summary>
             写入数据
@@ -1671,9 +1679,9 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetReadCommand(System.Int32,System.Byte,System.UInt16,System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetReadCommand_Qna_3E(System.Int32,System.Byte[],System.UInt16,System.Boolean)">
             <summary>
-            获取读取命令
+            获取Qna_3E读取命令
             </summary>
             <param name="beginAddress"></param>
             <param name="typeCode"></param>
@@ -1681,9 +1689,29 @@
             <param name="isBit"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetWriteCommand(System.Int32,System.Byte,System.Byte[],System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetReadCommand_A_1E(System.Int32,System.Byte[],System.UInt16,System.Boolean)">
             <summary>
-            获取写入命令
+            获取A_1E读取命令
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="typeCode"></param>
+            <param name="length"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetWriteCommand_Qna_3E(System.Int32,System.Byte[],System.Byte[],System.Boolean)">
+            <summary>
+            获取Qna_3E写入命令
+            </summary>
+            <param name="beginAddress"></param>
+            <param name="typeCode"></param>
+            <param name="data"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetWriteCommand_A_1E(System.Int32,System.Byte[],System.Byte[],System.Boolean)">
+            <summary>
+            获取A_1E写入命令
             </summary>
             <param name="beginAddress"></param>
             <param name="typeCode"></param>
@@ -1698,7 +1726,7 @@
             <param name="head"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertAddress(System.String)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertAddress_Qna_3E(System.String)">
             <summary>
             地址转换
             </summary>
@@ -2119,6 +2147,430 @@
             <param name="address"></param>
             <returns></returns>
         </member>
+        <member name="P:IoTClient.Models.ModbusInput.Address">
+            <summary>
+            地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.ModbusInput.DataType">
+            <summary>
+            数据类型
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.ModbusInput.StationNumber">
+            <summary>
+            站号
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.ModbusInput.FunctionCode">
+            <summary>
+            功能码
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.ModbusOutput.Address">
+            <summary>
+            地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.ModbusOutput.StationNumber">
+            <summary>
+            站号
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.ModbusOutput.FunctionCode">
+            <summary>
+            功能码
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.IMitsubishiMCType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.IMitsubishiMCType.TypeCode">
+            <summary>
+            类型的代号值
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.IMitsubishiMCType.DataType">
+            <summary>
+            数据的类型，0代表按字，1代表按位
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.IMitsubishiMCType.Format">
+            <summary>
+            指示地址是10进制，还是16进制的
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiA1Type.DataType">
+            <summary>
+            数据的类型，0代表按字，1代表按位
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiA1Type.Format">
+            <summary>
+            指示地址是10进制，还是16进制的
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiA1Type.X">
+            <summary>
+            X输入寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiA1Type.Y">
+            <summary>
+            Y输出寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiA1Type.M">
+            <summary>
+            M中间寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiA1Type.S">
+            <summary>
+            S状态寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiA1Type.D">
+            <summary>
+            D数据寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiA1Type.R">
+            <summary>
+            R文件寄存器
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.MitsubishiMCData">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCData.BeginAddress">
+            <summary>
+            开始地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCData.MitsubishiMCType">
+            <summary>
+            数据类型
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.MitsubishiMCType">
+            <summary>
+            三菱PLC数据类型
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.MitsubishiMCType.#ctor(System.Byte[],System.Byte,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="code">数据类型的代号</param>
+            <param name="type">0或1，默认为0</param> 
+            <param name="format">十进制或十六进制</param>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCType.TypeCode">
+            <summary>
+            类型的代号值
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCType.DataType">
+            <summary>
+            0代表按字，1代表按位
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCType.Format">
+            <summary>
+            10进制或16进制
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.X">
+            <summary>
+            X输入继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.Y">
+            <summary>
+            Y输出继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.M">
+            <summary>
+            M中间继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.D">
+            <summary>
+            D数据寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.W">
+            <summary>
+            W链接寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.L">
+            <summary>
+            L锁存继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.F">
+            <summary>
+            F报警器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.V">
+            <summary>
+            V边沿继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.B">
+            <summary>
+            B链接继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.R">
+            <summary>
+            R文件寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.S">
+            <summary>
+            S步进继电器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.Z">
+            <summary>
+            变址寄存器
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.TN">
+            <summary>
+            定时器的当前值
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.TS">
+            <summary>
+            定时器的触点
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.TC">
+            <summary>
+            定时器的线圈
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.SS">
+            <summary>
+            累计定时器的触点
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.SC">
+            <summary>
+            累计定时器的线圈
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.SN">
+            <summary>
+            累计定时器的当前值
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.CN">
+            <summary>
+            计数器的当前值
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.CS">
+            <summary>
+            计数器的触点
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.CC">
+            <summary>
+            计数器的线圈
+            </summary>
+        </member>
+        <member name="F:IoTClient.Models.MitsubishiMCType.ZR">
+            <summary>
+            文件寄存器ZR区
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCWrite.WriteData">
+            <summary>
+            要写入的数据
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.MitsubishiMCWrite.Assignment(IoTClient.Models.MitsubishiMCData)">
+            <summary>
+            赋值
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.SiemensWrite.WriteData">
+            <summary>
+            要写入的数据
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.SiemensWrite.Assignment(IoTClient.Core.Models.SiemensData)">
+            <summary>
+            赋值
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.Result">
+            <summary>
+            请求结果
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.IsSucceed">
+            <summary>
+            是否成功
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.Err">
+            <summary>
+            异常消息
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.ErrCode">
+            <summary>
+            异常Code
+            408 连接失败
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.Exception">
+            <summary>
+            详细异常
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.ErrList">
+            <summary>
+            异常集合
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.Requst">
+            <summary>
+            请求报文
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.Response">
+            <summary>
+            响应报文
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.TimeConsuming">
+            <summary>
+            耗时（毫秒）
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.Result.EndTime">
+            <summary>
+            结束时间统计
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result.InitialTime">
+            <summary>
+            开始时间
+            </summary>
+        </member>
+        <member name="T:IoTClient.Models.Result`1">
+            <summary>
+            请求结果
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.Result`1.Value">
+            <summary>
+            数据结果
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.Result`1.EndTime">
+            <summary>
+            结束时间统计
+            </summary>
+        </member>
+        <member name="M:IoTClient.Models.Result`1.Assignment(IoTClient.Models.Result)">
+            <summary>
+            赋值
+            </summary>
+        </member>
+        <member name="T:IoTClient.Common.Constants.SiemensConstant">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.InitHeadLength">
+            <summary>
+            Head头读取长度
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1">
+            <summary>
+            第一次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2">
+            <summary>
+            第二次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_200Smart">
+            <summary>
+            第一次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2_200Smart">
+            <summary>
+            第二次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_200">
+            <summary>
+            第一次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2_200">
+            <summary>
+            第二次初始化指令交互报文
+            </summary>
+        </member>
+        <member name="T:IoTClient.Common.Enums.SiemensVersion">
+            <summary>
+            西门子型号版本
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.None">
+            <summary>
+            未定义
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200">
+            <summary>
+            西门子S7-200 【需要配置网络模块】
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200Smart">
+            <summary>
+            西门子S7-200Smar
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_300">
+            <summary>
+            西门子S7-300
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_400">
+            <summary>
+            西门子S7-400
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_1200">
+            <summary>
+            西门子S7-1200
+            </summary>
+        </member>
+        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_1500">
+            <summary>
+            西门子S7-1500
+            </summary>
+        </member>
         <member name="T:IoTClient.Common.Helpers.CRC16">
             <summary>
             CRC16验证
@@ -2258,84 +2710,24 @@
             </summary>
             <param name="socket"></param>
         </member>
-        <member name="T:IoTClient.Common.Constants.SiemensConstant">
+        <member name="T:IoTClient.Enums.MitsubishiVersion">
             <summary>
-            
+            三菱型号版本
             </summary>
         </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.InitHeadLength">
-            <summary>
-            Head头读取长度
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1">
-            <summary>
-            第一次初始化指令交互报文
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2">
-            <summary>
-            第二次初始化指令交互报文
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_200Smart">
-            <summary>
-            第一次初始化指令交互报文
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2_200Smart">
-            <summary>
-            第二次初始化指令交互报文
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command1_200">
-            <summary>
-            第一次初始化指令交互报文
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Constants.SiemensConstant.Command2_200">
-            <summary>
-            第二次初始化指令交互报文
-            </summary>
-        </member>
-        <member name="T:IoTClient.Common.Enums.SiemensVersion">
-            <summary>
-            西门子型号版本
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.None">
+        <member name="F:IoTClient.Enums.MitsubishiVersion.None">
             <summary>
             未定义
             </summary>
         </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200">
+        <member name="F:IoTClient.Enums.MitsubishiVersion.A_1E">
             <summary>
-            西门子S7-200 【需要配置网络模块】
+            三菱 MC A-1E帧
             </summary>
         </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_200Smart">
+        <member name="F:IoTClient.Enums.MitsubishiVersion.Qna_3E">
             <summary>
-            西门子S7-200Smar
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_300">
-            <summary>
-            西门子S7-300
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_400">
-            <summary>
-            西门子S7-400
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_1200">
-            <summary>
-            西门子S7-1200
-            </summary>
-        </member>
-        <member name="F:IoTClient.Common.Enums.SiemensVersion.S7_1500">
-            <summary>
-            西门子S7-1500
+            三菱 MC Qna-3E帧
             </summary>
         </member>
         <member name="T:IoTClient.Enums.DataTypeEnum">
@@ -2422,6 +2814,41 @@
         <member name="F:IoTClient.Enums.EndianFormat.DCBA">
             <summary>
             小端序 DCBA
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.Address">
+            <summary>
+            原地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.DataType">
+            <summary>
+            数据类型
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.TypeCode">
+            <summary>
+            区域类型
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.DbBlock">
+            <summary>
+            DB块编号
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.BeginAddress">
+            <summary>
+            开始地址(西门子plc地址为8个位的长度，这里展开实际的开始地址。)
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteLength">
+            <summary>
+            读取或写入长度
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteBit">
+            <summary>
+            是否读取或写入bit类型
             </summary>
         </member>
         <member name="T:IoTClient.Interfaces.IIoTClient">
@@ -2667,315 +3094,6 @@
             <param name="address">地址</param>
             <param name="value">值</param>
             <returns></returns>
-        </member>
-        <member name="T:IoTClient.Models.MitsubishiMCData">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCData.BeginAddress">
-            <summary>
-            开始地址
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCData.MitsubishiMCType">
-            <summary>
-            数据类型
-            </summary>
-        </member>
-        <member name="T:IoTClient.Models.MitsubishiMCType">
-            <summary>
-            三菱PLC数据类型
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.MitsubishiMCType.#ctor(System.Byte,System.Byte,System.Int32)">
-            <summary>
-            
-            </summary>
-            <param name="code">数据类型的代号</param>
-            <param name="type">0或1，默认为0</param> 
-            <param name="format">十进制或十六进制</param>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCType.TypeCode">
-            <summary>
-            类型的代号值
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCType.DataType">
-            <summary>
-            0代表按字，1代表按位
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCType.Format">
-            <summary>
-            10进制或16进制
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.X">
-            <summary>
-            X输入继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.Y">
-            <summary>
-            Y输出继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.M">
-            <summary>
-            M中间继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.D">
-            <summary>
-            D数据寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.W">
-            <summary>
-            W链接寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.L">
-            <summary>
-            L锁存继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.F">
-            <summary>
-            F报警器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.V">
-            <summary>
-            V边沿继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.B">
-            <summary>
-            B链接继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.R">
-            <summary>
-            R文件寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.S">
-            <summary>
-            S步进继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.Z">
-            <summary>
-            变址寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.TN">
-            <summary>
-            定时器的当前值
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.TS">
-            <summary>
-            定时器的触点
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.TC">
-            <summary>
-            定时器的线圈
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.SS">
-            <summary>
-            累计定时器的触点
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.SC">
-            <summary>
-            累计定时器的线圈
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.SN">
-            <summary>
-            累计定时器的当前值
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.CN">
-            <summary>
-            计数器的当前值
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.CS">
-            <summary>
-            计数器的触点
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.CC">
-            <summary>
-            计数器的线圈
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.ZR">
-            <summary>
-            文件寄存器ZR区
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusInput.Address">
-            <summary>
-            地址
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusInput.DataType">
-            <summary>
-            数据类型
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusInput.StationNumber">
-            <summary>
-            站号
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusInput.FunctionCode">
-            <summary>
-            功能码
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusOutput.Address">
-            <summary>
-            地址
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusOutput.StationNumber">
-            <summary>
-            站号
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.ModbusOutput.FunctionCode">
-            <summary>
-            功能码
-            </summary>
-        </member>
-        <member name="T:IoTClient.Models.Result">
-            <summary>
-            请求结果
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.IsSucceed">
-            <summary>
-            是否成功
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Err">
-            <summary>
-            异常消息
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.ErrCode">
-            <summary>
-            异常Code
-            408 连接失败
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Exception">
-            <summary>
-            详细异常
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.ErrList">
-            <summary>
-            异常集合
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Requst">
-            <summary>
-            请求报文
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Response">
-            <summary>
-            响应报文
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.TimeConsuming">
-            <summary>
-            耗时（毫秒）
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.Result.EndTime">
-            <summary>
-            结束时间统计
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.InitialTime">
-            <summary>
-            开始时间
-            </summary>
-        </member>
-        <member name="T:IoTClient.Models.Result`1">
-            <summary>
-            请求结果
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result`1.Value">
-            <summary>
-            数据结果
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.Result`1.EndTime">
-            <summary>
-            结束时间统计
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.Result`1.Assignment(IoTClient.Models.Result)">
-            <summary>
-            赋值
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.SiemensWrite.WriteData">
-            <summary>
-            要写入的数据
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.SiemensWrite.Assignment(IoTClient.Core.Models.SiemensData)">
-            <summary>
-            赋值
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.Address">
-            <summary>
-            原地址
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.DataType">
-            <summary>
-            数据类型
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.TypeCode">
-            <summary>
-            区域类型
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.DbBlock">
-            <summary>
-            DB块编号
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.BeginAddress">
-            <summary>
-            开始地址(西门子plc地址为8个位的长度，这里展开实际的开始地址。)
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteLength">
-            <summary>
-            读取或写入长度
-            </summary>
-        </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteBit">
-            <summary>
-            是否读取或写入bit类型
-            </summary>
         </member>
         <member name="T:IoTClient.SerialPortBase">
             <summary>

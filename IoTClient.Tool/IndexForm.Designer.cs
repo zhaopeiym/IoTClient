@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IndexForm));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.ModbusTcp = new System.Windows.Forms.TabPage();
-            this.ModbusTcpControl1 = new IoTClient.Tool.ModbusTcpControl();
             this.ModbusRtu = new System.Windows.Forms.TabPage();
             this.ModbusAscii = new System.Windows.Forms.TabPage();
             this.SiemensS7200 = new System.Windows.Forms.TabPage();
@@ -40,7 +39,8 @@
             this.SiemensS7400 = new System.Windows.Forms.TabPage();
             this.SiemensS71200 = new System.Windows.Forms.TabPage();
             this.SiemensS71500 = new System.Windows.Forms.TabPage();
-            this.MitsubishiMC = new System.Windows.Forms.TabPage();
+            this.三菱_MC_Qna_3E = new System.Windows.Forms.TabPage();
+            this.三菱_MC_A_1E = new System.Windows.Forms.TabPage();
             this.OmronFinsTcp = new System.Windows.Forms.TabPage();
             this.BACnet = new System.Windows.Forms.TabPage();
             this.MQTT = new System.Windows.Forms.TabPage();
@@ -49,11 +49,12 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemBlogPath = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.商务合作ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.ModbusTcpControl1 = new IoTClient.Tool.ModbusTcpControl();
             this.tabControl1.SuspendLayout();
             this.ModbusTcp.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -70,7 +71,8 @@
             this.tabControl1.Controls.Add(this.SiemensS7400);
             this.tabControl1.Controls.Add(this.SiemensS71200);
             this.tabControl1.Controls.Add(this.SiemensS71500);
-            this.tabControl1.Controls.Add(this.MitsubishiMC);
+            this.tabControl1.Controls.Add(this.三菱_MC_Qna_3E);
+            this.tabControl1.Controls.Add(this.三菱_MC_A_1E);
             this.tabControl1.Controls.Add(this.OmronFinsTcp);
             this.tabControl1.Controls.Add(this.BACnet);
             this.tabControl1.Controls.Add(this.MQTT);
@@ -94,14 +96,6 @@
             this.ModbusTcp.TabIndex = 0;
             this.ModbusTcp.Text = "ModbusTcp";
             this.ModbusTcp.UseVisualStyleBackColor = true;
-            // 
-            // ModbusTcpControl1
-            // 
-            this.ModbusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ModbusTcpControl1.Location = new System.Drawing.Point(3, 3);
-            this.ModbusTcpControl1.Name = "ModbusTcpControl1";
-            this.ModbusTcpControl1.Size = new System.Drawing.Size(880, 442);
-            this.ModbusTcpControl1.TabIndex = 0;
             // 
             // ModbusRtu
             // 
@@ -183,15 +177,25 @@
             this.SiemensS71500.Text = "S7-1500";
             this.SiemensS71500.UseVisualStyleBackColor = true;
             // 
-            // MitsubishiMC
+            // 三菱_MC_Qna_3E
             // 
-            this.MitsubishiMC.Location = new System.Drawing.Point(4, 22);
-            this.MitsubishiMC.Name = "MitsubishiMC";
-            this.MitsubishiMC.Padding = new System.Windows.Forms.Padding(3);
-            this.MitsubishiMC.Size = new System.Drawing.Size(886, 448);
-            this.MitsubishiMC.TabIndex = 5;
-            this.MitsubishiMC.Text = " 三菱MC Beta";
-            this.MitsubishiMC.UseVisualStyleBackColor = true;
+            this.三菱_MC_Qna_3E.Location = new System.Drawing.Point(4, 22);
+            this.三菱_MC_Qna_3E.Name = "三菱_MC_Qna_3E";
+            this.三菱_MC_Qna_3E.Padding = new System.Windows.Forms.Padding(3);
+            this.三菱_MC_Qna_3E.Size = new System.Drawing.Size(886, 448);
+            this.三菱_MC_Qna_3E.TabIndex = 5;
+            this.三菱_MC_Qna_3E.Text = " 三菱Q3E Beta";
+            this.三菱_MC_Qna_3E.UseVisualStyleBackColor = true;
+            // 
+            // 三菱_MC_A_1E
+            // 
+            this.三菱_MC_A_1E.Location = new System.Drawing.Point(4, 22);
+            this.三菱_MC_A_1E.Name = "三菱_MC_A_1E";
+            this.三菱_MC_A_1E.Padding = new System.Windows.Forms.Padding(3);
+            this.三菱_MC_A_1E.Size = new System.Drawing.Size(886, 448);
+            this.三菱_MC_A_1E.TabIndex = 12;
+            this.三菱_MC_A_1E.Text = " 三菱A1E Beta";
+            this.三菱_MC_A_1E.UseVisualStyleBackColor = true;
             // 
             // OmronFinsTcp
             // 
@@ -200,7 +204,7 @@
             this.OmronFinsTcp.Padding = new System.Windows.Forms.Padding(3);
             this.OmronFinsTcp.Size = new System.Drawing.Size(886, 448);
             this.OmronFinsTcp.TabIndex = 6;
-            this.OmronFinsTcp.Text = "欧姆龙FinsTcp Beta";
+            this.OmronFinsTcp.Text = "欧姆龙 Beta";
             this.OmronFinsTcp.UseVisualStyleBackColor = true;
             // 
             // BACnet
@@ -249,9 +253,9 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem5,
             this.toolStripMenuItem2,
-            this.toolStripMenuItem3,
             this.toolStripMenuItemBlogPath,
             this.toolStripMenuItem4,
+            this.toolStripMenuItem3,
             this.商务合作ToolStripMenuItem,
             this.toolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -276,14 +280,6 @@
             this.toolStripMenuItem2.Text = "开源地址";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
             // 
-            // toolStripMenuItem3
-            // 
-            this.toolStripMenuItem3.ForeColor = System.Drawing.Color.White;
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(67, 21);
-            this.toolStripMenuItem3.Text = "提交Bug";
-            this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripMenuItem3_Click);
-            // 
             // toolStripMenuItemBlogPath
             // 
             this.toolStripMenuItemBlogPath.ForeColor = System.Drawing.Color.White;
@@ -300,6 +296,14 @@
             this.toolStripMenuItem4.Text = "交流群";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripMenuItem4_Click);
             // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.ForeColor = System.Drawing.Color.White;
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(68, 21);
+            this.toolStripMenuItem3.Text = "提问帮助";
+            this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripMenuItem3_Click);
+            // 
             // 商务合作ToolStripMenuItem
             // 
             this.商务合作ToolStripMenuItem.ForeColor = System.Drawing.Color.White;
@@ -313,8 +317,16 @@
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.White;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(111, 21);
-            this.toolStripMenuItem1.Text = "检查更新  V0.4.4";
+            this.toolStripMenuItem1.Text = "检查更新  V0.4.5";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
+            // ModbusTcpControl1
+            // 
+            this.ModbusTcpControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ModbusTcpControl1.Location = new System.Drawing.Point(3, 3);
+            this.ModbusTcpControl1.Name = "ModbusTcpControl1";
+            this.ModbusTcpControl1.Size = new System.Drawing.Size(880, 442);
+            this.ModbusTcpControl1.TabIndex = 0;
             // 
             // IndexForm
             // 
@@ -354,7 +366,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.TabPage Ports;
         private System.Windows.Forms.TabPage ModbusRtu;
-        private System.Windows.Forms.TabPage MitsubishiMC;
+        private System.Windows.Forms.TabPage 三菱_MC_Qna_3E;
         private System.Windows.Forms.TabPage OmronFinsTcp;
         private System.Windows.Forms.TabPage ModbusAscii;
         private System.Windows.Forms.TabPage SiemensS7300;
@@ -365,5 +377,6 @@
         private System.Windows.Forms.ToolStripMenuItem 商务合作ToolStripMenuItem;
         private System.Windows.Forms.TabPage SiemensS7200;
         private System.Windows.Forms.TabPage MQTT;
+        private System.Windows.Forms.TabPage 三菱_MC_A_1E;
     }
 }

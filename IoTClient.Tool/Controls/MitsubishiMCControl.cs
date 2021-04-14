@@ -1,5 +1,6 @@
 ﻿using IoTClient.Clients.PLC;
 using IoTClient.Common.Helpers;
+using IoTClient.Enums;
 using IoTServer.Servers.PLC;
 using System;
 using System.Drawing;
@@ -11,8 +12,9 @@ namespace IoTClient.Tool.Controls
     public partial class MitsubishiMCControl : UserControl
     {
         private MitsubishiClient client;
-        private MitsubishiServer server;
-        public MitsubishiMCControl()
+        private IIoTServer server;
+        private MitsubishiVersion version;
+        public MitsubishiMCControl(MitsubishiVersion version)
         {
             InitializeComponent();
             Size = new Size(880, 450);
@@ -45,6 +47,8 @@ namespace IoTClient.Tool.Controls
             but_close_server.Enabled = false;
             but_close.Enabled = false;
             but_sendData.Enabled = false;
+
+            this.version = version;
         }
 
         private void but_open_Click(object sender, EventArgs e)
@@ -52,7 +56,7 @@ namespace IoTClient.Tool.Controls
             try
             {
                 client?.Close();
-                client = new MitsubishiClient(txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
+                client = new MitsubishiClient(version, txt_ip.Text?.Trim(), int.Parse(txt_port.Text.Trim()));
                 var result = client.Open();
                 if (!result.IsSucceed)
                     MessageBox.Show($"连接失败：{result.Err}");
@@ -240,7 +244,16 @@ namespace IoTClient.Tool.Controls
             try
             {
                 server?.Stop();
-                server = new MitsubishiServer(int.Parse(txt_port.Text.Trim()));
+                switch (version)
+                { 
+                    case MitsubishiVersion.A_1E:
+                        server = new MitsubishiA1EServer(int.Parse(txt_port.Text.Trim()));
+                        break;
+                    case MitsubishiVersion.Qna_3E:
+                        server = new MitsubishiQna3EServer(int.Parse(txt_port.Text.Trim()));
+                        break;
+                    
+                } 
                 server.Start();
                 but_server.Enabled = false;
                 but_close_server.Enabled = true;
