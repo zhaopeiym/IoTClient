@@ -198,6 +198,40 @@
             </summary>
             <param name="newSocket"></param>
         </member>
+        <member name="T:IoTServer.Servers.PLC.MitsubishiServer">
+            <summary>
+            三菱plc 服务端模拟
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.#ctor(System.Int32,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="port"></param>
+            <param name="ip"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Stop">
+            <summary>
+            停止服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Accept(System.Net.Sockets.Socket)">
+            <summary>
+            客户端连接到服务端
+            </summary>
+            <param name="socket"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.MitsubishiServer.Receive(System.Net.Sockets.Socket)">
+            <summary>
+            接收客户端发送的消息
+            </summary>
+            <param name="newSocket"></param>
+        </member>
         <member name="T:IoTServer.Servers.PLC.SiemensServer">
             <summary>
             西门子PLC 服务端模拟

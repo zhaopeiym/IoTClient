@@ -32,7 +32,15 @@
 
   <ItemGroup>
     <Compile Remove="Clients\PLC\OmronFinsClient.cs" />
+    <Compile Remove="Constants\SiemensConstant.cs" />
+    <Compile Remove="Enums\SiemensVersion.cs" />
     <Compile Remove="Models\MitsubishiA1Data.cs" />
+    <Compile Remove="Models\MitsubishiMCData.cs" />
+    <Compile Remove="Models\MitsubishiMCType.cs" />
+    <Compile Remove="Models\ModbusInput.cs" />
+    <Compile Remove="Models\ModbusOutput.cs" />
+    <Compile Remove="Models\SiemensData.cs" />
+    <Compile Remove="Models\SiemensWrite.cs" />
   </ItemGroup>
 
   <ItemGroup>
