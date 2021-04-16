@@ -12,9 +12,29 @@ namespace IoTClient.Common.Helpers
         /// </summary>
         /// <param name="value"></param>
         /// <param name="format"></param>
+        /// <param name="reverse">是否反转</param>
         /// <returns></returns>
-        public static byte[] ByteFormatting(this byte[] value, EndianFormat format = EndianFormat.ABCD)
+        public static byte[] ByteFormatting(this byte[] value, EndianFormat format = EndianFormat.ABCD, bool reverse = true)
         {
+            if (!reverse)
+            {
+                switch (format)
+                {
+                    case EndianFormat.ABCD:
+                        format = EndianFormat.DCBA;
+                        break;
+                    case EndianFormat.BADC:
+                        format = EndianFormat.CDAB;
+                        break;
+                    case EndianFormat.CDAB:
+                        format = EndianFormat.BADC;
+                        break;
+                    case EndianFormat.DCBA:
+                        format = EndianFormat.ABCD;
+                        break;
+                }
+            }
+
             byte[] buffer = value;
             if (value.Length == 4)
             {
@@ -63,24 +83,24 @@ namespace IoTClient.Common.Helpers
                         buffer[7] = value[7];
                         break;
                     case EndianFormat.BADC:
-                        buffer[0] = value[3];
-                        buffer[1] = value[4];
-                        buffer[2] = value[0];
-                        buffer[3] = value[1];
-                        buffer[4] = value[6];
-                        buffer[5] = value[7];
-                        buffer[6] = value[4];
-                        buffer[7] = value[5];
+                        buffer[0] = value[1];
+                        buffer[1] = value[0];
+                        buffer[2] = value[3];
+                        buffer[3] = value[2];
+                        buffer[4] = value[5];
+                        buffer[5] = value[4];
+                        buffer[6] = value[7];
+                        buffer[7] = value[6];
                         break;
                     case EndianFormat.CDAB:
-                        buffer[0] = value[4];
-                        buffer[1] = value[5];
-                        buffer[2] = value[6];
-                        buffer[3] = value[7];
-                        buffer[4] = value[0];
-                        buffer[5] = value[1];
-                        buffer[6] = value[2];
-                        buffer[7] = value[3];
+                        buffer[0] = value[6];
+                        buffer[1] = value[7];
+                        buffer[2] = value[4];
+                        buffer[3] = value[5];
+                        buffer[4] = value[2];
+                        buffer[5] = value[3];
+                        buffer[6] = value[0];
+                        buffer[7] = value[1];
                         break;
                     case EndianFormat.DCBA:
                         buffer[0] = value[7];

@@ -52,11 +52,11 @@ namespace IoTClient.Tool
                         //设置上次选择的tab
                         tabControl1.SelectedTab = item;
                     }
-                    //还未实现，先隐藏
-                    else if (item.Name == "OmronFinsTcp")
-                    {
-                        tabControl1.TabPages.Remove(item);
-                    }
+                    ////还未实现，先隐藏
+                    //else if (item.Name == "OmronFinsTcp")
+                    //{
+                    //    tabControl1.TabPages.Remove(item);
+                    //}
                     //加载用户控件
                     SelectedTab(item);
                 }
@@ -85,6 +85,20 @@ namespace IoTClient.Tool
         private void SelectedTab(TabPage tab)
         {
             Text = "IoTClient Tool - " + tab.Name?.Trim();
+
+            switch (tab.Name)
+            {
+                case "三菱_MC_Qna_3E":
+                    Text = "IoTClient Tool - 三菱MC Qna-3E Beta";
+                    break;
+                case "三菱_MC_A_1E":
+                    Text = "IoTClient Tool - 三菱MC A-1E Beta";
+                    break;
+                case "OmronFinsTcp":
+                    Text = "IoTClient Tool - 欧姆龙Fins Beta";
+                    break;
+            }
+
             SaveTabName(tab.Name);
             if (tab.Controls.Count <= 0)
             {
@@ -105,32 +119,32 @@ namespace IoTClient.Tool
                         ModbusAscii.Dock = DockStyle.Fill;
                         tab.Controls.Add(ModbusAscii);
                         break;
-                    case "SiemensS7200Smart":
+                    case "西门子S7200Smart":
                         var siemens = new SiemensControl(SiemensVersion.S7_200Smart);
                         siemens.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemens);
                         break;
-                    case "SiemensS7200":
+                    case "西门子S7200":
                         var siemens200 = new SiemensControl(SiemensVersion.S7_200);
                         siemens200.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemens200);
                         break;
-                    case "SiemensS7300":
+                    case "西门子S7300":
                         var siemensS7_300 = new SiemensControl(SiemensVersion.S7_300);
                         siemensS7_300.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemensS7_300);
                         break;
-                    case "SiemensS7400":
+                    case "西门子S7400":
                         var siemensS7_400 = new SiemensControl(SiemensVersion.S7_400);
                         siemensS7_400.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemensS7_400);
                         break;
-                    case "SiemensS71200":
+                    case "西门子S71200":
                         var siemensS7_1200 = new SiemensControl(SiemensVersion.S7_1200);
                         siemensS7_1200.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemensS7_1200);
                         break;
-                    case "SiemensS71500":
+                    case "西门子S71500":
                         var siemensS7_1500 = new SiemensControl(SiemensVersion.S7_1500);
                         siemensS7_1500.Dock = DockStyle.Fill;
                         tab.Controls.Add(siemensS7_1500);

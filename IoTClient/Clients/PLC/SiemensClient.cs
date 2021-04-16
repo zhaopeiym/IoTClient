@@ -19,7 +19,7 @@ namespace IoTClient.Clients.PLC
     /// <summary>
     /// 西门子客户端
     /// </summary>
-    public class SiemensClient : SocketBase, IIoTClient
+    public class SiemensClient : SocketBase, IEthernetClient
     {
         /// <summary>
         /// 版本
@@ -192,8 +192,9 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="length"></param>
         /// <param name="isBit"></param>
+        /// <param name="setEndian"></param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, ushort length, bool isBit = false)
+        public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
         {
             if (!socket?.Connected ?? true)
             {
@@ -1092,9 +1093,10 @@ namespace IoTClient.Clients.PLC
         /// 写入数据
         /// </summary>
         /// <param name="address">地址</param>
-        /// <param name="value">值</param>
+        /// <param name="data">值</param>
+        /// <param name="isBit">值</param>
         /// <returns></returns>
-        public Result Write(string address, byte[] data)
+        public Result Write(string address, byte[] data, bool isBit = false)
         {
             if (!socket?.Connected ?? true)
             {

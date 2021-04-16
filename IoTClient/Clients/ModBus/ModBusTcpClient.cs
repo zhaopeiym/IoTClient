@@ -435,7 +435,7 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<bool> ReadCoil(int address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<bool> ReadCoil(int address, byte stationNumber = 1, byte functionCode = 1)
         {
             return ReadCoil(address.ToString(), stationNumber, functionCode);
         }
@@ -463,7 +463,7 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        public Result<bool> ReadDiscrete(int address, byte stationNumber = 1, byte functionCode = 3)
+        public Result<bool> ReadDiscrete(int address, byte stationNumber = 1, byte functionCode = 2)
         {
             return ReadDiscrete(address.ToString(), stationNumber, functionCode);
         }

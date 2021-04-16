@@ -1494,13 +1494,14 @@
             <param name="command"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Read(System.String,System.UInt16,System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
             <summary>
             读取数据
             </summary>
             <param name="address">地址</param>
             <param name="length"></param>
             <param name="isBit"></param>
+            <param name="setEndian"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadBoolean(System.String)">
@@ -1510,11 +1511,27 @@
             <param name="address">地址</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadBoolean(System.String,System.UInt16)">
+            <summary>
+            读取Boolean
+            </summary>
+            <param name="address"></param>
+            <param name="readNumber"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadInt16(System.String)">
             <summary>
             读取Int16
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadInt16(System.String,System.UInt16)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address"></param>
+            <param name="readNumber"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadUInt16(System.String)">
@@ -1581,14 +1598,6 @@
             <param name="address"></param>
             <param name="data"></param>
             <param name="isBit"></param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Byte[])">
-            <summary>
-            写入数据
-            </summary>
-            <param name="address"></param>
-            <param name="data"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Byte)">
@@ -1733,6 +1742,238 @@
             <param name="address"></param>
             <returns></returns>
         </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsType.BitCode">
+            <summary>
+            位操作
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsType.WordCode">
+            <summary>
+            字操作
+            </summary>
+        </member>
+        <member name="T:IoTClient.Clients.PLC.OmronFinsClient">
+            <summary>
+            欧姆龙PLC 客户端
+            </summary>
+        </member>
+        <member name="F:IoTClient.Clients.PLC.OmronFinsClient.BasicCommand">
+            <summary>
+            基础命令
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.Version">
+            <summary>
+            版本
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.IpAndPoint">
+            <summary>
+            连接地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.WarningLog">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
+            <summary>
+            
+            </summary>
+            <param name="ip"></param>
+            <param name="port"></param>
+            <param name="timeout"></param>
+            <param name="endianFormat"></param>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Connect">
+            <summary>
+            打开长连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
+            <summary>
+            读取数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="length"></param>
+            <param name="isBit"></param>
+            <param name="setEndian"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadBoolean(System.String)">
+            <summary>
+            读取Boolean
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadByte(System.String)">
+            <summary>
+            读取byte
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadInt16(System.String)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadUInt16(System.String)">
+            <summary>
+            读取UInt16
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadInt32(System.String)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadUInt32(System.String)">
+            <summary>
+            读取UInt32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadInt64(System.String)">
+            <summary>
+            读取Int64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadUInt64(System.String)">
+            <summary>
+            读取UInt64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadFloat(System.String)">
+            <summary>
+            读取Float
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="data">值</param>
+            <param name="isBit">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Boolean)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Byte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.SByte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Int16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.UInt16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Int32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.UInt32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Int64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.UInt64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Single)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Double)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadDouble(System.String)">
+            <summary>
+            读取Double
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
         <member name="T:IoTClient.Clients.PLC.SiemensClient">
             <summary>
             西门子客户端
@@ -1782,13 +2023,14 @@
             <param name="command"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.String,System.UInt16,System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
             <summary>
             读取数据
             </summary>
             <param name="address">地址</param>
             <param name="length"></param>
             <param name="isBit"></param>
+            <param name="setEndian"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadString(System.String,System.UInt16)">
@@ -1995,12 +2237,13 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.Write(System.String,System.Byte[])">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.Write(System.String,System.Byte[],System.Boolean)">
             <summary>
             写入数据
             </summary>
             <param name="address">地址</param>
-            <param name="value">值</param>
+            <param name="data">值</param>
+            <param name="isBit">值</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Write(System.String,System.Byte)">
@@ -2657,12 +2900,13 @@
             大小端转换
             </summary>
         </member>
-        <member name="M:IoTClient.Common.Helpers.EndianConversion.ByteFormatting(System.Byte[],IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Common.Helpers.EndianConversion.ByteFormatting(System.Byte[],IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             字节格式转换
             </summary>
             <param name="value"></param>
             <param name="format"></param>
+            <param name="reverse">是否反转</param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Common.Helpers.EnumerableExtension">
@@ -2798,21 +3042,25 @@
         </member>
         <member name="F:IoTClient.Enums.EndianFormat.ABCD">
             <summary>
+            Big-Endian
             大端序 ABCD
             </summary>
         </member>
         <member name="F:IoTClient.Enums.EndianFormat.BADC">
             <summary>
+            Big-endian byte swap（大端Byte swap）
             中端序 BADC, PDP-11 风格
             </summary>
         </member>
         <member name="F:IoTClient.Enums.EndianFormat.CDAB">
             <summary>
+            Little-endian byte swap（小端Byte swap）
             中端序 CDAB, Honeywell 316 风格
             </summary>
         </member>
         <member name="F:IoTClient.Enums.EndianFormat.DCBA">
             <summary>
+            Little-Endian
             小端序 DCBA
             </summary>
         </member>
@@ -2850,6 +3098,251 @@
             <summary>
             是否读取或写入bit类型
             </summary>
+        </member>
+        <member name="T:IoTClient.Interfaces.IEthernetClient">
+            <summary>
+            以太网形式
+            </summary>
+        </member>
+        <member name="P:IoTClient.Interfaces.IEthernetClient.Version">
+            <summary>
+            版本
+            </summary>
+        </member>
+        <member name="P:IoTClient.Interfaces.IEthernetClient.IpAndPoint">
+            <summary>
+            IPEndPoint
+            </summary>
+        </member>
+        <member name="P:IoTClient.Interfaces.IEthernetClient.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
+        <member name="P:IoTClient.Interfaces.IEthernetClient.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            </summary>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Open">
+            <summary>
+            打开连接（如果已经是连接状态会先关闭再打开）
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Close">
+            <summary>
+            关闭连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
+            <summary>
+            分批读取
+            </summary>
+            <param name="addresses">地址集合</param>
+            <param name="batchNumber">批量读取数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
+            <summary>
+            读取数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="length"></param>
+            <param name="isBit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadByte(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadBoolean(System.String)">
+            <summary>
+            读取Boolean
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadUInt16(System.String)">
+            <summary>
+            读取UInt16
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadInt16(System.String)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadUInt32(System.String)">
+            <summary>
+            读取UInt32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadInt32(System.String)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadUInt64(System.String)">
+            <summary>
+            读取UInt64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadInt64(System.String)">
+            <summary>
+            读取Int64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadFloat(System.String)">
+            <summary>
+            读取Float
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadDouble(System.String)">
+            <summary>
+            读取Double
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadString(System.String)">
+            <summary>
+            读取String
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32)">
+            <summary>
+            分批写入 
+            </summary>
+            <param name="addresses">地址集合</param>
+            <param name="batchNumber">批量读取数量</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Byte[],System.Boolean)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="data">值</param>
+            <param name="isBit">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Byte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Boolean)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.SByte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.UInt16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Int16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.UInt32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Int32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.UInt64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Int64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Single)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Double)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.String)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
         </member>
         <member name="T:IoTClient.Interfaces.IIoTClient">
             <summary>

@@ -1,5 +1,4 @@
 ﻿using IoTClient.Common.Helpers;
-using IoTClient.Core;
 using IoTClient.Enums;
 using IoTClient.Interfaces;
 using IoTClient.Models;
@@ -15,7 +14,7 @@ namespace IoTClient.Clients.PLC
     /// <summary>
     /// 三菱plc客户端 - Beta
     /// </summary>
-    public class MitsubishiClient : SocketBase, IIoTClient
+    public class MitsubishiClient : SocketBase, IEthernetClient
     {
         private int timeout;
 
@@ -99,8 +98,9 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="length"></param>
         /// <param name="isBit"></param>
+        /// <param name="setEndian"></param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, ushort length, bool isBit = false)
+        public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
         {
             if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
@@ -128,7 +128,7 @@ namespace IoTClient.Clients.PLC
                     case MitsubishiVersion.A_1E:
                         var lenght = command[10] + command[11] * 256;
                         if (isBit)
-                            dataPackage = SendPackage(command, lenght + 2);
+                            dataPackage = SendPackage(command, (int)Math.Ceiling(lenght * 0.5) + 2);
                         else
                             dataPackage = SendPackage(command, lenght * 2 + 2);
                         break;
@@ -146,26 +146,15 @@ namespace IoTClient.Clients.PLC
                     case MitsubishiVersion.A_1E:
                         responseValue = new byte[dataPackage.Length - 2];
                         Array.Copy(dataPackage, 2, responseValue, 0, responseValue.Length);
-                        //if (isBit)
-                        //{
-                        //    if (responseValue.Length == 2 && responseValue[0] == 0 && responseValue[1] == 16)
-                        //    {
-                        //        responseValue[0] = 1;
-                        //        responseValue[1] = 0;
-                        //    }
-                        //}
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        responseValue = new byte[bufferLength];
-                        Array.Copy(dataPackage, dataPackage.Length - bufferLength, responseValue, 0, bufferLength);
+
                         if (isBit)
                         {
-                            if (responseValue.Length == 2 && responseValue[0] == 0 && responseValue[1] == 16)
-                            {
-                                responseValue[0] = 1;
-                                responseValue[1] = 0;
-                            }
+                            bufferLength = (ushort)Math.Ceiling(bufferLength * 0.5);
                         }
+                        responseValue = new byte[bufferLength];
+                        Array.Copy(dataPackage, dataPackage.Length - bufferLength, responseValue, 0, bufferLength);
                         break;
                 }
 
@@ -200,7 +189,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result<bool> ReadBoolean(string address)
         {
-            var readResut = Read(address, 2, isBit: true);
+            var readResut = Read(address, 1, isBit: true);
             var result = new Result<bool>()
             {
                 IsSucceed = readResut.IsSucceed,
@@ -210,8 +199,40 @@ namespace IoTClient.Clients.PLC
                 Response = readResut.Response,
             };
             if (result.IsSucceed)
-                result.Value = BitConverter.ToBoolean(readResut.Value, 0);
+                result.Value = (readResut.Value[0] & 0b00010000) != 0;
             return result;
+        }
+
+        /// <summary>
+        /// 读取Boolean
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="readNumber"></param>
+        /// <returns></returns>
+        public Result<List<KeyValuePair<string, bool>>> ReadBoolean(string address, ushort readNumber)
+        {
+            var length = 1;
+            var readResut = Read(address, Convert.ToUInt16(length * readNumber), isBit: true);
+            var result = new Result<List<KeyValuePair<string, bool>>>(readResut);
+            var dbAddress = decimal.Parse(address.Substring(1));
+            var dbType = address.Substring(0, 1);
+            if (result.IsSucceed)
+            {
+                var values = new List<KeyValuePair<string, bool>>();
+                for (ushort i = 0; i < readNumber; i++)
+                {
+                    var index = i / 2;
+                    var isoffset = i % 2 == 0;
+                    bool value;
+                    if (isoffset)
+                        value = (readResut.Value[index] & 0b00010000) != 0;
+                    else
+                        value = (readResut.Value[index] & 0b00000001) != 0;
+                    values.Add(new KeyValuePair<string, bool>($"{dbType}{dbAddress + i * length }", value));
+                }
+                result.Value = values;
+            }
+            return result.EndTime();
         }
 
         /// <summary>
@@ -233,6 +254,31 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
             return result;
+        }
+
+        /// <summary>
+        /// 读取Int16
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="readNumber"></param>
+        /// <returns></returns>
+        public Result<List<KeyValuePair<string, short>>> ReadInt16(string address, ushort readNumber)
+        {
+            var length = 2;
+            var readResut = Read(address, Convert.ToUInt16(length * readNumber));
+            var dbAddress = int.Parse(address.Substring(1));
+            var dbType = address.Substring(0, 1);
+            var result = new Result<List<KeyValuePair<string, short>>>(readResut);
+            if (result.IsSucceed)
+            {
+                var values = new List<KeyValuePair<string, short>>();
+                for (int i = 0; i < readNumber; i++)
+                {
+                    values.Add(new KeyValuePair<string, short>($"{dbType}{dbAddress + i * length}", BitConverter.ToInt16(readResut.Value, (readNumber - 1 - i) * length)));
+                }
+                result.Value = values;
+            }
+            return result.EndTime();
         }
 
         /// <summary>
@@ -404,7 +450,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="data"></param>
         /// <param name="isBit"></param>
         /// <returns></returns>
-        private Result Write(string address, byte[] data, bool isBit = false)
+        public Result Write(string address, byte[] data, bool isBit = false)
         {
             if (!socket?.Connected ?? true)
             {
@@ -475,18 +521,7 @@ namespace IoTClient.Clients.PLC
                 if (isAutoOpen) Dispose();
             }
             return result.EndTime();
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public Result Write(string address, byte[] data)
-        {
-            return Write(address, data, false);
-        }
+        }      
 
         /// <summary>
         /// 写入数据
@@ -626,7 +661,8 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         protected byte[] GetReadCommand_Qna_3E(int beginAddress, byte[] typeCode, ushort length, bool isBit)
         {
-            length = (ushort)(length / 2);
+            if (!isBit) length = (ushort)(length / 2);
+
             byte[] command = new byte[21];
             command[0] = 0x50;
             command[1] = 0x00; //副头部
@@ -662,7 +698,8 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         protected byte[] GetReadCommand_A_1E(int beginAddress, byte[] typeCode, ushort length, bool isBit)
         {
-            length = (ushort)(length / 2);
+            if (!isBit)
+                length = (ushort)(length / 2);
             byte[] command = new byte[12];
             command[0] = isBit ? (byte)0x00 : (byte)0x01;//副头部
             command[1] = 0xFF; //PLC编号

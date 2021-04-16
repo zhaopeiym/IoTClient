@@ -55,6 +55,14 @@ namespace IoTClient.Tests.PLCTests
                 Assert.True(client.ReadBoolean("Y100").Value == !bool_value);
                 client.Write("M100", !bool_value);
                 Assert.True(client.ReadBoolean("M100").Value == !bool_value);
+                client.Write("M101", bool_value);
+                Assert.True(client.ReadBoolean("M101").Value == bool_value);
+                client.Write("M102", bool_value);
+                Assert.True(client.ReadBoolean("M102").Value == bool_value);
+                client.Write("M103", !bool_value);
+                Assert.True(client.ReadBoolean("M103").Value == !bool_value);
+                client.Write("M104", bool_value);
+                Assert.True(client.ReadBoolean("M104").Value == bool_value);
                 //client.Write("L100", !bool_value);
                 //Assert.True(client.ReadBoolean("L100").Value == !bool_value);
                 //client.Write("F100", bool_value);
@@ -90,10 +98,53 @@ namespace IoTClient.Tests.PLCTests
             }
         }
 
-        [Fact]
-        public void 批量读写()
+        [Theory]
+        [InlineData(MitsubishiVersion.Qna_3E, 6000)]
+        [InlineData(MitsubishiVersion.A_1E, 6001)]
+        public void 批量读写(MitsubishiVersion version, int port)
         {
+            client = new MitsubishiClient(version, ip, port);
+
             client.Open();
+
+            Random rnd = new Random((int)Stopwatch.GetTimestamp());
+            short short_number1 = (short)rnd.Next(short.MinValue, short.MaxValue);
+            short short_number2 = (short)rnd.Next(short.MinValue, short.MaxValue);
+            short short_number3 = (short)rnd.Next(short.MinValue, short.MaxValue);
+            short short_number4 = (short)rnd.Next(short.MinValue, short.MaxValue);
+            short short_number5 = (short)rnd.Next(short.MinValue, short.MaxValue);
+            var bool_value = short_number1 % 2 == 1;
+
+            client.Write("M100", !bool_value);
+            client.Write("M101", !bool_value);
+            client.Write("M102", bool_value);
+            client.Write("M103", !bool_value);
+            client.Write("M104", bool_value);
+
+            var result = client.ReadBoolean("M100", 5);
+            foreach (var item in result.Value)
+            {
+                if (item.Key == "M100" || item.Key == "M101" || item.Key == "M103")
+                {
+                    Assert.True(item.Value == !bool_value);
+                }
+                else
+                {
+                    Assert.True(item.Value == bool_value);
+                }
+            }
+
+            client.Write("D100", short_number1);
+            client.Write("D101", short_number2);
+            client.Write("D102", short_number3);
+            client.Write("D103", short_number4);
+            client.Write("D104", short_number5);
+
+            Assert.True(client.ReadInt16("D100").Value == short_number1);
+            Assert.True(client.ReadInt16("D101").Value == short_number2);
+            Assert.True(client.ReadInt16("D102").Value == short_number3);
+            Assert.True(client.ReadInt16("D103").Value == short_number4);
+            Assert.True(client.ReadInt16("D104").Value == short_number5);
 
             client?.Close();
         }

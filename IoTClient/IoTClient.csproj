@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Clients\PLC\OmronFinsClient.cs" />
     <Compile Remove="Constants\SiemensConstant.cs" />
     <Compile Remove="Enums\SiemensVersion.cs" />
     <Compile Remove="Models\MitsubishiA1Data.cs" />
