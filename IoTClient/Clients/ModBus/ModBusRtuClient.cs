@@ -54,13 +54,13 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
 
                 byte[] resultData = new byte[responsePackage.Length - 2 - 3];
@@ -82,7 +82,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
         #endregion
 
@@ -109,13 +109,13 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Buffer.BlockCopy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
@@ -131,7 +131,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -159,13 +159,13 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
@@ -181,7 +181,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         #endregion       

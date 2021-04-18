@@ -41,8 +41,9 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <param name="readLength">读取长度</param>
+        /// <param name="setEndian">设置构造函数中的大小端</param>
         /// <returns></returns>
-        Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true);
+        Result<byte[]> Read(string address, byte stationNumber, byte functionCode, ushort readLength, bool setEndian);
 
         /// <summary>
         /// 读取Int16

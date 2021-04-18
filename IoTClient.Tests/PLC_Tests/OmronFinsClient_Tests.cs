@@ -17,7 +17,8 @@ namespace IoTClient.Tests.PLCTests
 
         [Theory]
         [InlineData(9600)]
-        public void 短连接自动开关(int port)
+        [InlineData(9601)]
+        public void 长连接主动开关(int port)
         {
             client = new OmronFinsClient(ip, port);
 

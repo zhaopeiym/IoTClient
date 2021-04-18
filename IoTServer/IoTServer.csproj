@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IoTClient" Version="0.0.14" />
+    <PackageReference Include="IoTClient" Version="0.0.78" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Talk.BACnet" Version="1.0.2" />
   </ItemGroup>

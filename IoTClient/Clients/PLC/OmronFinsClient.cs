@@ -12,7 +12,7 @@ using System.Net.Sockets;
 namespace IoTClient.Clients.PLC
 {
     /// <summary>
-    /// 欧姆龙PLC 客户端
+    /// 欧姆龙PLC 客户端 - Beta
     /// </summary>
     public class OmronFinsClient : SocketBase, IEthernetClient
     {
@@ -48,6 +48,11 @@ namespace IoTClient.Clients.PLC
         /// 
         /// </summary>
         public LoggerDelegate WarningLog { get; set; }
+
+        /// <summary>
+        /// 单元号地址
+        /// </summary>
+        public byte UnitNumber { get; set; } = 0x00;
 
         /// <summary>
         /// 
@@ -94,7 +99,9 @@ namespace IoTClient.Clients.PLC
                 buffer[3] = head[4];
                 var length = BitConverter.ToInt32(buffer, 0);
 
-                SocketRead(socket, length);
+                var content = SocketRead(socket, length);
+
+                var requst = string.Join(" ", head.Concat(content).Select(t => t.ToString("X2")));
             }
             catch (Exception ex)
             {
@@ -128,16 +135,14 @@ namespace IoTClient.Clients.PLC
             {
                 //发送读取信息
                 var arg = ConvertArg(address, isBit);
-                //arg.ReadWriteLength = length;
-                //arg.ReadWriteBit = isBit;
                 byte[] command = GetReadCommand(arg, length, isBit);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
                 var sendResult = SendPackage(command);
-                //if (!sendResult.IsSucceed)
-                //    return sendResult;
+                if (!sendResult.IsSucceed)
+                    return sendResult;
+                var dataPackage = sendResult.Value;
 
-                var dataPackage = sendResult;
                 byte[] responseData = new byte[length];
                 Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
@@ -328,10 +333,10 @@ namespace IoTClient.Clients.PLC
                 byte[] command = GetWriteCommand(arg, data, isBit);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var sendResult = SendPackage(command);
-                //if (!sendResult.IsSucceed)
-                //    return sendResult;
+                if (!sendResult.IsSucceed)
+                    return sendResult;
 
-                var dataPackage = sendResult;
+                var dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
@@ -601,14 +606,14 @@ namespace IoTClient.Clients.PLC
             command[18] = 0x02;
             command[19] = 0x00;
             command[20] = 0x13; //0x13; //01(节点地址:Ip地址的最后一位)
-            command[21] = 0x00; //单元号地址(传过来)
+            command[21] = UnitNumber; //单元号地址(传过来)
             command[22] = 0x00;
             command[23] = 0x0B; //0x0B; //01(节点地址:Ip地址的最后一位)
             command[24] = 0x00;
             command[25] = 0x00;
 
             command[26] = 0x01;
-            command[27] = 0x01;
+            command[27] = 0x01; //读
             command[28] = isBit ? arg.OmronFinsType.BitCode : arg.OmronFinsType.WordCode;
             arg.Content.CopyTo(command, 29);
             command[32] = (byte)(length / 256);
@@ -632,38 +637,62 @@ namespace IoTClient.Clients.PLC
             command[18] = 0x02;
             command[19] = 0x00;
             command[20] = 0x13; //0x13; //01(节点地址:Ip地址的最后一位)
-            command[21] = 0x00; //单元号地址(传过来)
+            command[21] = UnitNumber; //单元号地址(传过来)
             command[22] = 0x00;
             command[23] = 0x0B; //0x0B; //01(节点地址:Ip地址的最后一位)
             command[24] = 0x00;
             command[25] = 0x00;
 
-            command[0 + 26] = 0x01;
-            command[1 + 26] = 0x02;
-            command[2 + 26] = isBit ? arg.OmronFinsType.BitCode : arg.OmronFinsType.WordCode;
-            arg.Content.CopyTo(command, 3 + 26);
-            command[6 + 26] = isBit ? (byte)(value.Length / 256) : (byte)(value.Length / 2 / 256);
-            command[7 + 26] = isBit ? (byte)(value.Length % 256) : (byte)(value.Length / 2 % 256);
-            value.CopyTo(command, 8 + 26);
+            command[26] = 0x01;
+            command[27] = 0x02; //写
+            command[28] = isBit ? arg.OmronFinsType.BitCode : arg.OmronFinsType.WordCode;
+            arg.Content.CopyTo(command, 29);
+            command[32] = isBit ? (byte)(value.Length / 256) : (byte)(value.Length / 2 / 256);
+            command[33] = isBit ? (byte)(value.Length % 256) : (byte)(value.Length / 2 % 256);
+            value.CopyTo(command, 34);
 
             return command;
         }
 
         #region 发送报文，并获取响应报文
-        public byte[] SendPackage(byte[] command)
+        public Result<byte[]> SendPackage(byte[] command)
         {
-            socket.Send(command);
-            var head = SocketRead(socket, 8);
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                Result<byte[]> result = new Result<byte[]>();
 
-            byte[] buffer = new byte[4];
-            buffer[0] = head[7];
-            buffer[1] = head[6];
-            buffer[2] = head[5];
-            buffer[3] = head[4];
-            var length = BitConverter.ToInt32(buffer, 0);
+                void _sendPackage()
+                {
+                    socket.Send(command);
+                    var head = SocketRead(socket, 8);
+                    byte[] buffer = new byte[4];
+                    buffer[0] = head[7];
+                    buffer[1] = head[6];
+                    buffer[2] = head[5];
+                    buffer[3] = head[4];
+                    var length = BitConverter.ToInt32(buffer, 0);
+                    var dataPackage = SocketRead(socket, length);
+                    result.Value = head.Concat(dataPackage).ToArray();
+                }
 
-            var dataPackage = SocketRead(socket, length);
-            return head.Concat(dataPackage).ToArray();
+                try
+                {
+                    _sendPackage();
+                }
+                catch (Exception ex)
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    //如果出现异常，则进行一次重试
+                    //重新打开连接
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
+
+                    _sendPackage();
+                }
+                return result.EndTime();
+            }
         }
         #endregion
 

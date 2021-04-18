@@ -10,9 +10,9 @@ using System.Net.Sockets;
 namespace IoTClient.Clients.Modbus
 {
     /// <summary>
-    /// Tcp的方式发送ModbusRtu协议报文 - 客户端
+    /// Tcp的方式发送ModbusRtu协议报文 - 客户端 - Beta
     /// </summary>
-    public class ModbusTcpRtuClient : SocketBase, IModbusClient
+    public class ModbusRtuOverTcpClient : SocketBase, IModbusClient
     {
         private IPEndPoint ipAndPoint;
         private int timeout = -1;
@@ -30,7 +30,7 @@ namespace IoTClient.Clients.Modbus
         /// <param name="port"></param>
         /// <param name="timeout">超时时间（毫秒）</param>
         /// <param name="format">大小端设置</param>
-        public ModbusTcpRtuClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
+        public ModbusRtuOverTcpClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             this.timeout = timeout;
             this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
@@ -54,14 +54,14 @@ namespace IoTClient.Clients.Modbus
 
                 //连接
                 socket.Connect(ipAndPoint);
-                return result;
+                return result.EndTime();
             }
             catch (Exception ex)
             {
                 socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                return result;
+                return result.EndTime();
             }
         }
 
@@ -71,16 +71,34 @@ namespace IoTClient.Clients.Modbus
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public byte[] SendPackage(byte[] command, int lenght)
+        public Result<byte[]> SendPackage(byte[] command, int lenght)
         {
             //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
             lock (this)
             {
-                //发送命令
-                socket.Send(command);
-                //获取响应报文           
-                var dataPackage = SocketRead(socket, lenght);
-                return dataPackage;
+                Result<byte[]> result = new Result<byte[]>();
+                try
+                {
+                    //发送命令
+                    socket.Send(command);
+                    //获取响应报文           
+                    result.Value = SocketRead(socket, lenght);
+                }
+                catch (Exception ex)
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    //如果出现异常，则进行一次重试
+                    //重新打开连接
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
+
+                    //发送命令
+                    socket.Send(command);
+                    //获取响应报文           
+                    result.Value = SocketRead(socket, lenght);
+                }
+                return result.EndTime();
             }
         }
 
@@ -113,25 +131,31 @@ namespace IoTClient.Clients.Modbus
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
 
                 //发送命令并获取响应报文
-                var readLenght = 7;
+                int readLenght;
                 if (functionCode == 1 || functionCode == 2)
-                    readLenght = 6;
-                var responsePackage = SendPackage(commandCRC16, readLenght);
+                    readLenght = 5 + readLength;
+                else
+                    readLenght = 5 + readLength * 2;
+                var sendResult = SendPackage(commandCRC16, readLenght);
+                if (!sendResult.IsSucceed)
+                    return sendResult;
+                var responsePackage = sendResult.Value;
+                //var responsePackage = SendPackage(commandCRC16, readLenght);
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
 
-                byte[] resultData = new byte[responsePackage.Length - 2];
-                Array.Copy(responsePackage, 0, resultData, 0, resultData.Length);
+                byte[] resultData = new byte[responsePackage.Length - 2 - 3];
+                Array.Copy(responsePackage, 3, resultData, 0, resultData.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
                 //4 获取响应报文数据（字节数组形式）       
                 if (byteFormatting)
@@ -149,7 +173,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -172,7 +196,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -195,7 +219,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -218,7 +242,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -241,7 +265,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -264,7 +288,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -287,7 +311,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -310,7 +334,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -333,7 +357,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -356,7 +380,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -379,7 +403,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -786,7 +810,7 @@ namespace IoTClient.Clients.Modbus
                     }
                 }
             }
-            return result;
+            return result.EndTime();
         }
 
         private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
@@ -841,7 +865,7 @@ namespace IoTClient.Clients.Modbus
                     result.Exception = tempResult.Exception;
                     result.Err = tempResult.Err;
                     result.ErrList.AddRange(tempResult.ErrList);
-                    return result;
+                    return result.EndTime();
                 }
 
                 var rValue = tempResult.Value.Reverse().ToArray();
@@ -891,9 +915,9 @@ namespace IoTClient.Clients.Modbus
                 if (addresses.Any(t => t.Key >= minAddress))
                     minAddress = addresses.Where(t => t.Key >= minAddress).OrderBy(t => t.Key).FirstOrDefault().Key;
                 else
-                    return result;
+                    return result.EndTime();
             }
-            return result;
+            return result.EndTime();
         }
 
         #endregion
@@ -916,18 +940,23 @@ namespace IoTClient.Clients.Modbus
                 var commandCRC16 = CRC16.GetCRC16(command);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(commandCRC16, 8);
+                //var responsePackage = SendPackage(commandCRC16, 8);
+                var sendResult = SendPackage(commandCRC16, 8);
+                if (!sendResult.IsSucceed)
+                    return sendResult;
+                var responsePackage = sendResult.Value;
+
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Buffer.BlockCopy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
@@ -943,7 +972,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -966,18 +995,23 @@ namespace IoTClient.Clients.Modbus
 
                 var commandCRC16 = CRC16.GetCRC16(command);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
-                var responsePackage = SendPackage(commandCRC16, 8);
+                //var responsePackage = SendPackage(commandCRC16, 8);
+                var sendResult = SendPackage(commandCRC16, 8);
+                if (!sendResult.IsSucceed)
+                    return sendResult;
+                var responsePackage = sendResult.Value;
+
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
                 else if (!CRC16.CheckCRC16(responsePackage))
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
@@ -993,7 +1027,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>

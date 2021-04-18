@@ -64,9 +64,9 @@ namespace IoTClient.Clients.PLC
             {
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                return result;
+                return result.EndTime();
             }
-            return result;
+            return result.EndTime();
         }
 
         #region 发送报文，并获取响应报文
@@ -75,19 +75,72 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public byte[] SendPackage(byte[] command)
+        public Result<byte[]> SendPackage(byte[] command)
         {
-            socket.Send(command);
-            var headPackage = SocketRead(socket, 9);
-            var dataPackage = SocketRead(socket, GetContentLength(headPackage));
-            return headPackage.Concat(dataPackage).ToArray();
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                Result<byte[]> result = new Result<byte[]>();
+
+                void _sendPackage()
+                {
+                    socket.Send(command);
+                    var headPackage = SocketRead(socket, 9);
+                    var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                    result.Value = headPackage.Concat(dataPackage).ToArray();
+                }
+
+                try
+                {
+                    _sendPackage();
+                }
+                catch (Exception ex)
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    //如果出现异常，则进行一次重试
+                    //重新打开连接
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
+
+                    _sendPackage();
+                }
+               
+                return result.EndTime();
+            }
         }
 
-        public byte[] SendPackage(byte[] command, int receiveCount)
+        public Result<byte[]> SendPackage(byte[] command, int receiveCount)
         {
-            socket.Send(command);
-            var dataPackage = SocketRead(socket, receiveCount);
-            return dataPackage.ToArray();
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                Result<byte[]> result = new Result<byte[]>();
+
+                void _sendPackage() {
+                    socket.Send(command);
+                    var dataPackage = SocketRead(socket, receiveCount);
+                    result.Value = dataPackage.ToArray();
+                }
+
+                try
+                {
+                    _sendPackage();
+                }
+                catch (Exception ex)
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    //如果出现异常，则进行一次重试
+                    //重新打开连接
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
+
+                    _sendPackage();
+                }
+
+                return result.EndTime();
+            }
         }
         #endregion
 
@@ -122,20 +175,24 @@ namespace IoTClient.Clients.PLC
                         break;
                 }
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                byte[] dataPackage = null;
+
+                Result<byte[]> sendResult = new Result<byte[]>();
                 switch (version)
                 {
                     case MitsubishiVersion.A_1E:
                         var lenght = command[10] + command[11] * 256;
                         if (isBit)
-                            dataPackage = SendPackage(command, (int)Math.Ceiling(lenght * 0.5) + 2);
+                            sendResult = SendPackage(command, (int)Math.Ceiling(lenght * 0.5) + 2);
                         else
-                            dataPackage = SendPackage(command, lenght * 2 + 2);
+                            sendResult = SendPackage(command, lenght * 2 + 2);
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        dataPackage = SendPackage(command);
+                        sendResult = SendPackage(command);
                         break;
                 }
+                if (!sendResult.IsSucceed) return sendResult;
+
+                byte[] dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
 
                 var bufferLength = length;
@@ -179,7 +236,7 @@ namespace IoTClient.Clients.PLC
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -200,7 +257,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = (readResut.Value[0] & 0b00010000) != 0;
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -253,7 +310,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -299,7 +356,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -320,7 +377,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -341,7 +398,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -362,7 +419,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -383,7 +440,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -404,7 +461,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -425,7 +482,7 @@ namespace IoTClient.Clients.PLC
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
         #endregion
 
@@ -480,16 +537,20 @@ namespace IoTClient.Clients.PLC
                         break;
                 }
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                byte[] dataPackage = null;
+
+                Result<byte[]> sendResult = new Result<byte[]>();
                 switch (version)
                 {
                     case MitsubishiVersion.A_1E:
-                        dataPackage = SendPackage(command, 2);
+                        sendResult = SendPackage(command, 2);
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        dataPackage = SendPackage(command);
+                        sendResult = SendPackage(command);
                         break;
                 }
+                if (!sendResult.IsSucceed) return sendResult;
+
+                byte[] dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
             }
             catch (SocketException ex)
@@ -521,7 +582,7 @@ namespace IoTClient.Clients.PLC
                 if (isAutoOpen) Dispose();
             }
             return result.EndTime();
-        }      
+        }
 
         /// <summary>
         /// 写入数据

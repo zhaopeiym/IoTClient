@@ -30,7 +30,7 @@ namespace IoTServer.Servers.PLC
         {
             this.ip = ip;
             this.port = port;
-            dataPersist = new DataPersist("MitsubishiServer");
+            dataPersist = new DataPersist("MitsubishiQna3EServer");
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace IoTServer.Servers.PLC
                     else
                         requetData = requetData1;
                     //地址
-                    var address = $"{requetData[18]}-{requetData[17] * 256 * 256 + requetData[16] * 256 + requetData[15]}";
+                    //var address = $"{requetData[18]}-{requetData[17] * 256 * 256 + requetData[16] * 256 + requetData[15]}";
 
                     var dataKey = $"{requetData[18]}";
                     var beginAddress = requetData[17] * 256 * 256 + requetData[16] * 256 + requetData[15];
@@ -139,7 +139,7 @@ namespace IoTServer.Servers.PLC
                             {
                                 //数据存储长度
                                 var lenght = requetData[19] + requetData[20] * 256;
-                                var value = dataPersist.Read(address);
+                                //var value = dataPersist.Read(address);
                                 //把存储的数据转为字节数组                              
                                 var dataValue = dataPersist.Read(dataKey);
                                 var byteArray = JsonConvert.DeserializeObject<byte[]>(dataValue) ?? new byte[65536];

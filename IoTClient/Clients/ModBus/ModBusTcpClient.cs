@@ -72,14 +72,14 @@ namespace IoTClient.Clients.Modbus
 
                 //连接
                 socket.Connect(ipAndPoint);
-                return result;
+                return result.EndTime();
             }
             catch (Exception ex)
             {
                 socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                return result;
+                return result.EndTime();
             }
         }
 
@@ -184,7 +184,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<short> ReadInt16(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -235,7 +235,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<ushort> ReadUInt16(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -263,7 +263,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<int> ReadInt32(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -292,7 +292,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<uint> ReadUInt32(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -320,7 +320,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<long> ReadInt64(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -348,7 +348,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<ulong> ReadUInt64(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -376,7 +376,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<float> ReadFloat(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -404,7 +404,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<double> ReadDouble(int address, byte stationNumber = 1, byte functionCode = 3)
@@ -432,7 +432,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<bool> ReadCoil(int address, byte stationNumber = 1, byte functionCode = 1)
@@ -460,7 +460,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         public Result<bool> ReadDiscrete(int address, byte stationNumber = 1, byte functionCode = 2)
@@ -1024,7 +1024,7 @@ namespace IoTClient.Clients.Modbus
                     result.Exception = tempResult.Exception;
                     result.Err = tempResult.Err;
                     result.ErrList.AddRange(tempResult.ErrList);
-                    return result;
+                    return result.EndTime();
                 }
 
                 var rValue = tempResult.Value.Reverse().ToArray();
@@ -1074,9 +1074,9 @@ namespace IoTClient.Clients.Modbus
                 if (addresses.Any(t => t.Key >= minAddress))
                     minAddress = addresses.Where(t => t.Key >= minAddress).OrderBy(t => t.Key).FirstOrDefault().Key;
                 else
-                    return result;
+                    return result.EndTime();
             }
-            return result;
+            return result.EndTime();
         }
 
         #endregion
@@ -1128,7 +1128,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -1179,7 +1179,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>

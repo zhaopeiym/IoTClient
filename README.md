@@ -198,19 +198,57 @@ var response = result.Response;
 var value4 = result.Value;
 ```
 
-## 其他更多详细使用请[参考](https://github.com/zhaopeiym/IoTClient/tree/master/IoTClient.Tool/Controls)
+## OmronFinsClient(欧姆龙)读写操作
+```
+//1、实例化客户端 - 输入正确的IP和端口
+OmronFinsClient client = new OmronFinsClient("127.0.0.1",6000);
 
-# IoTClient Tool效果图   
-![image](https://user-images.githubusercontent.com/5820324/93007864-62d63780-f5a0-11ea-9664-89c21d8d98da.png)  
+//2、写操作
+client.Write("M100", true);
+client.Write("D200", (short)11);
+client.Write("D210", 33);
 
-![image](https://user-images.githubusercontent.com/5820324/68926546-c052f980-07c0-11ea-86ec-8ae36cc9aa3a.png)    
+//3、读操作
+var value1 = client.ReadBoolean("M100").Value;
+var value2 = client.ReadInt16("D200").Value;
+var value3 = client.ReadInt32("D210").Value;
 
-![image](https://user-images.githubusercontent.com/5820324/68926383-5a667200-07c0-11ea-905c-42a391f2300f.png)
+//4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
+client.Open();
 
-![image](https://user-images.githubusercontent.com/5820324/68068805-3c4a4c00-fd94-11e9-899e-cec0b4b70fa8.png)  
+//5、读写操作都会返回操作结果对象Result
+var result = client.ReadInt16("D210");
+//5.1 读取是否成功（true或false）
+var isSucceed = result.IsSucceed;
+//5.2 读取失败的异常信息
+var errMsg = result.Err;
+//5.3 读取操作实际发送的请求报文
+var requst  = result.Requst;
+//5.4 读取操作服务端响应的报文
+var response = result.Response;
+//5.5 读取到的值
+var value4 = result.Value;
+```
 
-![image](https://user-images.githubusercontent.com/5820324/68068874-bf6ba200-fd94-11e9-817d-62ed251e258f.png)  
+## 其他更多详细使用请[参考](https://github.com/zhaopeiym/IoTClient.Examples)
 
-![image](https://user-images.githubusercontent.com/5820324/68068818-63a11900-fd94-11e9-932e-fa0bd5941861.png)  
+# [IoTClient Tool](https://github.com/zhaopeiym/IoTClient.Examples)效果图   
+![image](https://user-images.githubusercontent.com/5820324/115138587-b7bebc80-a05f-11eb-9f7c-720a88bdca6e.png)  
 
-![image](https://user-images.githubusercontent.com/5820324/68068890-e75b0580-fd94-11e9-9370-b914e5af9590.png)  
+![image](https://user-images.githubusercontent.com/5820324/115138592-bbeada00-a05f-11eb-9fc4-4b15a426cdb3.png)    
+
+![image](https://user-images.githubusercontent.com/5820324/115138594-bd1c0700-a05f-11eb-8d4b-34a567669e3d.png)
+
+![image](https://user-images.githubusercontent.com/5820324/115138596-bee5ca80-a05f-11eb-9878-9b05a4cfbc0b.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/115138597-c016f780-a05f-11eb-9d09-298a54f55266.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/115138600-c2795180-a05f-11eb-92b0-1a1d278c20c8.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/115138602-c3aa7e80-a05f-11eb-9cd7-be876735a26f.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/115138603-c5744200-a05f-11eb-9cdb-a222aa9b7b25.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/115138606-c73e0580-a05f-11eb-9ca1-5ece1bae8e71.png)  
+
+![image](https://user-images.githubusercontent.com/5820324/115138607-c86f3280-a05f-11eb-83f1-d1706331406a.png)  

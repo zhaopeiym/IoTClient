@@ -47,7 +47,7 @@ namespace IoTServer.Common
         /// <param name="value"></param>
         public void Write(string key, string value)
         {
-            key = prefix + key;            
+            key = prefix + key;
             if (data.ContainsKey(key))
             {
                 data[key] = value;
@@ -69,6 +69,9 @@ namespace IoTServer.Common
         public static void Clear()
         {
             data = new ConcurrentDictionary<string, string>();
+
+            var filePath = @"C:\IoTClient\ConnectionConfig.Data";
+            if (File.Exists(filePath)) File.Delete(filePath);
         }
 
         /// <summary>

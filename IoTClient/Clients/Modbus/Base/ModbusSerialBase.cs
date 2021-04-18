@@ -99,7 +99,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -306,7 +306,7 @@ namespace IoTClient.Clients.Modbus
             };
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -768,7 +768,7 @@ namespace IoTClient.Clients.Modbus
                     result.Exception = tempResult.Exception;
                     result.Err = tempResult.Err;
                     result.ErrList.AddRange(tempResult.ErrList);
-                    return result;
+                    return result.EndTime();
                 }
 
                 var rValue = tempResult.Value.Reverse().ToArray();
@@ -818,9 +818,9 @@ namespace IoTClient.Clients.Modbus
                 if (addresses.Any(t => t.Key >= minAddress))
                     minAddress = addresses.Where(t => t.Key >= minAddress).OrderBy(t => t.Key).FirstOrDefault().Key;
                 else
-                    return result;
+                    return result.EndTime();
             }
-            return result;
+            return result.EndTime();
         }
 
         #endregion

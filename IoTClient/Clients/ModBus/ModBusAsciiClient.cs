@@ -61,7 +61,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
 
                 byte[] resultLRC = new byte[responsePackage.Length - 3];
@@ -71,7 +71,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果LRC验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
                 var resultData = new byte[resultByte[2]];
                 Buffer.BlockCopy(resultByte, 3, resultData, 0, resultData.Length);
@@ -92,7 +92,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
         #endregion
 
@@ -126,7 +126,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
 
                 byte[] resultLRC = new byte[responsePackage.Length - 3];
@@ -136,7 +136,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果LRC验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
 
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -151,7 +151,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果为空";
-                    return result;
+                    return result.EndTime();
                 }
 
                 byte[] resultLRC = new byte[responsePackage.Length - 3];
@@ -195,7 +195,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果LRC验证失败";
-                    //return result;
+                    //return result.EndTime();
                 }
 
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -210,7 +210,7 @@ namespace IoTClient.Clients.Modbus
             {
                 if (isAutoOpen) Dispose();
             }
-            return result;
+            return result.EndTime();
         }
 
         #endregion
