@@ -13,6 +13,7 @@ namespace IoTClient.Clients.PLC
 {
     /// <summary>
     /// 欧姆龙PLC 客户端 - Beta
+    /// https://flat2010.github.io/2020/02/23/Omron-Fins%E5%8D%8F%E8%AE%AE/
     /// </summary>
     public class OmronFinsClient : SocketBase, IEthernetClient
     {
@@ -24,9 +25,11 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         private byte[] BasicCommand = new byte[]
         {
-            0x46, 0x49, 0x4E, 0x53, 0x00, 0x00, 0x00, 0x0C,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x01
+            0x46, 0x49, 0x4E, 0x53,//Magic字段  0x46494E53 对应的ASCII码，即FINS
+            0x00, 0x00, 0x00, 0x0C,//Length字段 表示其后所有字段的总长度
+            0x00, 0x00, 0x00, 0x00,//Command字段 
+            0x00, 0x00, 0x00, 0x00,//Error Code字段
+            0x00, 0x00, 0x00, 0x01 //Client/Server Node Address字段
         };
 
         /// <summary>
@@ -50,9 +53,12 @@ namespace IoTClient.Clients.PLC
         public LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
-        /// 单元号地址
+        /// DA2(即Destination unit address，目标单元地址)
+        /// 0x00：PC(CPU)
+        /// 0xFE： SYSMAC NET Link Unit or SYSMAC LINK Unit connected to network；
+        /// 0x10~0x1F：CPU总线单元 ，其值等于10 + 单元号(前端面板中配置的单元号)
         /// </summary>
-        public byte UnitNumber { get; set; } = 0x00;
+        public byte UnitAddress { get; set; } = 0x00;
 
         /// <summary>
         /// 
@@ -61,7 +67,7 @@ namespace IoTClient.Clients.PLC
         /// <param name="port"></param>
         /// <param name="timeout"></param>
         /// <param name="endianFormat"></param>
-        public OmronFinsClient(string ip, int port, int timeout = 1500, EndianFormat endianFormat = EndianFormat.CDAB)
+        public OmronFinsClient(string ip, int port = 9600, int timeout = 1500, EndianFormat endianFormat = EndianFormat.CDAB)
         {
             IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
             this.timeout = timeout;
@@ -601,19 +607,19 @@ namespace IoTClient.Clients.PLC
             tmp.CopyTo(command, 4);
             command[11] = 0x02;
 
-            command[16] = 0x80; //信息控制字段
-            command[17] = 0x00;
-            command[18] = 0x02;
-            command[19] = 0x00;
-            command[20] = 0x13; //0x13; //01(节点地址:Ip地址的最后一位)
-            command[21] = UnitNumber; //单元号地址(传过来)
-            command[22] = 0x00;
-            command[23] = 0x0B; //0x0B; //01(节点地址:Ip地址的最后一位)
-            command[24] = 0x00;
-            command[25] = 0x00;
+            command[16] = 0x80; //ICF 信息控制字段
+            command[17] = 0x00; //RSV 保留字段
+            command[18] = 0x02; //GCT 网关计数
+            command[19] = 0x00; //DNA 目标网络地址 00:表示本地网络  0x01~0x7F:表示远程网络
+            command[20] = 0x13; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
+            command[21] = UnitAddress; //DA2 目标单元地址
+            command[22] = 0x00; //SNA 源网络地址 取值及含义同DNA字段
+            command[23] = 0x0B; //SA1 源节点编号 取值及含义同DA1字段
+            command[24] = 0x00; //SA2 源单元地址 取值及含义同DA2字段
+            command[25] = 0x00; //SID Service ID 取值0x00~0xFF，产生会话的进程的唯一标识
 
             command[26] = 0x01;
-            command[27] = 0x01; //读
+            command[27] = 0x01; //Command Code 内存区域读取
             command[28] = isBit ? arg.OmronFinsType.BitCode : arg.OmronFinsType.WordCode;
             arg.Content.CopyTo(command, 29);
             command[32] = (byte)(length / 256);
@@ -632,19 +638,19 @@ namespace IoTClient.Clients.PLC
             tmp.CopyTo(command, 4);
             command[11] = 0x02;
 
-            command[16] = 0x80; //信息控制字段
-            command[17] = 0x00;
-            command[18] = 0x02;
-            command[19] = 0x00;
-            command[20] = 0x13; //0x13; //01(节点地址:Ip地址的最后一位)
-            command[21] = UnitNumber; //单元号地址(传过来)
-            command[22] = 0x00;
-            command[23] = 0x0B; //0x0B; //01(节点地址:Ip地址的最后一位)
-            command[24] = 0x00;
-            command[25] = 0x00;
+            command[16] = 0x80; //ICF 信息控制字段
+            command[17] = 0x00; //RSV 保留字段
+            command[18] = 0x02; //GCT 网关计数
+            command[19] = 0x00; //DNA 目标网络地址 00:表示本地网络  0x01~0x7F:表示远程网络
+            command[20] = 0x13; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
+            command[21] = UnitAddress; //DA2 目标单元地址
+            command[22] = 0x00; //SNA 源网络地址 取值及含义同DNA字段
+            command[23] = 0x0B; //SA1 源节点编号 取值及含义同DA1字段
+            command[24] = 0x00; //SA2 源单元地址 取值及含义同DA2字段
+            command[25] = 0x00; //SID Service ID 取值0x00~0xFF，产生会话的进程的唯一标识
 
             command[26] = 0x01;
-            command[27] = 0x02; //写
+            command[27] = 0x02; //Command Code 内存区域写入
             command[28] = isBit ? arg.OmronFinsType.BitCode : arg.OmronFinsType.WordCode;
             arg.Content.CopyTo(command, 29);
             command[32] = isBit ? (byte)(value.Length / 256) : (byte)(value.Length / 2 / 256);

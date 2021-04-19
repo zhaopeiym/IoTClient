@@ -188,7 +188,7 @@ namespace IoTClient.Clients.Modbus
         }
 
         /// <summary>
-        /// 读取Int16
+        /// 读取Int16类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -210,13 +210,19 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取Int16类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param
         public Result<short> ReadInt16(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadInt16(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取UInt16
+        /// 读取UInt16类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -238,13 +244,20 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取UInt16类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<ushort> ReadUInt16(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadUInt16(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取Int32
+        /// 读取Int32类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -266,6 +279,13 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取Int32类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<int> ReadInt32(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadInt32(address.ToString(), stationNumber, functionCode);
@@ -273,7 +293,7 @@ namespace IoTClient.Clients.Modbus
 
 
         /// <summary>
-        /// 读取UInt32
+        /// 读取UInt32类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -295,13 +315,20 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取UInt32类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<uint> ReadUInt32(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadUInt32(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取Int64
+        /// 读取Int64类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -323,13 +350,20 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取Int64类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<long> ReadInt64(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadInt64(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取UInt64
+        /// 读取UInt64类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -351,13 +385,20 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取UInt64类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<ulong> ReadUInt64(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadUInt64(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取Float
+        /// 读取Float类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -379,13 +420,20 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取Float类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<float> ReadFloat(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadFloat(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取Double
+        /// 读取Double类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -407,13 +455,20 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取Double类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<double> ReadDouble(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadDouble(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取线圈
+        /// 读取线圈类型数据
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
         /// <param name="stationNumber">站号</param>
@@ -435,17 +490,24 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取线圈类型数据
+        /// </summary>
+        /// <param name="address">寄存器起始地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<bool> ReadCoil(int address, byte stationNumber = 1, byte functionCode = 1)
         {
             return ReadCoil(address.ToString(), stationNumber, functionCode);
         }
 
         /// <summary>
-        /// 读取离散
+        /// 读取离散类型数据
         /// </summary>
         /// <param name="address">读取地址</param>
-        /// <param name="stationNumber"></param>
-        /// <param name="functionCode"></param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
         /// <returns></returns>
         public Result<bool> ReadDiscrete(string address, byte stationNumber = 1, byte functionCode = 2)
         {
@@ -463,6 +525,13 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 读取离散类型数据
+        /// </summary>
+        /// <param name="address">读取地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <returns></returns>
         public Result<bool> ReadDiscrete(int address, byte stationNumber = 1, byte functionCode = 2)
         {
             return ReadDiscrete(address.ToString(), stationNumber, functionCode);
@@ -498,6 +567,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<short> ReadInt16(int beginAddress, int address, byte[] values)
         {
             return ReadInt16(beginAddress.ToString(), address.ToString(), values);
@@ -533,6 +609,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<ushort> ReadUInt16(int beginAddress, int address, byte[] values)
         {
             return ReadUInt16(beginAddress.ToString(), address.ToString(), values);
@@ -569,6 +652,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<int> ReadInt32(int beginAddress, int address, byte[] values)
         {
             return ReadInt32(beginAddress.ToString(), address.ToString(), values);
@@ -605,6 +695,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<uint> ReadUInt32(int beginAddress, int address, byte[] values)
         {
             return ReadUInt32(beginAddress.ToString(), address.ToString(), values);
@@ -641,6 +738,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<long> ReadInt64(int beginAddress, int address, byte[] values)
         {
             return ReadInt64(beginAddress.ToString(), address.ToString(), values);
@@ -677,6 +781,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<ulong> ReadUInt64(int beginAddress, int address, byte[] values)
         {
             return ReadUInt64(beginAddress.ToString(), address.ToString(), values);
@@ -713,6 +824,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<float> ReadFloat(int beginAddress, int address, byte[] values)
         {
             return ReadFloat(beginAddress.ToString(), address.ToString(), values);
@@ -749,6 +867,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<double> ReadDouble(int beginAddress, int address, byte[] values)
         {
             return ReadDouble(beginAddress.ToString(), address.ToString(), values);
@@ -788,6 +913,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<bool> ReadCoil(int beginAddress, int address, byte[] values)
         {
             return ReadCoil(beginAddress.ToString(), address.ToString(), values);
@@ -827,6 +959,13 @@ namespace IoTClient.Clients.Modbus
             }
         }
 
+        /// <summary>
+        /// 从批量读取的数据字节提取对应的地址数据
+        /// </summary>
+        /// <param name="beginAddress">批量读取的起始地址</param>
+        /// <param name="address">读取地址</param>
+        /// <param name="values">批量读取的值</param>
+        /// <returns></returns>
         public Result<bool> ReadDiscrete(int beginAddress, int address, byte[] values)
         {
             return ReadDiscrete(beginAddress.ToString(), address.ToString(), values);
@@ -1088,8 +1227,8 @@ namespace IoTClient.Clients.Modbus
         /// </summary>
         /// <param name="address">读取地址</param>
         /// <param name="value"></param>
-        /// <param name="stationNumber"></param>
-        /// <param name="functionCode"></param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
         public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
         {
             if (!socket?.Connected ?? true) Connect();
@@ -1136,8 +1275,8 @@ namespace IoTClient.Clients.Modbus
         /// </summary>
         /// <param name="address">读取地址</param>
         /// <param name="values">批量读取的值</param>
-        /// <param name="stationNumber"></param>
-        /// <param name="functionCode"></param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
         /// <returns></returns>
         public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
         {

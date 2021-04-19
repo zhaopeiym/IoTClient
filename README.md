@@ -22,11 +22,32 @@ ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502);
 
 //2、写操作 - 参数依次是：地址 、值 、站号 、功能码
 client.Write("4", (short)33, 2, 16);
-client.Write("4", (short)3344, 2, 16);
+
+//2.1、【注意】写入数据的时候需要明确数据类型
+client.Write("0", (short)33, 2, 16);    //写入的是short类型数值
+client.Write("4", (ushort)33, 2, 16);   //写入的是ushort类型数值
+client.Write("8", (int)33, 2, 16);      //写入的是int类型数值
+client.Write("12", (uint)33, 2, 16);    //写入的是uint类型数值
+client.Write("16", (long)33, 2, 16);    //写入的是long类型数值
+client.Write("20", (ulong)33, 2, 16);   //写入的是ulong类型数值
+client.Write("24", (float)33, 2, 16);   //写入的是float类型数值
+client.Write("28", (double)33, 2, 16);  //写入的是double类型数值
+client.Write("32", true, 2, 5);         //写入的是线圈类型数值
 
 //3、读操作 - 参数依次是：地址 、站号 、功能码
 var value = client.ReadInt16("4", 2, 3).Value;
-var value2 = client.ReadInt32("4", 2, 3).Value;
+
+//3.1、其他类型数据读取
+client.ReadInt16("0", stationNumber, 3);    //short类型数据读取
+client.ReadUInt16("4", stationNumber, 3);   //ushort类型数据读取
+client.ReadInt32("8", stationNumber, 3);    //int类型数据读取
+client.ReadUInt32("12", stationNumber, 3);  //uint类型数据读取
+client.ReadInt64("16", stationNumber, 3);   //long类型数据读取
+client.ReadUInt64("20", stationNumber, 3);  //ulong类型数据读取
+client.ReadFloat("24", stationNumber, 3);   //float类型数据读取
+client.ReadDouble("28", stationNumber, 3);  //double类型数据读取
+client.ReadCoil("32", stationNumber, 1);    //线圈类型数据读取
+client.ReadDiscrete("32", stationNumber, 2);//离散类型数据读取
 
 //4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
 client.Open();
@@ -74,10 +95,30 @@ var result = client.BatchRead(list);
 ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502, 1500, EndianFormat.ABCD);
 ``` 
 
+### ModBusTcp更多使用方式，请参考[单元测试](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)
+
 ## ModBusRtu读写操作
 ```
 //实例化客户端 - [COM端口名称,波特率,数据位,停止位,奇偶校验]
 ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Parity.None);
+
+//其他读写操作和ModBusTcpClient的读写操作一致
+```
+
+## ModBusAscii读写操作
+```
+//实例化客户端 - [COM端口名称,波特率,数据位,停止位,奇偶校验]
+ModbusAsciiClient client = new ModbusAsciiClient("COM3", 9600, 8, StopBits.One, Parity.None);
+
+//其他读写操作和ModBusTcpClient的读写操作一致
+```
+
+## ModbusRtuOverTcp读写操作
+```
+//串口透传 即:用Tcp的方式发送Rtu格式报文
+
+//实例化客户端 - IP、端口、超时时间、大小端设置
+ModbusRtuOverTcpClient client = new ModbusRtuOverTcpClient("127.0.0.1", 502, 1500, EndianFormat.ABCD);
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```

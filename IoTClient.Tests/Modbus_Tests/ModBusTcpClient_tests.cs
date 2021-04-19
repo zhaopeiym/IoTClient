@@ -1,7 +1,9 @@
 ﻿using IoTClient.Clients.Modbus;
 using IoTClient.Enums;
 using IoTClient.Models;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -17,6 +19,106 @@ namespace IoTClient.Tests.Modbus
             var ip = IPAddress.Parse("ip".GetConfig());
             var port = int.Parse("port".GetConfig());
             client = new ModbusTcpClient(new IPEndPoint(ip, port));
+        }
+
+        [Fact]
+        public async Task 短连接自动开关()
+        {
+            Random rnd = new Random((int)Stopwatch.GetTimestamp());
+            for (int i = 0; i < 10; i++)
+            {
+                #region 生产随机数
+                short short_number = (short)rnd.Next(short.MinValue, short.MaxValue);
+                ushort ushort_number = (ushort)rnd.Next(ushort.MinValue, ushort.MaxValue);
+                int int_number = rnd.Next(int.MinValue, int.MaxValue);
+                uint uint_number = (uint)Math.Abs(rnd.Next(int.MinValue, int.MaxValue));
+                long long_number = rnd.Next(int.MinValue, int.MaxValue);
+                ulong ulong_number = (ulong)Math.Abs(rnd.Next(int.MinValue, int.MaxValue));
+                float float_number = rnd.Next(int.MinValue, int.MaxValue) / 100;
+                double double_number = (double)rnd.Next(int.MinValue, int.MaxValue) / 100;
+                bool coil = int_number % 2 == 0; 
+                #endregion
+
+                //写入地址:0 值为:short_number 站号:stationNumber 功能码:默认16(也可以自己传入对应的功能码)
+                client.Write("0", short_number, stationNumber, 16);
+                client.Write("4", ushort_number, stationNumber, 16);
+                client.Write("8", int_number, stationNumber, 16);
+                client.Write("12", uint_number, stationNumber, 16);
+                client.Write("16", long_number, stationNumber, 16);
+                client.Write("20", ulong_number, stationNumber, 16);
+                client.Write("24", float_number, stationNumber, 16);
+                client.Write("28", double_number, stationNumber, 16);
+
+                client.Write("32", coil, stationNumber, 5);
+
+                //写入可能有一定的延时，500毫秒后检验
+                await Task.Delay(500);
+
+                //读取地址:0 站号:stationNumber 功能码:默认16(也可以自己传入对应的功能码)
+                var read_short_number = client.ReadInt16("0", stationNumber, 3).Value;
+                Assert.True(read_short_number == short_number);
+                Assert.True(client.ReadUInt16("4", stationNumber, 3).Value == ushort_number);
+                Assert.True(client.ReadInt32("8", stationNumber, 3).Value == int_number);
+                Assert.True(client.ReadUInt32("12", stationNumber, 3).Value == uint_number);
+                Assert.True(client.ReadInt64("16", stationNumber, 3).Value == long_number);
+                Assert.True(client.ReadUInt64("20", stationNumber, 3).Value == ulong_number);
+                Assert.True(client.ReadFloat("24", stationNumber, 3).Value == float_number);
+                Assert.True(client.ReadDouble("28", stationNumber, 3).Value == double_number);
+
+                Assert.True(client.ReadCoil("32", stationNumber, 1).Value == coil);
+            }
+        }
+
+        [Fact]
+        public async Task 长连接主动开关()
+        {
+            client.Open();
+
+            Random rnd = new Random((int)Stopwatch.GetTimestamp());
+            for (int i = 0; i < 10; i++)
+            {
+                #region 生产随机数
+                short short_number = (short)rnd.Next(short.MinValue, short.MaxValue);
+                ushort ushort_number = (ushort)rnd.Next(ushort.MinValue, ushort.MaxValue);
+                int int_number = rnd.Next(int.MinValue, int.MaxValue);
+                uint uint_number = (uint)Math.Abs(rnd.Next(int.MinValue, int.MaxValue));
+                long long_number = rnd.Next(int.MinValue, int.MaxValue);
+                ulong ulong_number = (ulong)Math.Abs(rnd.Next(int.MinValue, int.MaxValue));
+                float float_number = rnd.Next(int.MinValue, int.MaxValue) / 100;
+                double double_number = (double)rnd.Next(int.MinValue, int.MaxValue) / 100;
+                bool coil = int_number % 2 == 0;
+                #endregion
+
+                //写入地址:0 值为:short_number 站号:stationNumber 功能码:默认16(也可以自己传入对应的功能码)
+                client.Write("0", short_number, stationNumber, 16);
+                client.Write("4", ushort_number, stationNumber, 16);
+                client.Write("8", int_number, stationNumber, 16);
+                client.Write("12", uint_number, stationNumber, 16);
+                client.Write("16", long_number, stationNumber, 16);
+                client.Write("20", ulong_number, stationNumber, 16);
+                client.Write("24", float_number, stationNumber, 16);
+                client.Write("28", double_number, stationNumber, 16);
+
+                client.Write("32", coil, stationNumber, 5);
+
+                //写入可能有一定的延时，500毫秒后检验
+                await Task.Delay(500);
+
+                //读取地址:0 站号:stationNumber 功能码:默认16(也可以自己传入对应的功能码)
+                var read_short_number = client.ReadInt16("0", stationNumber, 3).Value;
+                Assert.True(read_short_number == short_number);
+                Assert.True(client.ReadUInt16("4", stationNumber, 3).Value == ushort_number);
+                Assert.True(client.ReadInt32("8", stationNumber, 3).Value == int_number);
+                Assert.True(client.ReadUInt32("12", stationNumber, 3).Value == uint_number);
+                Assert.True(client.ReadInt64("16", stationNumber, 3).Value == long_number);
+                Assert.True(client.ReadUInt64("20", stationNumber, 3).Value == ulong_number);
+                Assert.True(client.ReadFloat("24", stationNumber, 3).Value == float_number);
+                Assert.True(client.ReadDouble("28", stationNumber, 3).Value == double_number);
+
+                Assert.True(client.ReadCoil("32", stationNumber, 1).Value == coil);
+            }
+
+            client.Close();
         }
 
         [Fact]
@@ -60,92 +162,6 @@ namespace IoTClient.Tests.Modbus
                 StationNumber = 1
             });
             var result = client.BatchRead(list);
-        }
-
-        /// <summary>
-        /// Modbus值的写入有一定的延时，500毫秒后检验
-        /// </summary>
-        /// <returns></returns>
-        [Fact]
-        public async Task 短连接自动开关()
-        {
-            short Number = 33;
-            client.Write("4", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("4", stationNumber).Value == Number);
-
-            Number = 34;
-            client.Write("4", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("4", stationNumber).Value == Number);
-
-            Number = 1;
-            client.Write("12", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("12", stationNumber).Value == 1);
-
-            Number = 0;
-            client.Write("12", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("12", stationNumber).Value == 0);
-
-            int numberInt32 = -12;
-            client.Write("4", numberInt32, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt32("4", stationNumber).Value == numberInt32);
-
-            float numberFloat = 112;
-            client.Write("4", numberFloat, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadFloat("4", stationNumber).Value == numberFloat);
-
-            double numberDouble = 32;
-            client.Write("4", numberDouble, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadDouble("4", stationNumber).Value == numberDouble);
-        }
-
-        [Fact]
-        public async Task 长连接主动开关()
-        {
-            client.Open();
-
-            short Number = 33;
-            client.Write("4", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("4", stationNumber).Value == Number);
-
-            Number = 34;
-            client.Write("4", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("4", stationNumber).Value == Number);
-
-            Number = 1;
-            client.Write("12", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("12", stationNumber).Value == 1);
-
-            Number = 0;
-            client.Write("12", Number, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt16("12", stationNumber).Value == 0);
-
-            int numberInt32 = -12;
-            client.Write("4", numberInt32, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadInt32("4", stationNumber).Value == numberInt32);
-
-            float numberFloat = 112;
-            client.Write("4", numberFloat, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadFloat("4", stationNumber).Value == numberFloat);
-
-            double numberDouble = 32;
-            client.Write("4", numberDouble, stationNumber);
-            await Task.Delay(500);
-            Assert.True(client.ReadDouble("4", stationNumber).Value == numberDouble);
-
-            client.Close();
         }
     }
 }
