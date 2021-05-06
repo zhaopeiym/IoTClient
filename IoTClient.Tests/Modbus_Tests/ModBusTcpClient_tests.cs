@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -37,6 +38,7 @@ namespace IoTClient.Tests.Modbus
                 float float_number = rnd.Next(int.MinValue, int.MaxValue) / 100;
                 double double_number = (double)rnd.Next(int.MinValue, int.MaxValue) / 100;
                 bool coil = int_number % 2 == 0;
+                string orderCode = "WX8200611002" + short_number;
                 #endregion
 
                 //写入地址:0 值为:short_number 站号:stationNumber 功能码:默认16(也可以自己传入对应的功能码)
@@ -50,6 +52,8 @@ namespace IoTClient.Tests.Modbus
                 client.Write("28", double_number, stationNumber, 16);
 
                 client.Write("32", coil, stationNumber, 5);
+
+                client.Write("100", orderCode, stationNumber);
 
                 //写入可能有一定的延时，500毫秒后检验
                 await Task.Delay(500);
@@ -66,6 +70,8 @@ namespace IoTClient.Tests.Modbus
                 Assert.True(client.ReadDouble("28", stationNumber, 3).Value == double_number);
 
                 Assert.True(client.ReadCoil("32", stationNumber, 1).Value == coil);
+
+                Assert.True(client.ReadString("100", stationNumber, readLength: (ushort)orderCode.Length).Value == orderCode);
             }
         }
 

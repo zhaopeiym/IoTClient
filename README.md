@@ -34,6 +34,7 @@ client.Write("20", (ulong)33, 2, 16);   //写入ulong类型数值
 client.Write("24", (float)33, 2, 16);   //写入float类型数值
 client.Write("28", (double)33, 2, 16);  //写入double类型数值
 client.Write("32", true, 2, 5);         //写入线圈类型值
+client.Write("100", "orderCode", stationNumber);  //写入字符串
 
 //3、读操作 - 参数依次是：地址 、站号 、功能码
 var value = client.ReadInt16("4", 2, 3).Value;
@@ -49,6 +50,7 @@ client.ReadFloat("24", stationNumber, 3);   //float类型数据读取
 client.ReadDouble("28", stationNumber, 3);  //double类型数据读取
 client.ReadCoil("32", stationNumber, 1);    //线圈类型数据读取
 client.ReadDiscrete("32", stationNumber, 2);//离散类型数据读取
+client.ReadString("100", stationNumber,10); //读取字符串
 
 //4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
 client.Open();

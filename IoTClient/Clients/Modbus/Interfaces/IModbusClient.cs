@@ -251,7 +251,7 @@ namespace IoTClient.Clients.Modbus
         /// <param name="stationNumber"></param>
         /// <param name="functionCode"></param>
         /// <returns></returns>
-        Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16);
+        Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16, bool byteFormatting = true);
 
         /// <summary>
         /// 写入

@@ -234,7 +234,7 @@
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.Write(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.Write(System.String,System.Byte[],System.Byte,System.Byte,System.Boolean)">
             <summary>
             写入
             </summary>
@@ -583,7 +583,7 @@
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.IModbusClient.Write(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.Write(System.String,System.Byte[],System.Byte,System.Byte,System.Boolean)">
             <summary>
             写入
             </summary>
@@ -701,7 +701,7 @@
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.Write(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.Write(System.String,System.Byte[],System.Byte,System.Byte,System.Boolean)">
             <summary>
             写入
             </summary>
@@ -748,7 +748,7 @@
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.Write(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.Write(System.String,System.Byte[],System.Byte,System.Byte,System.Boolean)">
             <summary>
             写入
             </summary>
@@ -991,7 +991,7 @@
             <param name="stationNumber"></param>
             <param name="functionCode"></param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.Write(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.Write(System.String,System.Byte[],System.Byte,System.Byte,System.Boolean)">
             <summary>
             写入
             </summary>
@@ -1291,6 +1291,17 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadString(System.String,System.Byte,System.Byte,System.Text.Encoding,System.UInt16)">
+            <summary>
+            读取字符串
+            </summary>
+            <param name="address">地址</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="encoding">编码</param>
+            <param name="readLength">编码</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadCoil(System.String,System.Byte,System.Byte)">
             <summary>
             读取线圈类型数据
@@ -1523,7 +1534,7 @@
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Write(System.String,System.Byte[],System.Byte,System.Byte)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Write(System.String,System.Byte[],System.Byte,System.Byte,System.Boolean)">
             <summary>
             写入
             </summary>
@@ -1531,6 +1542,7 @@
             <param name="values">批量读取的值</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <param name="byteFormatting">大小端设置</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Write(System.String,System.Int16,System.Byte,System.Byte)">
@@ -1604,6 +1616,17 @@
             <param name="value">写入的值</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Write(System.String,System.String,System.Byte,System.Byte,System.Text.Encoding)">
+            <summary>
+            写字符串
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">字符串值</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="encoding">编码</param>
+            <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.GetCheckHead(System.Int32)">
             <summary>

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace IoTClient.Clients.Modbus
 {
@@ -467,6 +468,34 @@ namespace IoTClient.Clients.Modbus
         public Result<double> ReadDouble(int address, byte stationNumber = 1, byte functionCode = 3)
         {
             return ReadDouble(address.ToString(), stationNumber, functionCode);
+        }
+
+        /// <summary>
+        /// 读取字符串
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="readLength">读取长度</param>
+        /// <returns></returns>
+        public Result<string> ReadString(string address, byte stationNumber = 1, byte functionCode = 3, Encoding encoding = null, ushort readLength = 10)
+        {
+            if (encoding == null) encoding = Encoding.ASCII;
+
+            readLength = (ushort)Math.Ceiling((float)readLength / 2);
+            var readResut = Read(address, stationNumber, functionCode, readLength: readLength, byteFormatting: false);
+            var result = new Result<string>()
+            {
+                IsSucceed = readResut.IsSucceed,
+                Err = readResut.Err,
+                ErrList = readResut.ErrList,
+                Requst = readResut.Requst,
+                Response = readResut.Response,
+            };
+            if (result.IsSucceed)
+                result.Value = encoding.GetString(readResut.Value.Reverse().ToArray())?.Replace("\0", "");
+            return result.EndTime();
         }
 
         /// <summary>
@@ -973,103 +1002,6 @@ namespace IoTClient.Clients.Modbus
             return ReadDiscrete(beginAddress.ToString(), address.ToString(), values);
         }
 
-        #region 假的批量 注释
-        ///// <summary>
-        ///// 分批读取【假的批量，内部实际还是循环读取】
-        ///// </summary>
-        ///// <param name="addresses">地址集合</param>
-        ///// <param name="batchNumber">批量读取数量</param>
-        ///// <returns></returns>
-        //public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber = 19)
-        //{
-        //    var result = new Result<Dictionary<string, object>>();
-        //    result.Value = new Dictionary<string, object>();
-
-        //    var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
-        //    for (int i = 0; i < batchCount; i++)
-        //    {
-        //        var tempAddresses = addresses.Skip(i * batchNumber).Take(batchNumber).ToDictionary(t => t.Key, t => t.Value);
-        //        var tempResult = BatchRead(tempAddresses);
-        //        if (tempResult.IsSucceed)
-        //        {
-        //            foreach (var item in tempResult.Value)
-        //            {
-        //                result.Value.Add(item.Key, item.Value);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            result.IsSucceed = false;
-        //            result.Err = tempResult.Err;
-        //        }
-        //    }
-        //    return result.EndTime();
-        //}
-
-        //private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses)
-        //{
-        //    var result = new Result<Dictionary<string, object>>();
-        //    result.Value = new Dictionary<string, object>();
-        //    try
-        //    {
-        //        foreach (var item in addresses)
-        //        {
-        //            var richText = item.Key.Split('_');
-        //            if (richText.Length < 2)
-        //                continue; //必须传入站号
-        //            var stationNumber = byte.Parse(richText[0]);
-        //            var addresse = richText[1];
-        //            var functionCode = richText.Length >= 3 ? byte.Parse(richText[2]) : (byte)3;
-        //            object value;
-        //            switch (item.Value)
-        //            {
-        //                case DataTypeEnum.Bool:
-        //                    value = ReadDiscrete(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                //case DataTypeEnum.Byte:
-        //                //    value = readResut[0];
-        //                //    break;
-        //                case DataTypeEnum.Int16:
-        //                    value = ReadInt16(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.UInt16:
-        //                    value = ReadUInt16(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Int32:
-        //                    value = ReadInt32(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.UInt32:
-        //                    value = ReadUInt32(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Int64:
-        //                    value = ReadInt64(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.UInt64:
-        //                    value = ReadUInt64(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Float:
-        //                    value = ReadFloat(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                case DataTypeEnum.Double:
-        //                    value = ReadDouble(addresse, stationNumber, functionCode).Value;
-        //                    break;
-        //                default:
-        //                    throw new Exception($"未定义数据类型：{item.Value}");
-        //            }
-        //            result.Value.Add(item.Key, value);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.IsSucceed = false;
-        //        result.Err = ex.Message;
-        //        result.Exception = ex;
-        //        result.ErrList.Add(ex.Message);
-        //    }
-        //    return result.EndTime();
-        //} 
-        #endregion
-
         /// <summary>
         /// 分批读取（批量读取，内部进行批量计算读取）
         /// </summary>
@@ -1279,15 +1211,17 @@ namespace IoTClient.Clients.Modbus
         /// <param name="values">批量读取的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
+        /// <param name="byteFormatting">大小端设置</param>
         /// <returns></returns>
-        public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16)
+        public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16, bool byteFormatting = true)
         {
             if (!socket?.Connected ?? true) Connect();
 
             var result = new Result();
             try
             {
-                values = values.ByteFormatting(format);
+                if (byteFormatting)
+                    values = values.ByteFormatting(format);
                 var chenkHead = GetCheckHead(functionCode);
                 var command = GetWriteCommand(address, values, stationNumber, functionCode, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
@@ -1425,6 +1359,24 @@ namespace IoTClient.Clients.Modbus
         {
             var values = BitConverter.GetBytes(value).Reverse().ToArray();
             return Write(address, values, stationNumber, functionCode);
+        }
+
+        /// <summary>
+        /// 写字符串
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">字符串值</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="encoding">编码</param>
+        /// <returns></returns>
+        public Result Write(string address, string value, byte stationNumber = 1, byte functionCode = 16, Encoding encoding = null)
+        {
+            if (encoding == null) encoding = Encoding.ASCII;
+            if (value.Length % 2 == 1)
+                value = value + "\0";
+            var values = encoding.GetBytes(value);
+            return Write(address, values, stationNumber, functionCode, false);
         }
         #endregion
 
