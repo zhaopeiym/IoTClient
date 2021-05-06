@@ -50,7 +50,7 @@ client.ReadFloat("24", stationNumber, 3);   //float类型数据读取
 client.ReadDouble("28", stationNumber, 3);  //double类型数据读取
 client.ReadCoil("32", stationNumber, 1);    //线圈类型数据读取
 client.ReadDiscrete("32", stationNumber, 2);//离散类型数据读取
-client.ReadString("100", stationNumber,10); //读取字符串
+client.ReadString("100", stationNumber, readLength:10); //读取字符串
 
 //4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
 client.Open();
