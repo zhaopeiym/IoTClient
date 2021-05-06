@@ -4,76 +4,76 @@ IoTClient
 
 [![image](https://img.shields.io/nuget/v/IoTClient.svg)](https://www.nuget.org/packages/IoTClient/) [![image](https://img.shields.io/nuget/dt/IoTClient.svg)](https://www.nuget.org/packages/IoTClient/) ![image](https://img.shields.io/github/license/alienwow/SnowLeopard.svg)
 
-English | [简体中文](README-zh_CN.md)
+[English](README.md) | 简体中文
 
-- This is an IoT device communication protocol realization client, which will include mainstream PLC communication reading, ModBus protocol, Bacnet protocol and other common industrial communication protocols.
-- This component is based on .NET Standard 2.0 and can be used for cross-platform development of .Net, such as Windows, Linux and even run on Raspberry Pi.
-- This component is open source and free for life, and adopts the most relaxed MIT protocol. You can also modify and use it for commercial use (commercial use please evaluate and test).
-- Development tools：Visual Studio 2019 
-- QQ exchange group：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
+- 这是一个物联网设备通讯协议实现客户端，将包括主流PLC通信读取、ModBus协议、Bacnet协议等常用工业通讯协议。
+- 本组件基于.NET Standard 2.0，可用于.Net的跨平台开发，如Windows、Linux甚至可运行于树莓派上。
+- 本组件终身开源免费，采用最宽松MIT协议，您也可以随意修改和商业使用（商业使用请做好评估和测试）。  
+- 开发工具：Visual Studio 2019 
+- QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
 
-# Instructions for use
-## Reference component
-[Nuget installation](https://www.nuget.org/packages/IoTClient/) ```Install-Package IoTClient ```  
-Or graphical installation   
+# 使用说明
+## 引用组件
+[Nuget安装](https://www.nuget.org/packages/IoTClient/) ```Install-Package IoTClient ```  
+或图形化安装   
 ![image](https://user-images.githubusercontent.com/5820324/68722366-2fc5bf00-05f0-11ea-8282-f2b0a58a9f9d.png)  
 
 <details>
-<summary>ModBusTcp read and write operations (click to expand)</summary>
+<summary>ModBusTcp读写操作（点击展开）</summary>
 
-## ModBusTcp read and write operations
+## ModBusTcp读写操作
 ```
-//1、Instantiate the client-enter the correct IP and port
+//1、实例化客户端 - 输入正确的IP和端口
 ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502);
 
-//2、Write operation-parameters are: address, value, station number, function code
+//2、写操作 - 参数依次是：地址 、值 、站号 、功能码
 client.Write("4", (short)33, 2, 16);
 
-//2.1、[Note] When writing data, you need to clarify the data type
-client.Write("0", (short)33, 2, 16);    //Write short type value
-client.Write("4", (ushort)33, 2, 16);   //Write ushort type value
-client.Write("8", (int)33, 2, 16);      //Write int type value
-client.Write("12", (uint)33, 2, 16);    //Write uint type value
-client.Write("16", (long)33, 2, 16);    //Write long type value
-client.Write("20", (ulong)33, 2, 16);   //Write ulong type value
-client.Write("24", (float)33, 2, 16);   //Write float type value
-client.Write("28", (double)33, 2, 16);  //Write double type value
-client.Write("32", true, 2, 5);         //Write Coil type value
-client.Write("100", "orderCode", stationNumber);  //Write string
+//2.1、【注意】写入数据的时候需要明确数据类型
+client.Write("0", (short)33, 2, 16);    //写入short类型数值
+client.Write("4", (ushort)33, 2, 16);   //写入ushort类型数值
+client.Write("8", (int)33, 2, 16);      //写入int类型数值
+client.Write("12", (uint)33, 2, 16);    //写入uint类型数值
+client.Write("16", (long)33, 2, 16);    //写入long类型数值
+client.Write("20", (ulong)33, 2, 16);   //写入ulong类型数值
+client.Write("24", (float)33, 2, 16);   //写入float类型数值
+client.Write("28", (double)33, 2, 16);  //写入double类型数值
+client.Write("32", true, 2, 5);         //写入线圈类型值
+client.Write("100", "orderCode", stationNumber);  //写入字符串
 
-//3、Read operation-the parameters are: address, station number, function code
+//3、读操作 - 参数依次是：地址 、站号 、功能码
 var value = client.ReadInt16("4", 2, 3).Value;
 
-//3.1、Other types of data reading
-client.ReadInt16("0", stationNumber, 3);    //short type data read
-client.ReadUInt16("4", stationNumber, 3);   //ushort type data read
-client.ReadInt32("8", stationNumber, 3);    //int type data read
-client.ReadUInt32("12", stationNumber, 3);  //uint type data read
-client.ReadInt64("16", stationNumber, 3);   //long type data read
-client.ReadUInt64("20", stationNumber, 3);  //ulong type data read
-client.ReadFloat("24", stationNumber, 3);   //float type data read
-client.ReadDouble("28", stationNumber, 3);  //double type data read
-client.ReadCoil("32", stationNumber, 1);    //Coil type data read
-client.ReadDiscrete("32", stationNumber, 2);//Discrete type data read
-client.ReadString("100", stationNumber,10); //Read string
+//3.1、其他类型数据读取
+client.ReadInt16("0", stationNumber, 3);    //short类型数据读取
+client.ReadUInt16("4", stationNumber, 3);   //ushort类型数据读取
+client.ReadInt32("8", stationNumber, 3);    //int类型数据读取
+client.ReadUInt32("12", stationNumber, 3);  //uint类型数据读取
+client.ReadInt64("16", stationNumber, 3);   //long类型数据读取
+client.ReadUInt64("20", stationNumber, 3);  //ulong类型数据读取
+client.ReadFloat("24", stationNumber, 3);   //float类型数据读取
+client.ReadDouble("28", stationNumber, 3);  //double类型数据读取
+client.ReadCoil("32", stationNumber, 1);    //线圈类型数据读取
+client.ReadDiscrete("32", stationNumber, 2);//离散类型数据读取
+client.ReadString("100", stationNumber,10); //读取字符串
 
-//4、If there is no active Open, it will automatically open and close the connection every time you read and write operations, which will greatly reduce the efficiency of reading and writing. So it is recommended to open and close manually.
+//4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
 client.Open();
 
-//5、Read and write operations will return the operation result object Result
+//5、读写操作都会返回操作结果对象Result
 var result = client.ReadInt16("4", 2, 3);
-//5.1 Whether the reading is successful (true or false)
+//5.1 读取是否成功（true或false）
 var isSucceed = result.IsSucceed;
-//5.2 Exception information for failed reading
+//5.2 读取失败的异常信息
 var errMsg = result.Err;
-//5.3 Read the request message actually sent by the operation
+//5.3 读取操作实际发送的请求报文
 var requst  = result.Requst;
-//5.4 Read the response message from the server
+//5.4 读取操作服务端响应的报文
 var response = result.Response;
-//5.5 Read value
+//5.5 读取到的值
 var value3 = result.Value;
 
-//6、Batch read
+//6、批量读取
 var list = new List<ModBusInput>();
 list.Add(new ModBusInput()
 {
@@ -98,18 +98,18 @@ list.Add(new ModBusInput()
 });
 var result = client.BatchRead(list);
 
-//7、Other parameters of the constructor
-//IP, port, timeout time, big and small end settings
+//7、构造函数其他参数
+//IP、端口、超时时间、大小端设置
 ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502, 1500, EndianFormat.ABCD);
 ``` 
-For more usage of ModBusTcp, please refer to [Unit Test](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)  
+ModBusTcp更多使用方式，请参考[单元测试](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)  
 
 </details>
 
 <details>
-<summary>ModBusRtu read and write operations</summary>
+<summary>ModBusRtu读写操作</summary>
 
-## ModBusRtu read and write operations
+## ModBusRtu读写操作
 ```
 //实例化客户端 - [COM端口名称,波特率,数据位,停止位,奇偶校验]
 ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Parity.None);
@@ -119,9 +119,9 @@ ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Pari
 </details>
 
 <details>
-<summary>ModBusAscii read and write operations</summary>
+<summary>ModBusAscii读写操作</summary>
 
-## ModBusAscii read and write operations
+## ModBusAscii读写操作
 ```
 //实例化客户端 - [COM端口名称,波特率,数据位,停止位,奇偶校验]
 ModbusAsciiClient client = new ModbusAsciiClient("COM3", 9600, 8, StopBits.One, Parity.None);
@@ -131,9 +131,9 @@ ModbusAsciiClient client = new ModbusAsciiClient("COM3", 9600, 8, StopBits.One, 
 </details>
 
 <details>
-<summary>ModbusRtuOverTcp read and write operations</summary>
+<summary>ModbusRtuOverTcp读写操作</summary>
 
-## ModbusRtuOverTcp read and write operations
+## ModbusRtuOverTcp读写操作
 ```
 //串口透传 即:用Tcp的方式发送Rtu格式报文
 
@@ -145,9 +145,9 @@ ModbusRtuOverTcpClient client = new ModbusRtuOverTcpClient("127.0.0.1", 502, 150
 </details>
 
 <details>
-<summary>SiemensClient (Siemens) read and write operations</summary>
+<summary>SiemensClient(西门子)读写操作</summary>
 
-## SiemensClient (Siemens) read and write operations
+## SiemensClient(西门子)读写操作
 ```
 //1、实例化客户端 - 输入型号、IP和端口
 //其他型号：SiemensVersion.S7_200、SiemensVersion.S7_300、SiemensVersion.S7_400、SiemensVersion.S7_1200、SiemensVersion.S7_1500
@@ -183,9 +183,9 @@ var value4 = result.Value;
 </details>
 
 <details>
-<summary>Note: About Siemens PLC address</summary>
+<summary>注意：关于Siemens的PLC地址</summary>
 
-## Note: About Siemens PLC address
+## 注意：关于Siemens的PLC地址
 ```
 VB263、VW263、VD263中的B、W、D分别表示：byte型(8位)、word型(16位)、doubleword型(32位)。
 
@@ -206,9 +206,9 @@ DB1.DBD0    - client.ReadFloat("DB1.0")
 </details>
 
 <details>
-<summary>SiemensClient best practices</summary>
+<summary>SiemensClient最佳实践</summary>
 
-## SiemensClient best practices
+## SiemensClient最佳实践
 ```
 1、什么时候不要主动Open
 西门子plc一般最多允许8个长连接。所以当连接数不够用的时候或者做测试的时候就不要主动Open，这样组件会自动Open并即时Close。
@@ -243,9 +243,9 @@ client.Write("DB4.12", (float)9);   //写入的是float类型
 </details>
 
 <details>
-<summary>MitsubishiClient (Mitsubishi) read and write operations</summary>
+<summary>MitsubishiClient(三菱)读写操作</summary>
 
-## MitsubishiClient (Mitsubishi) read and write operations
+## MitsubishiClient(三菱)读写操作
 ```
 //1、实例化客户端 - 输入正确的IP和端口
 MitsubishiClient client = new MitsubishiClient(MitsubishiVersion.Qna_3E, "127.0.0.1",6000);
@@ -279,9 +279,9 @@ var value4 = result.Value;
 </details>
 
 <details>
-<summary>OmronFinsClient (Omron) read and write operations</summary>
+<summary>OmronFinsClient(欧姆龙)读写操作</summary>
 
-## OmronFinsClient (Omron) read and write operations
+## OmronFinsClient(欧姆龙)读写操作
 ```
 //1、实例化客户端 - 输入正确的IP和端口
 OmronFinsClient client = new OmronFinsClient("127.0.0.1",6000);
@@ -315,9 +315,9 @@ var value4 = result.Value;
 </details>
 
 <details>
-<summary>AllenBradleyClient read and write operations</summary>
+<summary>AllenBradleyClient(罗克韦尔)读写操作</summary>
 
-## AllenBradleyClient read and write operations
+## AllenBradleyClient(罗克韦尔)读写操作
 ```
 //1、实例化客户端 - 输入正确的IP和端口
 AllenBradleyClient client = new AllenBradleyClient("127.0.0.1",44818);
@@ -346,9 +346,9 @@ var value4 = result.Value;
 ```
 </details>
 
-# Some projects based on IoTClient library
+# 基于IoTClient库的一些项目
 <details>
-<summary>IoTClient Tool Desktop program tool (open source) </summary>
+<summary>IoTClient Tool 桌面程序工具（开源）</summary>
 
 ### [IoTClient Tool](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) 桌面程序工具，[开源地址](https://github.com/zhaopeiym/IoTClient.Examples)。     
 
@@ -377,7 +377,7 @@ var value4 = result.Value;
 </details>
 
 <details>
-<summary>Energy Management System (Commercial)</summary>
+<summary>能源管理系统（商用）</summary>
 
 ### 能源管理（现场-单项目）
 ![image](https://user-images.githubusercontent.com/5820324/117001443-f10c5300-ad14-11eb-8597-bcc6e573c542.png)  
@@ -397,7 +397,7 @@ var value4 = result.Value;
 </details>
 
 <details>
-<summary>Haidilao terminal control (commercial)</summary>
+<summary>海底捞末端控制（商用）</summary>
 
 ### 海底捞末端控制-web
 ![image](https://user-images.githubusercontent.com/5820324/117001939-87d90f80-ad15-11eb-8848-7a4956ba1ce9.png)  
