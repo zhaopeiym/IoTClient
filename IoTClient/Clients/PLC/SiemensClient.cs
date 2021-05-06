@@ -1,14 +1,12 @@
 ﻿using IoTClient.Common.Constants;
 using IoTClient.Common.Enums;
 using IoTClient.Common.Helpers;
-using IoTClient.Core;
 using IoTClient.Core.Models;
 using IoTClient.Enums;
 using IoTClient.Interfaces;
 using IoTClient.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -18,18 +16,18 @@ namespace IoTClient.Clients.PLC
 {
     /// <summary>
     /// 西门子客户端
+    /// http://www.360doc.cn/mip/763580999.html
     /// </summary>
     public class SiemensClient : SocketBase, IEthernetClient
     {
         /// <summary>
-        /// 版本
+        /// CPU版本
         /// </summary>
         private readonly SiemensVersion version;
         /// <summary>
         /// 超时时间
         /// </summary>
         private readonly int timeout;
-
         /// <summary>
         /// 是否是连接的
         /// </summary>
@@ -45,10 +43,16 @@ namespace IoTClient.Clients.PLC
 
         /// <summary>
         /// 警告日志委托
-        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
         /// </summary>
         public LoggerDelegate WarningLog { get; set; }
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="version">CPU版本</param>
+        /// <param name="ipAndPoint">IP地址和端口号</param>
+        /// <param name="timeout">超时时间</param>
         public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint, int timeout = 1500)
         {
             this.version = version;
@@ -56,6 +60,13 @@ namespace IoTClient.Clients.PLC
             this.timeout = timeout;
         }
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="version">CPU版本</param>
+        /// <param name="ip">IP地址</param>
+        /// <param name="port">端口号</param>
+        /// <param name="timeout">超时时间</param>
         public SiemensClient(SiemensVersion version, string ip, int port, int timeout = 1500)
         {
             this.version = version;
@@ -64,7 +75,7 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 打开长连接（如果已经是连接状态会先关闭再打开）
+        /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
         /// <returns></returns>
         protected override Result Connect()
@@ -115,28 +126,30 @@ namespace IoTClient.Clients.PLC
                         break;
                 }
 
+                result.Requst = string.Join(" ", Command1.Select(t => t.ToString("X2")));
                 //第一次初始化指令交互
                 socket.Send(Command1);
-                var head1 = SocketRead(socket, SiemensConstant.InitHeadLength);
-                SocketRead(socket, GetContentLength(head1));
+                var head1 = SocketRead(socket, SiemensConstant.InitHeadLength, WarningLog);
+                var content1 = SocketRead(socket, GetContentLength(head1), WarningLog);
+                result.Response = string.Join(" ", head1.Concat(content1).Select(t => t.ToString("X2")));
 
+                result.Requst2 = string.Join(" ", Command2.Select(t => t.ToString("X2")));
                 //第二次初始化指令交互
                 socket.Send(Command2);
-                var head2 = SocketRead(socket, SiemensConstant.InitHeadLength);
-                SocketRead(socket, GetContentLength(head2));
-                return result.EndTime();
+                var head2 = SocketRead(socket, SiemensConstant.InitHeadLength, WarningLog);
+                var content2 = SocketRead(socket, GetContentLength(head2), WarningLog);
+                result.Response2 = string.Join(" ", head2.Concat(content2).Select(t => t.ToString("X2")));
             }
             catch (Exception ex)
             {
-                //TODO
                 socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
                 result.ErrList.Add(ex.Message);
-                return result.EndTime();
             }
+            return result.EndTime();
         }
 
         #region 发送报文，并获取响应报文
@@ -162,7 +175,7 @@ namespace IoTClient.Clients.PLC
                     //重新打开连接
                     var conentResult = Connect();
                     if (!conentResult.IsSucceed)
-                        return new Result<byte[]>(conentResult);
+                        return result.SetErrInfo(conentResult);
 
                     socket.Send(command);
                 }
@@ -173,12 +186,12 @@ namespace IoTClient.Clients.PLC
                     //重新打开连接
                     var conentResult = Connect();
                     if (!conentResult.IsSucceed)
-                        return new Result<byte[]>(conentResult);
+                        return result.SetErrInfo(conentResult);
 
                     socket.Send(command);
-                    headPackage = SocketRead(socket, SiemensConstant.InitHeadLength);
+                    headPackage = SocketRead(socket, SiemensConstant.InitHeadLength, WarningLog);
                 }
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                var dataPackage = SocketRead(socket, GetContentLength(headPackage), WarningLog);
                 result.Value = headPackage.Concat(dataPackage).ToArray();
                 return result.EndTime();
             }
@@ -187,12 +200,12 @@ namespace IoTClient.Clients.PLC
 
         #region Read 
         /// <summary>
-        /// 读取数据
+        /// 读取字节数组
         /// </summary>
         /// <param name="address">地址</param>
-        /// <param name="length"></param>
-        /// <param name="isBit"></param>
-        /// <param name="setEndian"></param>
+        /// <param name="length">读取长度</param>
+        /// <param name="isBit">是否Bit类型</param>
+        /// <param name="setEndian">暂未使用</param>
         /// <returns></returns>
         public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
         {
@@ -216,7 +229,7 @@ namespace IoTClient.Clients.PLC
                 //发送命令 并获取响应报文
                 var sendResult = SendPackage(command);
                 if (!sendResult.IsSucceed)
-                    return sendResult;
+                    return result.SetErrInfo(sendResult).EndTime();
 
                 var dataPackage = sendResult.Value;
                 byte[] responseData = new byte[length];
@@ -256,10 +269,10 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// summary
+        /// 读取字符串
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="length"></param>
+        /// <param name="address">地址</param>
+        /// <param name="length">读取长度</param>
         /// <returns></returns>
         public Result<byte[]> ReadString(string address, ushort length)
         {
@@ -277,17 +290,15 @@ namespace IoTClient.Clients.PLC
                 //发送读取信息
                 var arg = ConvertArg(address);
                 arg.ReadWriteLength = length;
-                //arg.TypeCode, arg.BeginAddress, arg.DbBlock, length, false
                 byte[] command = GetReadCommand(arg);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var sendResult = SendPackage(command);
                 if (!sendResult.IsSucceed)
-                    return sendResult;
+                    return result.SetErrInfo(sendResult).EndTime();
 
                 var dataPackage = sendResult.Value;
                 byte[] requst = new byte[length];
                 Array.Copy(dataPackage, 25, requst, 0, length);
-                //Array.Copy(dataPackage, dataPackage.Length - length, requst, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 result.Value = requst;
             }
@@ -1285,13 +1296,13 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
-        private SiemensData ConvertArg(string address)
+        private SiemensAddress ConvertArg(string address)
         {
             try
             {
                 //转换成大写
                 address = address.ToUpper();
-                var data = new SiemensData()
+                var addressInfo = new SiemensAddress()
                 {
                     Address = address,
                     DbBlock = 0,
@@ -1299,40 +1310,39 @@ namespace IoTClient.Clients.PLC
                 switch (address[0])
                 {
                     case 'I':
-                        data.TypeCode = 0x81;
+                        addressInfo.TypeCode = 0x81;
                         break;
                     case 'Q':
-                        data.TypeCode = 0x82;
+                        addressInfo.TypeCode = 0x82;
                         break;
                     case 'M':
-                        data.TypeCode = 0x83;
+                        addressInfo.TypeCode = 0x83;
                         break;
                     case 'D':
-                        data.TypeCode = 0x84;
+                        addressInfo.TypeCode = 0x84;
                         string[] adds = address.Split('.');
                         if (address[1] == 'B')
-                            data.DbBlock = Convert.ToUInt16(adds[0].Substring(2));
+                            addressInfo.DbBlock = Convert.ToUInt16(adds[0].Substring(2));
                         else
-                            data.DbBlock = Convert.ToUInt16(adds[0].Substring(1));
+                            addressInfo.DbBlock = Convert.ToUInt16(adds[0].Substring(1));
                         //TODO 
-                        data.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 1));
+                        addressInfo.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 1));
                         break;
                     case 'T':
-                        data.TypeCode = 0x1D;
+                        addressInfo.TypeCode = 0x1D;
                         break;
                     case 'C':
-                        data.TypeCode = 0x1C;
+                        addressInfo.TypeCode = 0x1C;
                         break;
                     case 'V':
-                        data.TypeCode = 0x84;
-                        data.DbBlock = 1;
+                        addressInfo.TypeCode = 0x84;
+                        addressInfo.DbBlock = 1;
                         break;
                 }
 
-                //去掉V1025 前面的V     
                 if (address[0] != 'D' && address[1] != 'B')
-                    data.BeginAddress = GetBeingAddress(address.Substring(1));
-                return data;
+                    addressInfo.BeginAddress = GetBeingAddress(address.Substring(1));
+                return addressInfo;
             }
             catch (Exception ex)
             {
@@ -1340,7 +1350,7 @@ namespace IoTClient.Clients.PLC
             }
         }
 
-        private SiemensData[] ConvertArg(Dictionary<string, DataTypeEnum> addresses)
+        private SiemensAddress[] ConvertArg(Dictionary<string, DataTypeEnum> addresses)
         {
             return addresses.Select(t =>
             {
@@ -1392,19 +1402,19 @@ namespace IoTClient.Clients.PLC
         /// <param name="address"></param>
         /// <param name="writeData"></param>
         /// <returns></returns>
-        private SiemensWrite ConvertWriteArg(string address, byte[] writeData, bool bit)
+        private SiemensWriteAddress ConvertWriteArg(string address, byte[] writeData, bool bit)
         {
-            SiemensWrite arg = new SiemensWrite(ConvertArg(address));
+            SiemensWriteAddress arg = new SiemensWriteAddress(ConvertArg(address));
             arg.WriteData = writeData;
             arg.ReadWriteBit = bit;
             return arg;
         }
 
-        private SiemensWrite[] ConvertWriteArg(Dictionary<string, KeyValuePair<byte[], bool>> addresses)
+        private SiemensWriteAddress[] ConvertWriteArg(Dictionary<string, KeyValuePair<byte[], bool>> addresses)
         {
             return addresses.Select(t =>
             {
-                var item = new SiemensWrite(ConvertArg(t.Key));
+                var item = new SiemensWriteAddress(ConvertArg(t.Key));
                 item.WriteData = t.Value.Key;
                 item.ReadWriteBit = t.Value.Value;
                 return item;
@@ -1417,7 +1427,7 @@ namespace IoTClient.Clients.PLC
         /// 获取读指令
         /// </summary>      
         /// <returns></returns>
-        protected byte[] GetReadCommand(SiemensData[] datas)
+        protected byte[] GetReadCommand(SiemensAddress[] datas)
         {
             //byte type, int beginAddress, ushort dbAddress, ushort length, bool isBit
             byte[] command = new byte[19 + datas.Length * 12];
@@ -1464,9 +1474,9 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        protected byte[] GetReadCommand(SiemensData data)
+        protected byte[] GetReadCommand(SiemensAddress data)
         {
-            return GetReadCommand(new SiemensData[] { data });
+            return GetReadCommand(new SiemensAddress[] { data });
         }
 
         /// <summary>
@@ -1474,7 +1484,7 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="writes"></param>
         /// <returns></returns>
-        protected byte[] GetWriteCommand(SiemensWrite[] writes)
+        protected byte[] GetWriteCommand(SiemensWriteAddress[] writes)
         {
             //（如果不是最后一个 WriteData.Length == 1 ，则需要填充一个空数据）
             var writeDataLength = writes.Sum(t => t.WriteData.Length == 1 ? 2 : t.WriteData.Length);
@@ -1564,9 +1574,9 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="write"></param>
         /// <returns></returns>
-        protected byte[] GetWriteCommand(SiemensWrite write)
+        protected byte[] GetWriteCommand(SiemensWriteAddress write)
         {
-            return GetWriteCommand(new SiemensWrite[] { write });
+            return GetWriteCommand(new SiemensWriteAddress[] { write });
         }
 
         #endregion

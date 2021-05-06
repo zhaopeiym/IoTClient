@@ -7,39 +7,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace IoTClient.Clients.PLC
 {
     /// <summary>
-    /// 欧姆龙PLC 客户端
-    /// https://flat2010.github.io/2020/02/23/Omron-Fins%E5%8D%8F%E8%AE%AE/
+    /// (AB)罗克韦尔客户端 Beta
+    /// https://blog.csdn.net/lishiming0308/article/details/85243041
     /// </summary>
-    public class OmronFinsClient : SocketBase, IEthernetClient
+    public class AllenBradleyClient : SocketBase, IEthernetClient
     {
-        private EndianFormat endianFormat;
-        private int timeout;
-
-        /// <summary>
-        /// 基础命令
-        /// </summary>
-        private byte[] BasicCommand = new byte[]
-        {
-            0x46, 0x49, 0x4E, 0x53,//Magic字段  0x46494E53 对应的ASCII码，即FINS
-            0x00, 0x00, 0x00, 0x0C,//Length字段 表示其后所有字段的总长度
-            0x00, 0x00, 0x00, 0x00,//Command字段 
-            0x00, 0x00, 0x00, 0x00,//Error Code字段
-            0x00, 0x00, 0x00, 0x01 //Client/Server Node Address字段
-        };
-
-        /// <summary>
-        /// 版本
-        /// </summary>
-        public string Version => "OmronFins";
+        public string Version => "AllenBradley";
 
         /// <summary>
         /// 连接地址
         /// </summary>
-        public IPEndPoint IpAndPoint { get; private set; }
+        public IPEndPoint IpAndPoint { get; }
 
         /// <summary>
         /// 是否是连接的
@@ -47,32 +30,45 @@ namespace IoTClient.Clients.PLC
         public bool Connected => socket?.Connected ?? false;
 
         /// <summary>
+        /// 超时时间
+        /// </summary>
+        private readonly int timeout;
+        /// <summary>
+        /// 插槽
+        /// </summary>
+        private readonly byte slot;
+
+        /// <summary>
         /// 警告日志委托
         /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
         /// </summary>
         public LoggerDelegate WarningLog { get; set; }
 
-        /// <summary>
-        /// DA2(即Destination unit address，目标单元地址)
-        /// 0x00：PC(CPU)
-        /// 0xFE： SYSMAC NET Link Unit or SYSMAC LINK Unit connected to network；
-        /// 0x10~0x1F：CPU总线单元 ，其值等于10 + 单元号(前端面板中配置的单元号)
-        /// </summary>
-        public byte UnitAddress { get; set; } = 0x00;
+        public AllenBradleyClient(string ip, int port, byte slot = 0, int timeout = 1500)
+        {
+            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            this.timeout = timeout;
+            this.slot = slot;
+        }
 
         /// <summary>
-        /// 
+        /// 会话句柄(由AB PLC生成)
         /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endianFormat"></param>
-        public OmronFinsClient(string ip, int port = 9600, int timeout = 1500, EndianFormat endianFormat = EndianFormat.CDAB)
-        {
-            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
-            this.timeout = timeout;
-            this.endianFormat = endianFormat;
-        }
+        public uint Session { get; private set; }
+
+        /// <summary>
+        /// 注册命令
+        /// </summary>
+        private byte[] RegisteredCommand = new byte[28] {
+            0x65,0x00,                              //注册请求
+            0x04,0x00,                              //命令数据长度(单位字节)
+            0x00,0x00,0x00,0x00,                    //会话句柄,初始值为0x00000000
+            0x00,0x00,0x00,0x00,                    //状态，初始值为0x00000000（状态好）
+            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//请求通信一方的说明
+            0x00,0x00,0x00,0x00,                    //选项，默认为0x00000000
+            0x01,0x00,                              //协议版本（0x0001）
+            0x00,0x00                               //选项标记（0x0000
+        };
 
         /// <summary>
         /// 打开连接（如果已经是连接状态会先关闭再打开）
@@ -83,6 +79,7 @@ namespace IoTClient.Clients.PLC
             var result = new Result();
             socket?.SafeClose();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             try
             {
                 #region 超时时间设置
@@ -92,25 +89,27 @@ namespace IoTClient.Clients.PLC
 #endif
                 #endregion
 
+                //连接
                 socket.Connect(IpAndPoint);
 
-                result.Requst = string.Join(" ", BasicCommand.Select(t => t.ToString("X2")));
-                socket.Send(BasicCommand);
+                result.Requst = string.Join(" ", RegisteredCommand.Select(t => t.ToString("X2")));
+                socket.Send(RegisteredCommand);
 
-                var head = SocketRead(socket, 8);
+                var head = SocketRead(socket, 24);
+                var content = SocketRead(socket, GetContentLength(head));
+                var response = head.Concat(content).ToArray();
+                result.Response = string.Join(" ", response.Select(t => t.ToString("X2")));
 
                 byte[] buffer = new byte[4];
-                buffer[0] = head[7];
-                buffer[1] = head[6];
-                buffer[2] = head[5];
-                buffer[3] = head[4];
-                var length = BitConverter.ToInt32(buffer, 0);
-
-                var content = SocketRead(socket, length);
-                result.Response = string.Join(" ", head.Concat(content).Select(t => t.ToString("X2")));
+                buffer[0] = response[4];
+                buffer[1] = response[5];
+                buffer[2] = response[6];
+                buffer[3] = response[7];
+                //会话句柄
+                Session = BitConverter.ToUInt32(buffer, 0);
             }
             catch (Exception ex)
-            {               
+            {
                 socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
@@ -118,18 +117,10 @@ namespace IoTClient.Clients.PLC
                 result.Exception = ex;
                 result.ErrList.Add(ex.Message);
             }
-            return result.EndTime(); ;
+            return result.EndTime();
         }
 
         #region Read
-        /// <summary>
-        /// 读取数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="length"></param>
-        /// <param name="isBit"></param>
-        /// <param name="setEndian">返回值是否设置大小端</param>
-        /// <returns></returns>
         public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
         {
             if (!socket?.Connected ?? true)
@@ -143,23 +134,20 @@ namespace IoTClient.Clients.PLC
             var result = new Result<byte[]>();
             try
             {
-                //发送读取信息
-                var arg = ConvertArg(address, isBit);
-                byte[] command = GetReadCommand(arg, length);
+                var command = GetReadCommand(address, 1);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
                 var sendResult = SendPackage(command);
                 if (!sendResult.IsSucceed)
                     return sendResult;
                 var dataPackage = sendResult.Value;
-
-                byte[] responseData = new byte[length];
-                Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                if (setEndian)
-                    result.Value = responseData.Reverse().ToArray().ByteFormatting(endianFormat);
-                else
-                    result.Value = responseData.Reverse().ToArray();
+
+                ushort count = BitConverter.ToUInt16(dataPackage, 38);
+                byte[] data = new byte[count - 6];
+                Buffer.BlockCopy(dataPackage, 46, data, 0, data.Length);
+
+                result.Value = data;
             }
             catch (SocketException ex)
             {
@@ -330,15 +318,7 @@ namespace IoTClient.Clients.PLC
         #endregion
 
         #region Write
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="data">值</param>
-        /// <param name="isBit">值</param>
-        /// <returns></returns>
-        public Result Write(string address, byte[] data, bool isBit = false)
+        public Result Write(string address, ushort typeCode, byte[] data, bool isBit = false)
         {
             if (!socket?.Connected ?? true)
             {
@@ -351,10 +331,10 @@ namespace IoTClient.Clients.PLC
             Result result = new Result();
             try
             {
-                data = data.Reverse().ToArray().ByteFormatting(endianFormat);
+                //Array.Reverse(data);
                 //发送写入信息
-                var arg = ConvertArg(address, isBit);
-                byte[] command = GetWriteCommand(arg, data);
+                //var arg = ConvertWriteArg(address, data, false);
+                byte[] command = GetWriteCommand(address, typeCode, data, 1);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var sendResult = SendPackage(command);
                 if (!sendResult.IsSucceed)
@@ -394,20 +374,9 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
-        public Result Write(string address, byte[] data)
-        {
-            return Write(address, data, false);
-        }
-
-        /// <summary>
-        /// 写入数据
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="value">值</param>
-        /// <returns></returns>
         public Result Write(string address, bool value)
         {
-            return Write(address, value ? new byte[] { 0x01 } : new byte[] { 0x00 }, true);
+            return Write(address, 0xC1, value ? new byte[] { 0xFF, 0xFF } : new byte[] { 0x00, 0x00 });
         }
 
         /// <summary>
@@ -418,7 +387,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, byte value)
         {
-            throw new NotImplementedException();
+            return Write(address, 0xC2, new byte[] { value, 0x00 });// new byte[1] { value }
         }
 
         /// <summary>
@@ -429,7 +398,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, sbyte value)
         {
-            throw new NotImplementedException();
+            return Write(address, 0xC2, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -440,7 +409,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, short value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xC3, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -451,7 +420,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, ushort value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xC3, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -462,7 +431,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, int value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xC4, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -473,7 +442,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, uint value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xC4, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -484,7 +453,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, long value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xC5, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -495,7 +464,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, ulong value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xC5, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -506,7 +475,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, float value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xCA, BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -517,9 +486,24 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, double value)
         {
-            return Write(address, BitConverter.GetBytes(value));
+            return Write(address, 0xCB, BitConverter.GetBytes(value));
         }
 
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public Result Write(string address, string value)
+        {
+            var valueBytes = Encoding.ASCII.GetBytes(value);
+            var bytes = new byte[valueBytes.Length + 1];
+            bytes[0] = (byte)valueBytes.Length;
+            valueBytes.CopyTo(bytes, 1);
+            Array.Reverse(bytes);
+            return Write(address, 0xC4, bytes);
+        }
         #endregion
 
         /// <summary>
@@ -528,160 +512,79 @@ namespace IoTClient.Clients.PLC
         /// <param name="address"></param>        
         /// <param name="isBit"></param> 
         /// <returns></returns>
-        private OmronFinsAddress ConvertArg(string address, bool isBit)
+        private AllenBradleyAddress ConvertArg(string address, bool isBit)
         {
-            address = address.ToUpper();
-            var addressInfo = new OmronFinsAddress()
-            {
-                IsBit = isBit
-            };
-            switch (address[0])
-            {
-                case 'D'://DM区
-                    {
-                        addressInfo.BitCode = 0x02;
-                        addressInfo.WordCode = 0x82;
-                        break;
-                    }
-                case 'C'://CIO区
-                    {
-                        addressInfo.BitCode = 0x30;
-                        addressInfo.WordCode = 0xB0;
-                        break;
-                    }
-                case 'W'://WR区
-                    {
-                        addressInfo.BitCode = 0x31;
-                        addressInfo.WordCode = 0xB1;
-                        break;
-                    }
-                case 'H'://HR区
-                    {
-                        addressInfo.BitCode = 0x32;
-                        addressInfo.WordCode = 0xB2;
-                        break;
-                    }
-                case 'A'://AR区
-                    {
-                        addressInfo.BitCode = 0x33;
-                        addressInfo.WordCode = 0xB3;
-                        break;
-                    }
-                case 'E':
-                    {
-                        string[] address_split = address.Split('.');
-                        int block_length = Convert.ToInt32(address_split[0].Substring(1), 16);
-                        if (block_length < 16)
-                        {
-                            addressInfo.BitCode = (byte)(0x20 + block_length);
-                            addressInfo.WordCode = (byte)(0xA0 + block_length);
-                        }
-                        else
-                        {
-                            addressInfo.BitCode = (byte)(0xE0 + block_length - 16);
-                            addressInfo.WordCode = (byte)(0x60 + block_length - 16);
-                        }
-
-                        if (isBit)
-                        {
-                            // 位操作
-                            ushort address_location = ushort.Parse(address_split[1]);
-                            addressInfo.BitAddress = new byte[3];
-                            addressInfo.BitAddress[0] = BitConverter.GetBytes(address_location)[1];
-                            addressInfo.BitAddress[1] = BitConverter.GetBytes(address_location)[0];
-
-                            if (address_split.Length > 2)
-                            {
-                                addressInfo.BitAddress[2] = byte.Parse(address_split[2]);
-                                if (addressInfo.BitAddress[2] > 15)
-                                    //输入的位地址只能在0-15之间
-                                    throw new Exception("位地址数据异常");
-                            }
-                        }
-                        else
-                        {
-                            // 字操作
-                            ushort address_location = ushort.Parse(address_split[1]);
-                            addressInfo.BitAddress = new byte[3];
-                            addressInfo.BitAddress[0] = BitConverter.GetBytes(address_location)[1];
-                            addressInfo.BitAddress[1] = BitConverter.GetBytes(address_location)[0];
-                        }
-                        break;
-                    }
-                default:
-                    //类型不支持
-                    throw new Exception("Address解析异常");
-            }
-
-            if (address[0] != 'E')
-            {
-                if (isBit)
-                {
-                    // 位操作
-                    string[] address_split = address.Substring(1).Split('.');
-                    ushort address_location = ushort.Parse(address_split[0]);
-                    addressInfo.BitAddress = new byte[3];
-                    addressInfo.BitAddress[0] = BitConverter.GetBytes(address_location)[1];
-                    addressInfo.BitAddress[1] = BitConverter.GetBytes(address_location)[0];
-
-                    if (address_split.Length > 1)
-                    {
-                        addressInfo.BitAddress[2] = byte.Parse(address_split[1]);
-                        if (addressInfo.BitAddress[2] > 15)
-                            //输入的位地址只能在0-15之间
-                            throw new Exception("位地址数据异常");
-                    }
-                }
-                else
-                {
-                    // 字操作
-                    ushort address_location = ushort.Parse(address.Substring(1));
-                    addressInfo.BitAddress = new byte[3];
-                    addressInfo.BitAddress[0] = BitConverter.GetBytes(address_location)[1];
-                    addressInfo.BitAddress[1] = BitConverter.GetBytes(address_location)[0];
-                }
-            }
-
-            return addressInfo;
+            return new AllenBradleyAddress();
         }
 
         /// <summary>
         /// 获取Read命令
         /// </summary>
-        /// <param name="arg"></param>
+        /// <param name="address"></param>
+        /// <param name="slot"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        protected byte[] GetReadCommand(OmronFinsAddress arg, ushort length)
+        protected byte[] GetReadCommand(string address, ushort length)
         {
-            bool isBit = arg.IsBit;
+            //if (!isBit)
+            //length = (ushort)(length / 2);
 
-            if (!isBit) length = (ushort)(length / 2);
+            var address_ASCII = Encoding.ASCII.GetBytes(address);
+            if (address_ASCII.Length % 2 == 1)
+            {
+                address_ASCII = new byte[address_ASCII.Length + 1];
+                Encoding.ASCII.GetBytes(address).CopyTo(address_ASCII, 0);
+            }
 
-            byte[] command = new byte[26 + 8];
+            byte[] command = new byte[9 + 26 + address_ASCII.Length + 1 + 24];
 
-            Array.Copy(BasicCommand, 0, command, 0, 4);
-            byte[] tmp = BitConverter.GetBytes(command.Length - 8);
-            Array.Reverse(tmp);
-            tmp.CopyTo(command, 4);
-            command[11] = 0x02;
+            command[0] = 0x6F;//命令
+            command[2] = BitConverter.GetBytes((ushort)(command.Length - 24))[0];
+            command[3] = BitConverter.GetBytes((ushort)(command.Length - 24))[1];//长度
+            command[4] = BitConverter.GetBytes(Session)[0];
+            command[5] = BitConverter.GetBytes(Session)[1];
+            command[6] = BitConverter.GetBytes(Session)[2];
+            command[7] = BitConverter.GetBytes(Session)[3];//会话句柄
 
-            command[16] = 0x80; //ICF 信息控制字段
-            command[17] = 0x00; //RSV 保留字段
-            command[18] = 0x02; //GCT 网关计数
-            command[19] = 0x00; //DNA 目标网络地址 00:表示本地网络  0x01~0x7F:表示远程网络
-            command[20] = 0x13; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
-            command[21] = UnitAddress; //DA2 目标单元地址
-            command[22] = 0x00; //SNA 源网络地址 取值及含义同DNA字段
-            command[23] = 0x0B; //SA1 源节点编号 取值及含义同DA1字段
-            command[24] = 0x00; //SA2 源单元地址 取值及含义同DA2字段
-            command[25] = 0x00; //SID Service ID 取值0x00~0xFF，产生会话的进程的唯一标识
+            command[0 + 24] = 0x00;
+            command[1 + 24] = 0x00;
+            command[2 + 24] = 0x00;
+            command[3 + 24] = 0x00;//接口句柄，默认为0x00000000（CIP）
+            command[4 + 24] = 0x01;
+            command[5 + 24] = 0x00;//超时（0x0001）
+            command[6 + 24] = 0x02;
+            command[7 + 24] = 0x00;//项数（0x0002）
+            command[8 + 24] = 0x00;
+            command[9 + 24] = 0x00;//空地址项（0x0000）
+            command[10 + 24] = 0x00;
+            command[11 + 24] = 0x00;//长度（0x0000）
+            command[12 + 24] = 0xB2;
+            command[13 + 24] = 0x00;//未连接数据项（0x00b2）
+            command[14 + 24] = BitConverter.GetBytes((short)(command.Length - 16 - 24))[0]; // 后面数据包的长度，等全部生成后在赋值
+            command[15 + 24] = BitConverter.GetBytes((short)(command.Length - 16 - 24))[1];
+            command[16 + 24] = 0x52;//服务类型（0x03请求服务列表，0x52请求标签数据）
+            command[17 + 24] = 0x02;//请求路径大小
+            command[18 + 24] = 0x20;
+            command[19 + 24] = 0x06;//请求路径(0x0620)
+            command[20 + 24] = 0x24;
+            command[21 + 24] = 0x01;//请求路径(0x0124)
+            command[22 + 24] = 0x0A;
+            command[23 + 24] = 0xF0;
+            command[24 + 24] = BitConverter.GetBytes((short)(6 + address_ASCII.Length))[0];     // CIP指令长度
+            command[25 + 24] = BitConverter.GetBytes((short)(6 + address_ASCII.Length))[1];
 
-            command[26] = 0x01;
-            command[27] = 0x01; //Command Code 内存区域读取
-            command[28] = isBit ? arg.BitCode : arg.WordCode;
-            arg.BitAddress.CopyTo(command, 29);
-            command[32] = (byte)(length / 256);
-            command[33] = (byte)(length % 256);
+            command[0 + 24 + 26] = 0x4C;//读取数据
+            command[1 + 24 + 26] = (byte)((address_ASCII.Length + 2) / 2);
+            command[2 + 24 + 26] = 0x91;
+            command[3 + 24 + 26] = (byte)address.Length;
+            address_ASCII.CopyTo(command, 4 + 24 + 26);
+            command[4 + 24 + 26 + address_ASCII.Length] = BitConverter.GetBytes(length)[0];
+            command[5 + 24 + 26 + address_ASCII.Length] = BitConverter.GetBytes(length)[1];
+
+            command[6 + 24 + 26 + address_ASCII.Length] = 0x01;
+            command[7 + 24 + 26 + address_ASCII.Length] = 0x00;
+            command[8 + 24 + 26 + address_ASCII.Length] = 0x01;
+            command[9 + 24 + 26 + address_ASCII.Length] = slot;
 
             return command;
         }
@@ -689,40 +592,73 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 获取Write命令
         /// </summary>
-        /// <param name="arg"></param>
+        /// <param name="address"></param>
+        /// <param name="typeCode"></param>
         /// <param name="value"></param>
+        /// <param name="length"></param>
         /// <returns></returns>
-        protected byte[] GetWriteCommand(OmronFinsAddress arg, byte[] value)
+        protected byte[] GetWriteCommand(string address, ushort typeCode, byte[] value, int length)
         {
-            bool isBit = arg.IsBit;
-            byte[] command = new byte[26 + 8 + value.Length];
+            var address_ASCII = Encoding.ASCII.GetBytes(address);
+            if (address_ASCII.Length % 2 == 1)
+            {
+                address_ASCII = new byte[address_ASCII.Length + 1];
+                Encoding.ASCII.GetBytes(address).CopyTo(address_ASCII, 0);
+            }
+            byte[] command = new byte[8 + 26 + address_ASCII.Length + value.Length + 4 + 24];
 
-            Array.Copy(BasicCommand, 0, command, 0, 4);
-            byte[] tmp = BitConverter.GetBytes(command.Length - 8);
-            Array.Reverse(tmp);
-            tmp.CopyTo(command, 4);
-            command[11] = 0x02;
+            command[0] = 0x6F;//命令
+            command[2] = BitConverter.GetBytes((ushort)(command.Length - 24))[0];
+            command[3] = BitConverter.GetBytes((ushort)(command.Length - 24))[1];//长度
+            command[4] = BitConverter.GetBytes(Session)[0];
+            command[5] = BitConverter.GetBytes(Session)[1];
+            command[6] = BitConverter.GetBytes(Session)[2];
+            command[7] = BitConverter.GetBytes(Session)[3];//会话句柄
 
-            command[16] = 0x80; //ICF 信息控制字段
-            command[17] = 0x00; //RSV 保留字段
-            command[18] = 0x02; //GCT 网关计数
-            command[19] = 0x00; //DNA 目标网络地址 00:表示本地网络  0x01~0x7F:表示远程网络
-            command[20] = 0x13; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
-            command[21] = UnitAddress; //DA2 目标单元地址
-            command[22] = 0x00; //SNA 源网络地址 取值及含义同DNA字段
-            command[23] = 0x0B; //SA1 源节点编号 取值及含义同DA1字段
-            command[24] = 0x00; //SA2 源单元地址 取值及含义同DA2字段
-            command[25] = 0x00; //SID Service ID 取值0x00~0xFF，产生会话的进程的唯一标识
+            command[0 + 24] = 0x00;
+            command[1 + 24] = 0x00;
+            command[2 + 24] = 0x00;
+            command[3 + 24] = 0x00;//接口句柄，默认为0x00000000（CIP）
+            command[4 + 24] = 0x01;
+            command[5 + 24] = 0x00;//超时（0x0001）
+            command[6 + 24] = 0x02;
+            command[7 + 24] = 0x00;//项数（0x0002）
+            command[8 + 24] = 0x00;
+            command[9 + 24] = 0x00;
+            command[10 + 24] = 0x00;
+            command[11 + 24] = 0x00;//空地址项（0x0000）
+            command[12 + 24] = 0xB2;
+            command[13 + 24] = 0x00;//未连接数据项（0x00b2）
+            command[14 + 24] = BitConverter.GetBytes((short)(command.Length - 16 - 24))[0]; // 后面数据包的长度，等全部生成后在赋值
+            command[15 + 24] = BitConverter.GetBytes((short)(command.Length - 16 - 24))[1];
+            command[16 + 24] = 0x52;//服务类型（0x03请求服务列表，0x52请求标签数据）
+            command[17 + 24] = 0x02;//请求路径大小
+            command[18 + 24] = 0x20;
+            command[19 + 24] = 0x06;//请求路径(0x0620)
+            command[20 + 24] = 0x24;
+            command[21 + 24] = 0x01;//请求路径(0x0124)
+            command[22 + 24] = 0x0A;
+            command[23 + 24] = 0xF0;
+            command[24 + 24] = BitConverter.GetBytes((short)(8 + value.Length + address_ASCII.Length))[0];     // CIP指令长度
+            command[25 + 24] = BitConverter.GetBytes((short)(8 + value.Length + address_ASCII.Length))[1];
 
-            command[26] = 0x01;
-            command[27] = 0x02; //Command Code 内存区域写入
-            command[28] = isBit ? arg.BitCode : arg.WordCode;
-            arg.BitAddress.CopyTo(command, 29);
-            command[32] = isBit ? (byte)(value.Length / 256) : (byte)(value.Length / 2 / 256);
-            command[33] = isBit ? (byte)(value.Length % 256) : (byte)(value.Length / 2 % 256);
-            value.CopyTo(command, 34);
+            command[0 + 26 + 24] = 0x4D;//写数据
+            command[1 + 26 + 24] = (byte)((address_ASCII.Length + 2) / 2);
+            command[2 + 26 + 24] = 0x91;
+            command[3 + 26 + 24] = (byte)address.Length;
+            address_ASCII.CopyTo(command, 4 + 26 + 24);
+            command[4 + 26 + 24 + address_ASCII.Length] = BitConverter.GetBytes(typeCode)[0];
+            command[5 + 26 + 24 + address_ASCII.Length] = BitConverter.GetBytes(typeCode)[1];
+            command[6 + 26 + 24 + address_ASCII.Length] = BitConverter.GetBytes(length)[0];//TODO length ??
+            command[7 + 26 + 24 + address_ASCII.Length] = BitConverter.GetBytes(length)[1];
+            value.CopyTo(command, 8 + 26 + 24 + address_ASCII.Length);
 
+            command[8 + 26 + 24 + address_ASCII.Length + value.Length] = 0x01;
+            command[9 + 26 + 24 + address_ASCII.Length + value.Length] = 0x00;
+            command[10 + 26 + 24 + address_ASCII.Length + value.Length] = 0x01;
+            command[11 + 26 + 24 + address_ASCII.Length + value.Length] = slot;
             return command;
+
         }
 
         /// <summary>
@@ -739,17 +675,11 @@ namespace IoTClient.Clients.PLC
 
                 void _sendPackage()
                 {
+
                     socket.Send(command);
-                    var head = SocketRead(socket, 8);
-                    byte[] buffer = new byte[4];
-                    buffer[0] = head[7];
-                    buffer[1] = head[6];
-                    buffer[2] = head[5];
-                    buffer[3] = head[4];
-                    //4-7是Length字段 表示其后所有字段的总长度
-                    var contentLength = BitConverter.ToInt32(buffer, 0);
-                    var dataPackage = SocketRead(socket, contentLength);
-                    result.Value = head.Concat(dataPackage).ToArray();
+                    var head = SocketRead(socket, 24);
+                    var content = SocketRead(socket, GetContentLength(head));
+                    result.Value = head.Concat(content).ToArray();
                 }
 
                 try
@@ -773,7 +703,12 @@ namespace IoTClient.Clients.PLC
 
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
         {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
+        }
+
+        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber)
+        {
+            throw new System.NotImplementedException();
         }
 
         public Result<string> ReadString(string address)
@@ -781,14 +716,19 @@ namespace IoTClient.Clients.PLC
             throw new NotImplementedException();
         }
 
-        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber)
+        public Result Write(string address, byte[] data, bool isBit = false)
         {
             throw new NotImplementedException();
         }
 
-        public Result Write(string address, string value)
+        /// <summary>
+        /// 后面内容长度
+        /// </summary>
+        /// <param name="head"></param>
+        /// <returns></returns>
+        private ushort GetContentLength(byte[] head)
         {
-            throw new NotImplementedException();
+            return BitConverter.ToUInt16(head, 2);
         }
     }
 }

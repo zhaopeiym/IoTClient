@@ -1,19 +1,13 @@
 ﻿using IoTClient.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IoTClient.Models
 {
-    public class SiemensWrite : SiemensData
+    /// <summary>
+    /// 西门子[写]解析后的地址信息
+    /// </summary>
+    public class SiemensWriteAddress : SiemensAddress
     {
-
-        public SiemensWrite()
-        {
-
-        }
-
-        public SiemensWrite(SiemensData data)
+        public SiemensWriteAddress(SiemensAddress data)
         {
             Assignment(data);
         }
@@ -26,7 +20,7 @@ namespace IoTClient.Models
         /// <summary>
         /// 赋值
         /// </summary>
-        private void Assignment(SiemensData data)
+        private void Assignment(SiemensAddress data)
         {
             Address = data.Address;
             DataType = data.DataType;

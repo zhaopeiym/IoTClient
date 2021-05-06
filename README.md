@@ -6,7 +6,6 @@
 - 本组件终身开源免费，采用最宽松MIT协议，您也可以随意修改和商业使用（商业使用请做好评估和测试）。  
 - 开发工具：Visual Studio 2019 
 - QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
-- IoTClient Tool [下载1](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) [下载2](https://download.haojima.net/api/IoTClient/Download) 
 
 # 使用说明
 ## 引用组件
@@ -14,8 +13,10 @@
 或图形化安装   
 ![image](https://user-images.githubusercontent.com/5820324/68722366-2fc5bf00-05f0-11ea-8282-f2b0a58a9f9d.png)  
 
-## ModBusTcp读写操作
+<details>
+<summary>ModBusTcp读写操作（点击展开）</summary>
 
+## ModBusTcp读写操作
 ```
 //1、实例化客户端 - 输入正确的IP和端口
 ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502);
@@ -24,15 +25,15 @@ ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502);
 client.Write("4", (short)33, 2, 16);
 
 //2.1、【注意】写入数据的时候需要明确数据类型
-client.Write("0", (short)33, 2, 16);    //写入的是short类型数值
-client.Write("4", (ushort)33, 2, 16);   //写入的是ushort类型数值
-client.Write("8", (int)33, 2, 16);      //写入的是int类型数值
-client.Write("12", (uint)33, 2, 16);    //写入的是uint类型数值
-client.Write("16", (long)33, 2, 16);    //写入的是long类型数值
-client.Write("20", (ulong)33, 2, 16);   //写入的是ulong类型数值
-client.Write("24", (float)33, 2, 16);   //写入的是float类型数值
-client.Write("28", (double)33, 2, 16);  //写入的是double类型数值
-client.Write("32", true, 2, 5);         //写入的是线圈类型数值
+client.Write("0", (short)33, 2, 16);    //写入short类型数值
+client.Write("4", (ushort)33, 2, 16);   //写入ushort类型数值
+client.Write("8", (int)33, 2, 16);      //写入int类型数值
+client.Write("12", (uint)33, 2, 16);    //写入uint类型数值
+client.Write("16", (long)33, 2, 16);    //写入long类型数值
+client.Write("20", (ulong)33, 2, 16);   //写入ulong类型数值
+client.Write("24", (float)33, 2, 16);   //写入float类型数值
+client.Write("28", (double)33, 2, 16);  //写入double类型数值
+client.Write("32", true, 2, 5);         //写入线圈类型值
 
 //3、读操作 - 参数依次是：地址 、站号 、功能码
 var value = client.ReadInt16("4", 2, 3).Value;
@@ -94,8 +95,12 @@ var result = client.BatchRead(list);
 //IP、端口、超时时间、大小端设置
 ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502, 1500, EndianFormat.ABCD);
 ``` 
+ModBusTcp更多使用方式，请参考[单元测试](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)  
 
-### ModBusTcp更多使用方式，请参考[单元测试](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)
+</details>
+
+<details>
+<summary>ModBusRtu读写操作</summary>
 
 ## ModBusRtu读写操作
 ```
@@ -104,6 +109,10 @@ ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Pari
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
+</details>
+
+<details>
+<summary>ModBusAscii读写操作</summary>
 
 ## ModBusAscii读写操作
 ```
@@ -112,6 +121,10 @@ ModbusAsciiClient client = new ModbusAsciiClient("COM3", 9600, 8, StopBits.One, 
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
+</details>
+
+<details>
+<summary>ModbusRtuOverTcp读写操作</summary>
 
 ## ModbusRtuOverTcp读写操作
 ```
@@ -122,10 +135,15 @@ ModbusRtuOverTcpClient client = new ModbusRtuOverTcpClient("127.0.0.1", 502, 150
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
+</details>
+
+<details>
+<summary>SiemensClient(西门子)读写操作</summary>
 
 ## SiemensClient(西门子)读写操作
 ```
-//1、实例化客户端 - 输入正确的IP和端口
+//1、实例化客户端 - 输入型号、IP和端口
+//其他型号：SiemensVersion.S7_200、SiemensVersion.S7_300、SiemensVersion.S7_400、SiemensVersion.S7_1200、SiemensVersion.S7_1500
 SiemensClient client = new SiemensClient(SiemensVersion.S7_200Smart, "127.0.0.1",102);
 
 //2、写操作
@@ -155,6 +173,11 @@ var response = result.Response;
 var value4 = result.Value;
 
 ```
+</details>
+
+<details>
+<summary>注意：关于Siemens的PLC地址</summary>
+
 ## 注意：关于Siemens的PLC地址
 ```
 VB263、VW263、VD263中的B、W、D分别表示：byte型(8位)、word型(16位)、doubleword型(32位)。
@@ -173,6 +196,10 @@ DB1.DBD0    - client.ReadFloat("DB1.0")
 |byte | VB1 | DB1.DBB1
 |shor <br> ushort  | VW2 | DB1.DBW2
 |int <br> uint <br> float | VD4 | DB1.DBD4
+</details>
+
+<details>
+<summary>SiemensClient最佳实践</summary>
 
 ## SiemensClient最佳实践
 ```
@@ -206,6 +233,10 @@ client.Write("DB4.12", (float)9);   //写入的是float类型
 5、SiemensClient是线程安全类
 由于plc长连接有限，SiemensClient被设计成线程安全类。可以把SiemensClient设置成单例，在多个线程之间使用SiemensClient的实例读写操作plc。
 ```
+</details>
+
+<details>
+<summary>MitsubishiClient(三菱)读写操作</summary>
 
 ## MitsubishiClient(三菱)读写操作
 ```
@@ -238,6 +269,10 @@ var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
 ```
+</details>
+
+<details>
+<summary>OmronFinsClient(欧姆龙)读写操作</summary>
 
 ## OmronFinsClient(欧姆龙)读写操作
 ```
@@ -270,10 +305,49 @@ var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
 ```
+</details>
 
-## 其他更多详细使用请[参考](https://github.com/zhaopeiym/IoTClient.Examples)
+<details>
+<summary>AllenBradleyClient(罗克韦尔)读写操作</summary>
 
-# [IoTClient Tool](https://github.com/zhaopeiym/IoTClient.Examples)效果图   
+## AllenBradleyClient(罗克韦尔)读写操作
+```
+//1、实例化客户端 - 输入正确的IP和端口
+AllenBradleyClient client = new AllenBradleyClient("127.0.0.1",44818);
+
+//2、写操作 
+client.Write("A1", (short)11); 
+
+//3、读操作
+var value = client.ReadInt16("A1").Value;
+
+//4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
+client.Open();
+
+//5、读写操作都会返回操作结果对象Result
+var result = client.ReadInt16("A1");
+//5.1 读取是否成功（true或false）
+var isSucceed = result.IsSucceed;
+//5.2 读取失败的异常信息
+var errMsg = result.Err;
+//5.3 读取操作实际发送的请求报文
+var requst  = result.Requst;
+//5.4 读取操作服务端响应的报文
+var response = result.Response;
+//5.5 读取到的值
+var value4 = result.Value;
+```
+</details>
+
+# 基于IoTClient库的一些项目
+<details>
+<summary>IoTClient Tool 桌面程序工具（开源）</summary>
+
+### [IoTClient Tool](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) 桌面程序工具，[开源地址](https://github.com/zhaopeiym/IoTClient.Examples)。     
+
+- 1、可用来测试PLC和相关协议的通信 
+- 2、可作为IoTClient库使用例子。
+
 ![image](https://user-images.githubusercontent.com/5820324/115138587-b7bebc80-a05f-11eb-9f7c-720a88bdca6e.png)  
 
 ![image](https://user-images.githubusercontent.com/5820324/115138592-bbeada00-a05f-11eb-9fc4-4b15a426cdb3.png)    
@@ -293,3 +367,38 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/115138606-c73e0580-a05f-11eb-9ca1-5ece1bae8e71.png)  
 
 ![image](https://user-images.githubusercontent.com/5820324/115138607-c86f3280-a05f-11eb-83f1-d1706331406a.png)  
+</details>
+
+<details>
+<summary>能源管理系统（商用）</summary>
+
+### 能源管理（现场-单项目）
+![image](https://user-images.githubusercontent.com/5820324/117001443-f10c5300-ad14-11eb-8597-bcc6e573c542.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001444-f1a4e980-ad14-11eb-80ea-0972211e46a1.png)   
+
+### 能源管理（云端-多项目）
+![image](https://user-images.githubusercontent.com/5820324/117001447-f23d8000-ad14-11eb-9771-1854b13bef4b.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001451-f2d61680-ad14-11eb-9507-bf4123e5cbe8.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001454-f36ead00-ad14-11eb-8ea1-e993298eca9b.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001460-f49fda00-ad14-11eb-8c75-eb88a24983b6.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001461-f5d10700-ad14-11eb-9d82-d73a7347ad32.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001464-f6699d80-ad14-11eb-8810-50b20f8954ae.png)  
+
+### 能源管理（移动端）
+![image](https://user-images.githubusercontent.com/5820324/116964170-796f0180-acdd-11eb-9514-fd9a05c15eae.png)![image](https://user-images.githubusercontent.com/5820324/116964172-7a079800-acdd-11eb-91ac-13c1a321145d.png)![image](https://user-images.githubusercontent.com/5820324/116964174-7aa02e80-acdd-11eb-8051-158f13ed2993.png)![image](https://user-images.githubusercontent.com/5820324/116964175-7b38c500-acdd-11eb-80b4-97827ee03374.png)![image](https://user-images.githubusercontent.com/5820324/116964177-7c69f200-acdd-11eb-94b8-ddbf5081ddaf.png)![image](https://user-images.githubusercontent.com/5820324/116964179-7d028880-acdd-11eb-95c6-601e235e3b6b.png)![image](https://user-images.githubusercontent.com/5820324/116964181-7d9b1f00-acdd-11eb-9914-911167e0af05.png)
+
+</details>
+
+<details>
+<summary>海底捞末端控制（商用）</summary>
+
+### 海底捞末端控制-web
+![image](https://user-images.githubusercontent.com/5820324/117001939-87d90f80-ad15-11eb-8848-7a4956ba1ce9.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001942-87d90f80-ad15-11eb-85b2-778cadaf85ad.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001947-890a3c80-ad15-11eb-9e28-57e8b05cd04c.png)  
+![image](https://user-images.githubusercontent.com/5820324/117001949-89a2d300-ad15-11eb-9226-2e2683e2cc7f.png)  
+
+### 海底捞末端控制-移动端
+![image](https://user-images.githubusercontent.com/5820324/116964517-5002a580-acde-11eb-9bfb-c859a57307c7.png)![image](https://user-images.githubusercontent.com/5820324/116964519-509b3c00-acde-11eb-8245-573ac3fa7f16.png)![image](https://user-images.githubusercontent.com/5820324/116964521-5133d280-acde-11eb-85de-b09dde1ca41e.png)![image](https://user-images.githubusercontent.com/5820324/116964525-51cc6900-acde-11eb-924f-f3320e4a179c.png)
+
+</details>

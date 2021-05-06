@@ -4,21 +4,18 @@ using IoTClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace IoTClient.Tests.Modbus
+namespace IoTClient.Tests.Modbus_Tests
 {
-    public class ModbusTcpClient_tests
+    public class ModbusRtuOverTcpClient_tests
     {
-        ModbusTcpClient client;
+        ModbusRtuOverTcpClient client;
         byte stationNumber = 2;//站号
-        public ModbusTcpClient_tests()
+        public ModbusRtuOverTcpClient_tests()
         {
-            var ip = IPAddress.Parse("ip".GetConfig());
-            var port = int.Parse("port".GetConfig());
-            client = new ModbusTcpClient(new IPEndPoint(ip, port));
+            client = new ModbusRtuOverTcpClient("127.0.0.1", 502);
         }
 
         [Fact]
@@ -123,7 +120,7 @@ namespace IoTClient.Tests.Modbus
 
         [Fact]
         public void 批量读取()
-        {
+        {          
             var list = new List<ModbusInput>();
             list.Add(new ModbusInput()
             {

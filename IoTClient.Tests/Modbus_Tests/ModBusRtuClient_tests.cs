@@ -18,41 +18,6 @@ namespace IoTClient.Tests.Modbus
         }
 
         [Fact]
-        public void 批量读取()
-        {          
-            var list = new List<ModbusInput>();
-            list.Add(new ModbusInput()
-            {
-                Address = "2",
-                DataType = DataTypeEnum.Int16,
-                FunctionCode = 3,
-                StationNumber = 1
-            });
-            list.Add(new ModbusInput()
-            {
-                Address = "2",
-                DataType = DataTypeEnum.Int16,
-                FunctionCode = 4,
-                StationNumber = 1
-            });
-            list.Add(new ModbusInput()
-            {
-                Address = "5",
-                DataType = DataTypeEnum.Int16,
-                FunctionCode = 3,
-                StationNumber = 1
-            });
-            list.Add(new ModbusInput()
-            {
-                Address = "199",
-                DataType = DataTypeEnum.Int16,
-                FunctionCode = 3,
-                StationNumber = 1
-            });
-            var result = client.BatchRead(list);
-        }
-
-        [Fact]
         public async Task 短连接自动开关()
         {
             short Number = 33;
@@ -118,6 +83,104 @@ namespace IoTClient.Tests.Modbus
             Assert.True(client.ReadDouble("4", stationNumber).Value == numberDouble);
 
             client.Close();
+        }
+
+        [Fact]
+        public void 批量读取()
+        {
+            var list = new List<ModbusInput>();
+            list.Add(new ModbusInput()
+            {
+                Address = "2",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "2",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 4,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "5",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "199",
+                DataType = DataTypeEnum.Int16,
+                FunctionCode = 3,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "200",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "201",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "202",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "203",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "204",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "205",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "206",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "207",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            list.Add(new ModbusInput()
+            {
+                Address = "208",
+                DataType = DataTypeEnum.Bool,
+                FunctionCode = 2,
+                StationNumber = 1
+            });
+            var result = client.BatchRead(list);
         }
     }
 }

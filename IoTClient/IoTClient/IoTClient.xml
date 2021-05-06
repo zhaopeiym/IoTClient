@@ -760,7 +760,7 @@
         </member>
         <member name="T:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient">
             <summary>
-            Tcp的方式发送ModbusRtu协议报文 - 客户端 - Beta
+            Tcp的方式发送ModbusRtu协议报文 - 客户端
             </summary>
         </member>
         <member name="P:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.WarningLog">
@@ -1641,22 +1641,291 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="T:IoTClient.Clients.PLC.AllenBradleyClient">
+            <summary>
+            (AB)罗克韦尔客户端 Beta
+            https://blog.csdn.net/lishiming0308/article/details/85243041
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.IpAndPoint">
+            <summary>
+            连接地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
+        <member name="F:IoTClient.Clients.PLC.AllenBradleyClient.timeout">
+            <summary>
+            超时时间
+            </summary>
+        </member>
+        <member name="F:IoTClient.Clients.PLC.AllenBradleyClient.slot">
+            <summary>
+            插槽
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.Session">
+            <summary>
+            会话句柄(由AB PLC生成)
+            </summary>
+        </member>
+        <member name="F:IoTClient.Clients.PLC.AllenBradleyClient.RegisteredCommand">
+            <summary>
+            注册命令
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Connect">
+            <summary>
+            打开连接（如果已经是连接状态会先关闭再打开）
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadBoolean(System.String)">
+            <summary>
+            读取Boolean
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadByte(System.String)">
+            <summary>
+            读取byte
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadInt16(System.String)">
+            <summary>
+            读取Int16
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadUInt16(System.String)">
+            <summary>
+            读取UInt16
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadInt32(System.String)">
+            <summary>
+            读取Int32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadUInt32(System.String)">
+            <summary>
+            读取UInt32
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadInt64(System.String)">
+            <summary>
+            读取Int64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadUInt64(System.String)">
+            <summary>
+            读取UInt64
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadFloat(System.String)">
+            <summary>
+            读取Float
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadDouble(System.String)">
+            <summary>
+            读取Double
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Byte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.SByte)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Int16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.UInt16)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Int32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.UInt32)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Int64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.UInt64)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Single)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Double)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.String)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ConvertArg(System.String,System.Boolean)">
+            <summary>
+            地址信息解析
+            </summary>
+            <param name="address"></param>        
+            <param name="isBit"></param> 
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.GetReadCommand(System.String,System.UInt16)">
+            <summary>
+            获取Read命令
+            </summary>
+            <param name="address"></param>
+            <param name="slot"></param>
+            <param name="length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.GetWriteCommand(System.String,System.UInt16,System.Byte[],System.Int32)">
+            <summary>
+            获取Write命令
+            </summary>
+            <param name="address"></param>
+            <param name="typeCode"></param>
+            <param name="value"></param>
+            <param name="length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.SendPackage(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.GetContentLength(System.Byte[])">
+            <summary>
+            后面内容长度
+            </summary>
+            <param name="head"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTClient.Clients.PLC.MitsubishiClient">
             <summary>
-            三菱plc客户端 - Beta
+            三菱plc客户端
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.Version">
+            <summary>
+            版本
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.IpAndPoint">
+            <summary>
+            连接地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.#ctor(IoTClient.Enums.MitsubishiVersion,System.String,System.Int32,System.Int32)">
             <summary>
-            
+            构造函数
             </summary>
-            <param name="ip"></param>
-            <param name="port"></param>
-            <param name="timeout"></param>
+            <param name="version">三菱型号版本</param>
+            <param name="ip">ip地址</param>
+            <param name="port">端口</param>
+            <param name="timeout">超时时间</param>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Connect">
             <summary>
-            打开长连接
+            打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
@@ -1665,6 +1934,14 @@
             发送报文，并获取响应报文
             </summary>
             <param name="command"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.SendPackage(System.Byte[],System.Int32)">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
+            <param name="receiveCount"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
@@ -1901,33 +2178,48 @@
             <param name="isBit"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetContentLength(System.Byte[])">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertArg_Qna_3E(System.String)">
             <summary>
-            获取内容长度
-            </summary>
-            <param name="head"></param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertAddress_Qna_3E(System.String)">
-            <summary>
-            地址转换
+            Qna_3E地址解析
             </summary>
             <param name="address"></param>
             <returns></returns>
         </member>
-        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsType.BitCode">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertArg_A_1E(System.String)">
+            <summary>
+            A_1E地址解析
+            </summary>
+            <param name="address"></param>
+            <returns></returns>
+        </member>
+        <member name="T:IoTClient.Clients.PLC.Models.OmronFinsAddress">
+            <summary>
+            Omron解析后的地址信息
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.BitCode">
             <summary>
             位操作
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsType.WordCode">
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.WordCode">
             <summary>
             字操作
             </summary>
         </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.BitAddress">
+            <summary>
+            位操作 解析地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.IsBit">
+            <summary>
+            是否是bit
+            </summary>
+        </member>
         <member name="T:IoTClient.Clients.PLC.OmronFinsClient">
             <summary>
-            欧姆龙PLC 客户端 - Beta
+            欧姆龙PLC 客户端
             https://flat2010.github.io/2020/02/23/Omron-Fins%E5%8D%8F%E8%AE%AE/
             </summary>
         </member>
@@ -1953,7 +2245,8 @@
         </member>
         <member name="P:IoTClient.Clients.PLC.OmronFinsClient.WarningLog">
             <summary>
-            
+            警告日志委托
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="P:IoTClient.Clients.PLC.OmronFinsClient.UnitAddress">
@@ -1975,7 +2268,7 @@
         </member>
         <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Connect">
             <summary>
-            打开长连接
+            打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
@@ -1986,7 +2279,7 @@
             <param name="address">地址</param>
             <param name="length"></param>
             <param name="isBit"></param>
-            <param name="setEndian"></param>
+            <param name="setEndian">返回值是否设置大小端</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadBoolean(System.String)">
@@ -2048,6 +2341,13 @@
         <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadFloat(System.String)">
             <summary>
             读取Float
+            </summary>
+            <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadDouble(System.String)">
+            <summary>
+            读取Double
             </summary>
             <param name="address">地址</param>
             <returns></returns>
@@ -2149,21 +2449,46 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ReadDouble(System.String)">
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ConvertArg(System.String,System.Boolean)">
             <summary>
-            读取Double
+            地址信息解析
             </summary>
-            <param name="address">地址</param>
+            <param name="address"></param>        
+            <param name="isBit"></param> 
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.GetReadCommand(IoTClient.Clients.PLC.Models.OmronFinsAddress,System.UInt16)">
+            <summary>
+            获取Read命令
+            </summary>
+            <param name="arg"></param>
+            <param name="length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.GetWriteCommand(IoTClient.Clients.PLC.Models.OmronFinsAddress,System.Byte[])">
+            <summary>
+            获取Write命令
+            </summary>
+            <param name="arg"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.SendPackage(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Clients.PLC.SiemensClient">
             <summary>
             西门子客户端
+            http://www.360doc.cn/mip/763580999.html
             </summary>
         </member>
         <member name="F:IoTClient.Clients.PLC.SiemensClient.version">
             <summary>
-            版本
+            CPU版本
             </summary>
         </member>
         <member name="F:IoTClient.Clients.PLC.SiemensClient.timeout">
@@ -2189,12 +2514,29 @@
         <member name="P:IoTClient.Clients.PLC.SiemensClient.WarningLog">
             <summary>
             警告日志委托
-            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.Net.IPEndPoint,System.Int32)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="version">CPU版本</param>
+            <param name="ipAndPoint">IP地址和端口号</param>
+            <param name="timeout">超时时间</param>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.String,System.Int32,System.Int32)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="version">CPU版本</param>
+            <param name="ip">IP地址</param>
+            <param name="port">端口号</param>
+            <param name="timeout">超时时间</param>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Connect">
             <summary>
-            打开长连接（如果已经是连接状态会先关闭再打开）
+            打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
@@ -2207,20 +2549,20 @@
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
             <summary>
-            读取数据
+            读取字节数组
             </summary>
             <param name="address">地址</param>
-            <param name="length"></param>
-            <param name="isBit"></param>
-            <param name="setEndian"></param>
+            <param name="length">读取长度</param>
+            <param name="isBit">是否Bit类型</param>
+            <param name="setEndian">暂未使用</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadString(System.String,System.UInt16)">
             <summary>
-            summary
+            读取字符串
             </summary>
-            <param name="address"></param>
-            <param name="length"></param>
+            <param name="address">地址</param>
+            <param name="length">读取长度</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
@@ -2531,27 +2873,27 @@
             <param name="writeData"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensData[])">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensAddress[])">
             <summary>
             获取读指令
             </summary>      
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensData)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetReadCommand(IoTClient.Core.Models.SiemensAddress)">
             <summary>
             获取读指令
             </summary>
             <param name="data"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetWriteCommand(IoTClient.Models.SiemensWrite[])">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetWriteCommand(IoTClient.Models.SiemensWriteAddress[])">
             <summary>
             获取写指令
             </summary>
             <param name="writes"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetWriteCommand(IoTClient.Models.SiemensWrite)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.GetWriteCommand(IoTClient.Models.SiemensWriteAddress)">
             <summary>
             获取写指令
             </summary>
@@ -2607,318 +2949,49 @@
             功能码
             </summary>
         </member>
-        <member name="T:IoTClient.Models.IMitsubishiMCType">
+        <member name="T:IoTClient.Models.MitsubishiMCAddress">
             <summary>
-            
+            三菱解析后的地址信息
             </summary>
         </member>
-        <member name="P:IoTClient.Models.IMitsubishiMCType.TypeCode">
-            <summary>
-            类型的代号值
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.IMitsubishiMCType.DataType">
-            <summary>
-            数据的类型，0代表按字，1代表按位
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.IMitsubishiMCType.Format">
-            <summary>
-            指示地址是10进制，还是16进制的
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiA1Type.DataType">
-            <summary>
-            数据的类型，0代表按字，1代表按位
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiA1Type.Format">
-            <summary>
-            指示地址是10进制，还是16进制的
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiA1Type.X">
-            <summary>
-            X输入寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiA1Type.Y">
-            <summary>
-            Y输出寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiA1Type.M">
-            <summary>
-            M中间寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiA1Type.S">
-            <summary>
-            S状态寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiA1Type.D">
-            <summary>
-            D数据寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiA1Type.R">
-            <summary>
-            R文件寄存器
-            </summary>
-        </member>
-        <member name="T:IoTClient.Models.MitsubishiMCData">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCData.BeginAddress">
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.BeginAddress">
             <summary>
             开始地址
             </summary>
         </member>
-        <member name="P:IoTClient.Models.MitsubishiMCData.MitsubishiMCType">
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.TypeCode">
             <summary>
-            数据类型
+            类型的代号
             </summary>
         </member>
-        <member name="T:IoTClient.Models.MitsubishiMCType">
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.DataType">
             <summary>
-            三菱PLC数据类型
+            数据的类型，0代表按字，1代表按位
             </summary>
         </member>
-        <member name="M:IoTClient.Models.MitsubishiMCType.#ctor(System.Byte[],System.Byte,System.Int32)">
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.Format">
             <summary>
-            
-            </summary>
-            <param name="code">数据类型的代号</param>
-            <param name="type">0或1，默认为0</param> 
-            <param name="format">十进制或十六进制</param>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCType.TypeCode">
-            <summary>
-            类型的代号值
+            指示地址是10进制，还是16进制的
             </summary>
         </member>
-        <member name="P:IoTClient.Models.MitsubishiMCType.DataType">
+        <member name="T:IoTClient.Models.SiemensWriteAddress">
             <summary>
-            0代表按字，1代表按位
+            西门子[写]解析后的地址信息
             </summary>
         </member>
-        <member name="P:IoTClient.Models.MitsubishiMCType.Format">
-            <summary>
-            10进制或16进制
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.X">
-            <summary>
-            X输入继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.Y">
-            <summary>
-            Y输出继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.M">
-            <summary>
-            M中间继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.D">
-            <summary>
-            D数据寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.W">
-            <summary>
-            W链接寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.L">
-            <summary>
-            L锁存继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.F">
-            <summary>
-            F报警器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.V">
-            <summary>
-            V边沿继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.B">
-            <summary>
-            B链接继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.R">
-            <summary>
-            R文件寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.S">
-            <summary>
-            S步进继电器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.Z">
-            <summary>
-            变址寄存器
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.TN">
-            <summary>
-            定时器的当前值
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.TS">
-            <summary>
-            定时器的触点
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.TC">
-            <summary>
-            定时器的线圈
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.SS">
-            <summary>
-            累计定时器的触点
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.SC">
-            <summary>
-            累计定时器的线圈
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.SN">
-            <summary>
-            累计定时器的当前值
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.CN">
-            <summary>
-            计数器的当前值
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.CS">
-            <summary>
-            计数器的触点
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.CC">
-            <summary>
-            计数器的线圈
-            </summary>
-        </member>
-        <member name="F:IoTClient.Models.MitsubishiMCType.ZR">
-            <summary>
-            文件寄存器ZR区
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.MitsubishiMCWrite.WriteData">
+        <member name="P:IoTClient.Models.SiemensWriteAddress.WriteData">
             <summary>
             要写入的数据
             </summary>
         </member>
-        <member name="M:IoTClient.Models.MitsubishiMCWrite.Assignment(IoTClient.Models.MitsubishiMCData)">
-            <summary>
-            赋值
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.SiemensWrite.WriteData">
-            <summary>
-            要写入的数据
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.SiemensWrite.Assignment(IoTClient.Core.Models.SiemensData)">
-            <summary>
-            赋值
-            </summary>
-        </member>
-        <member name="T:IoTClient.Models.Result">
-            <summary>
-            请求结果
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.IsSucceed">
-            <summary>
-            是否成功
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Err">
-            <summary>
-            异常消息
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.ErrCode">
-            <summary>
-            异常Code
-            408 连接失败
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Exception">
-            <summary>
-            详细异常
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.ErrList">
-            <summary>
-            异常集合
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Requst">
-            <summary>
-            请求报文
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.Response">
-            <summary>
-            响应报文
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.TimeConsuming">
-            <summary>
-            耗时（毫秒）
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.Result.EndTime">
-            <summary>
-            结束时间统计
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result.InitialTime">
-            <summary>
-            开始时间
-            </summary>
-        </member>
-        <member name="T:IoTClient.Models.Result`1">
-            <summary>
-            请求结果
-            </summary>
-        </member>
-        <member name="P:IoTClient.Models.Result`1.Value">
-            <summary>
-            数据结果
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.Result`1.EndTime">
-            <summary>
-            结束时间统计
-            </summary>
-        </member>
-        <member name="M:IoTClient.Models.Result`1.Assignment(IoTClient.Models.Result)">
+        <member name="M:IoTClient.Models.SiemensWriteAddress.Assignment(IoTClient.Core.Models.SiemensAddress)">
             <summary>
             赋值
             </summary>
         </member>
         <member name="T:IoTClient.Common.Constants.SiemensConstant">
             <summary>
-            
+            Siemens命令常量
             </summary>
         </member>
         <member name="F:IoTClient.Common.Constants.SiemensConstant.InitHeadLength">
@@ -3246,37 +3319,42 @@
             小端序 DCBA
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.Address">
+        <member name="T:IoTClient.Core.Models.SiemensAddress">
+            <summary>
+            西门子解析后的地址信息
+            </summary>
+        </member>
+        <member name="P:IoTClient.Core.Models.SiemensAddress.Address">
             <summary>
             原地址
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.DataType">
+        <member name="P:IoTClient.Core.Models.SiemensAddress.DataType">
             <summary>
             数据类型
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.TypeCode">
+        <member name="P:IoTClient.Core.Models.SiemensAddress.TypeCode">
             <summary>
             区域类型
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.DbBlock">
+        <member name="P:IoTClient.Core.Models.SiemensAddress.DbBlock">
             <summary>
             DB块编号
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.BeginAddress">
+        <member name="P:IoTClient.Core.Models.SiemensAddress.BeginAddress">
             <summary>
             开始地址(西门子plc地址为8个位的长度，这里展开实际的开始地址。)
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteLength">
+        <member name="P:IoTClient.Core.Models.SiemensAddress.ReadWriteLength">
             <summary>
             读取或写入长度
             </summary>
         </member>
-        <member name="P:IoTClient.Core.Models.SiemensData.ReadWriteBit">
+        <member name="P:IoTClient.Core.Models.SiemensAddress.ReadWriteBit">
             <summary>
             是否读取或写入bit类型
             </summary>
@@ -3526,6 +3604,106 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
+        <member name="T:IoTClient.Result">
+            <summary>
+            请求结果
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.IsSucceed">
+            <summary>
+            是否成功
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.Err">
+            <summary>
+            异常消息
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.ErrCode">
+            <summary>
+            异常Code
+            408 连接失败
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.Exception">
+            <summary>
+            详细异常
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.ErrList">
+            <summary>
+            异常集合
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.Requst">
+            <summary>
+            请求报文
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.Response">
+            <summary>
+            响应报文
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.Requst2">
+            <summary>
+            请求报文2
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.Response2">
+            <summary>
+            响应报文2
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.TimeConsuming">
+            <summary>
+            耗时（毫秒）
+            </summary>
+        </member>
+        <member name="M:IoTClient.Result.EndTime">
+            <summary>
+            结束时间统计
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result.InitialTime">
+            <summary>
+            开始时间
+            </summary>
+        </member>
+        <member name="M:IoTClient.Result.SetErrInfo(IoTClient.Result)">
+            <summary>
+            设置异常信息和Succeed状态
+            </summary>
+            <param name="result"></param>
+            <returns></returns>
+        </member>
+        <member name="T:IoTClient.Result`1">
+            <summary>
+            请求结果
+            </summary>
+        </member>
+        <member name="P:IoTClient.Result`1.Value">
+            <summary>
+            数据结果
+            </summary>
+        </member>
+        <member name="M:IoTClient.Result`1.EndTime">
+            <summary>
+            结束时间统计
+            </summary>
+        </member>
+        <member name="M:IoTClient.Result`1.Assignment(IoTClient.Result)">
+            <summary>
+            赋值
+            </summary>
+        </member>
+        <member name="M:IoTClient.Result`1.SetErrInfo(IoTClient.Result)">
+            <summary>
+            设置异常信息和Succeed状态
+            </summary>
+            <param name="result"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTClient.SerialPortBase">
             <summary>
             SerialPort基类
@@ -3629,21 +3807,22 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.SocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32)">
+        <member name="M:IoTClient.SocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32,IoTClient.LoggerDelegate)">
             <summary>
-            读取
+            Socket读取
             </summary>
             <param name="socket">socket</param>
             <param name="receiveCount">读取长度</param>
+            <param name="warningLog">日记委托记录</param>     
             <returns></returns>
         </member>
         <member name="M:IoTClient.SocketBase.SocketTryRead(System.Net.Sockets.Socket,System.Int32,IoTClient.LoggerDelegate)">
             <summary>
-            读取
+            Socket读取
             </summary>
-            <param name="socket"></param>
-            <param name="receiveCount"></param>
-            <param name="warningLog"></param>        
+            <param name="socket">socket</param>
+            <param name="receiveCount">读取长度</param>
+            <param name="warningLog">日记委托记录</param>        
             <returns>读到的数据，如果内部出现异常则返回null</returns>
         </member>
     </members>

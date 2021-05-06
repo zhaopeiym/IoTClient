@@ -10,7 +10,7 @@ using System.Net.Sockets;
 namespace IoTClient.Clients.Modbus
 {
     /// <summary>
-    /// Tcp的方式发送ModbusRtu协议报文 - 客户端 - Beta
+    /// Tcp的方式发送ModbusRtu协议报文 - 客户端
     /// </summary>
     public class ModbusRtuOverTcpClient : SocketBase, IModbusClient
     {
@@ -40,7 +40,7 @@ namespace IoTClient.Clients.Modbus
         protected override Result Connect()
         {
             var result = new Result();
-            socket?.Close();
+            socket?.SafeClose();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -54,15 +54,17 @@ namespace IoTClient.Clients.Modbus
 
                 //连接
                 socket.Connect(ipAndPoint);
-                return result.EndTime();
             }
             catch (Exception ex)
             {
                 socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                return result.EndTime();
+                result.ErrCode = 408;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
             }
+            return result.EndTime();
         }
 
         #region 发送报文，并获取响应报文
@@ -133,7 +135,7 @@ namespace IoTClient.Clients.Modbus
                 //发送命令并获取响应报文
                 int readLenght;
                 if (functionCode == 1 || functionCode == 2)
-                    readLenght = 5 + readLength;
+                    readLenght = 5 + (int)Math.Ceiling((float)readLength / 8);
                 else
                     readLenght = 5 + readLength * 2;
                 var sendResult = SendPackage(commandCRC16, readLenght);

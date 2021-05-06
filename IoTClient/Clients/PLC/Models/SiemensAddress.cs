@@ -2,7 +2,10 @@
 
 namespace IoTClient.Core.Models
 {
-    public class SiemensData
+    /// <summary>
+    /// 西门子解析后的地址信息
+    /// </summary>
+    public class SiemensAddress
     {
         /// <summary>
         /// 原地址

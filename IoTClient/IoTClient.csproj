@@ -31,12 +31,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Models\MitsubishiA1Data.cs" />
+    <Compile Remove="Clients\PLC\Models\IMitsubishiMCType.cs" />
+    <Compile Remove="Clients\PLC\Models\MitsubishiA1Type.cs" />
+    <Compile Remove="Clients\PLC\Models\MitsubishiMCType.cs" />
+    <Compile Remove="Clients\PLC\Models\MitsubishiMCWrite.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Clients\Bacnet\" />
-    <Folder Include="Constants\" />
   </ItemGroup>
 
   <ItemGroup>

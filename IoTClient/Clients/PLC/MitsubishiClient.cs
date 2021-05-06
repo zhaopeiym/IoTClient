@@ -12,27 +12,39 @@ using System.Text;
 namespace IoTClient.Clients.PLC
 {
     /// <summary>
-    /// 三菱plc客户端 - Beta
+    /// 三菱plc客户端
     /// </summary>
     public class MitsubishiClient : SocketBase, IEthernetClient
     {
         private int timeout;
-
+        /// <summary>
+        /// 版本
+        /// </summary>
         public string Version => version.ToString();
         private MitsubishiVersion version;
-
+        /// <summary>
+        /// 连接地址
+        /// </summary>
         public IPEndPoint IpAndPoint { get; }
 
+        /// <summary>
+        /// 是否是连接的
+        /// </summary>
         public bool Connected => socket?.Connected ?? false;
 
+        /// <summary>
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+        /// </summary>
         public LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
-        /// 
+        /// 构造函数
         /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="timeout"></param>
+        /// <param name="version">三菱型号版本</param>
+        /// <param name="ip">ip地址</param>
+        /// <param name="port">端口</param>
+        /// <param name="timeout">超时时间</param>
         public MitsubishiClient(MitsubishiVersion version, string ip, int port, int timeout = 1500)
         {
             this.version = version;
@@ -41,13 +53,13 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 打开长连接
+        /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
         /// <returns></returns>
         protected override Result Connect()
         {
             var result = new Result();
-            socket?.Close();
+            socket?.SafeClose();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -62,9 +74,12 @@ namespace IoTClient.Clients.PLC
             }
             catch (Exception ex)
             {
+                socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                return result.EndTime();
+                result.ErrCode = 408;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
             }
             return result.EndTime();
         }
@@ -86,7 +101,9 @@ namespace IoTClient.Clients.PLC
                 {
                     socket.Send(command);
                     var headPackage = SocketRead(socket, 9);
-                    var dataPackage = SocketRead(socket, GetContentLength(headPackage));
+                    //其后内容的总长度
+                    var contentLength = BitConverter.ToUInt16(headPackage, 7);
+                    var dataPackage = SocketRead(socket, contentLength);
                     result.Value = headPackage.Concat(dataPackage).ToArray();
                 }
 
@@ -105,11 +122,17 @@ namespace IoTClient.Clients.PLC
 
                     _sendPackage();
                 }
-               
+
                 return result.EndTime();
             }
         }
 
+        /// <summary>
+        /// 发送报文，并获取响应报文
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="receiveCount"></param>
+        /// <returns></returns>
         public Result<byte[]> SendPackage(byte[] command, int receiveCount)
         {
             //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
@@ -117,7 +140,8 @@ namespace IoTClient.Clients.PLC
             {
                 Result<byte[]> result = new Result<byte[]>();
 
-                void _sendPackage() {
+                void _sendPackage()
+                {
                     socket.Send(command);
                     var dataPackage = SocketRead(socket, receiveCount);
                     result.Value = dataPackage.ToArray();
@@ -160,18 +184,18 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //发送读取信息
-                MitsubishiMCData arg = null;
+                MitsubishiMCAddress arg = null;
                 byte[] command = null;
 
                 switch (version)
                 {
                     case MitsubishiVersion.A_1E:
-                        arg = ConvertAddress_A_1E(address);
-                        command = GetReadCommand_A_1E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, length, isBit);
+                        arg = ConvertArg_A_1E(address);
+                        command = GetReadCommand_A_1E(arg.BeginAddress, arg.TypeCode, length, isBit);
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        arg = ConvertAddress_Qna_3E(address);
-                        command = GetReadCommand_Qna_3E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, length, isBit);
+                        arg = ConvertArg_Qna_3E(address);
+                        command = GetReadCommand_Qna_3E(arg.BeginAddress, arg.TypeCode, length, isBit);
                         break;
                 }
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
@@ -523,17 +547,17 @@ namespace IoTClient.Clients.PLC
                 Array.Reverse(data);
 
                 //发送写入信息
-                MitsubishiMCData arg = null;
+                MitsubishiMCAddress arg = null;
                 byte[] command = null;
                 switch (version)
                 {
                     case MitsubishiVersion.A_1E:
-                        arg = ConvertAddress_A_1E(address);
-                        command = GetWriteCommand_A_1E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, data, isBit);
+                        arg = ConvertArg_A_1E(address);
+                        command = GetWriteCommand_A_1E(arg.BeginAddress, arg.TypeCode, data, isBit);
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        arg = ConvertAddress_Qna_3E(address);
-                        command = GetWriteCommand_Qna_3E(arg.BeginAddress, arg.MitsubishiMCType.TypeCode, data, isBit);
+                        arg = ConvertArg_Qna_3E(address);
+                        command = GetWriteCommand_Qna_3E(arg.BeginAddress, arg.TypeCode, data, isBit);
                         break;
                 }
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
@@ -847,221 +871,279 @@ namespace IoTClient.Clients.PLC
         }
         #endregion
 
-        #region private
-        /// <summary>
-        /// 获取内容长度
-        /// </summary>
-        /// <param name="head"></param>
-        /// <returns></returns>
-        private int GetContentLength(byte[] head)
-        {
-            return BitConverter.ToUInt16(head, 7);
-        }
+        #region private        
 
+        #region 地址解析
         /// <summary>
-        /// 地址转换
+        /// Qna_3E地址解析
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
-        private MitsubishiMCData ConvertAddress_Qna_3E(string address)
+        private MitsubishiMCAddress ConvertArg_Qna_3E(string address)
         {
             address = address.ToUpper();
-            var addressData = new MitsubishiMCData();
+            var addressInfo = new MitsubishiMCAddress();
             switch (address[0])
             {
-                case 'M':
+                case 'M'://M中间继电器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.M;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.M.Format);
+                        addressInfo.TypeCode = new byte[] { 0x90 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'X':
+                case 'X':// X输入继电器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.X;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.X.Format);
+                        addressInfo.TypeCode = new byte[] { 0x9C };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 16;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'Y':
+                case 'Y'://Y输出继电器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.Y;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.Y.Format);
+                        addressInfo.TypeCode = new byte[] { 0x9D };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 16;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'D':
+                case 'D'://D数据寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.D;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.D.Format);
+                        addressInfo.TypeCode = new byte[] { 0xA8 };
+                        addressInfo.DataType = 0x00;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'W':
+                case 'W'://W链接寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.W;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.W.Format);
+                        addressInfo.TypeCode = new byte[] { 0xB4 };
+                        addressInfo.DataType = 0x00;
+                        addressInfo.Format = 16;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'L':
+                case 'L'://L锁存继电器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.L;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.L.Format);
+                        addressInfo.TypeCode = new byte[] { 0x92 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'F':
+                case 'F'://F报警器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.F;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.F.Format);
+                        addressInfo.TypeCode = new byte[] { 0x93 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'V':
+                case 'V'://V边沿继电器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.V;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.V.Format);
+                        addressInfo.TypeCode = new byte[] { 0x94 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'B':
+                case 'B'://B链接继电器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.B;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.B.Format);
+                        addressInfo.TypeCode = new byte[] { 0xA0 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 16;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'R':
+                case 'R'://R文件寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiMCType.R;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.R.Format);
+                        addressInfo.TypeCode = new byte[] { 0xAF };
+                        addressInfo.DataType = 0x00;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
                 case 'S':
                     {
+                        //累计定时器的线圈
                         if (address[1] == 'C')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.SC;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.SC.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC6 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //累计定时器的触点
                         else if (address[1] == 'S')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.SS;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.SS.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC7 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //累计定时器的当前值
                         else if (address[1] == 'N')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.SN;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.SN.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC8 };
+                            addressInfo.DataType = 0x00;
+                            addressInfo.Format = 100;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        // S步进继电器
                         else
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.S;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.S.Format);
+                            addressInfo.TypeCode = new byte[] { 0x98 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                         }
                         break;
                     }
                 case 'Z':
                     {
+                        //文件寄存器ZR区
                         if (address[1] == 'R')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.ZR;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.ZR.Format);
+                            addressInfo.TypeCode = new byte[] { 0xB0 };
+                            addressInfo.DataType = 0x00;
+                            addressInfo.Format = 16;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //变址寄存器
                         else
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.Z;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.Z.Format);
+                            addressInfo.TypeCode = new byte[] { 0xCC };
+                            addressInfo.DataType = 0x00;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                         }
                         break;
                     }
                 case 'T':
                     {
+                        // 定时器的当前值
                         if (address[1] == 'N')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.TN;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.TN.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC2 };
+                            addressInfo.DataType = 0x00;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //定时器的触点
                         else if (address[1] == 'S')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.TS;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.TS.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC1 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //定时器的线圈
                         else if (address[1] == 'C')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.TC;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.TC.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC0 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
                         break;
                     }
                 case 'C':
                     {
+                        //计数器的当前值
                         if (address[1] == 'N')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.CN;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.CN.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC5 };
+                            addressInfo.DataType = 0x00;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //计数器的触点
                         else if (address[1] == 'S')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.CS;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.CS.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC4 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
+                        //计数器的线圈
                         else if (address[1] == 'C')
                         {
-                            addressData.MitsubishiMCType = MitsubishiMCType.CC;
-                            addressData.BeginAddress = Convert.ToInt32(address.Substring(2), MitsubishiMCType.CC.Format);
+                            addressInfo.TypeCode = new byte[] { 0xC3 };
+                            addressInfo.DataType = 0x01;
+                            addressInfo.Format = 10;
+                            addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
                         }
                         break;
                     }
             }
-            return addressData;
+            return addressInfo;
         }
 
-        private MitsubishiMCData ConvertAddress_A_1E(string address)
+        /// <summary>
+        /// A_1E地址解析
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        private MitsubishiMCAddress ConvertArg_A_1E(string address)
         {
             address = address.ToUpper();
-            var addressData = new MitsubishiMCData();
+            var addressInfo = new MitsubishiMCAddress();
             switch (address[0])
             {
-                case 'X':
+                case 'X'://X输入寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiA1Type.X;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.X.Format);
+                        addressInfo.TypeCode = new byte[] { 0x58, 0x20 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 8;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'Y':
+                case 'Y'://Y输出寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiA1Type.Y;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.Y.Format);
+                        addressInfo.TypeCode = new byte[] { 0x59, 0x20 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 8;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'M':
+                case 'M'://M中间寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiA1Type.M;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.M.Format);
+                        addressInfo.TypeCode = new byte[] { 0x4D, 0x20 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'S':
+                case 'S'://S状态寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiA1Type.S;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.S.Format);
+                        addressInfo.TypeCode = new byte[] { 0x53, 0x20 };
+                        addressInfo.DataType = 0x01;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'D':
+                case 'D'://D数据寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiA1Type.D;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.D.Format);
+                        addressInfo.TypeCode = new byte[] { 0x44, 0x20 };
+                        addressInfo.DataType = 0x00;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
-                case 'R':
+                case 'R'://R文件寄存器
                     {
-                        addressData.MitsubishiMCType = MitsubishiA1Type.R;
-                        addressData.BeginAddress = Convert.ToInt32(address.Substring(1), MitsubishiMCType.R.Format);
+                        addressInfo.TypeCode = new byte[] { 0x52, 0x20 };
+                        addressInfo.DataType = 0x00;
+                        addressInfo.Format = 10;
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
                     }
                     break;
             }
-            return addressData;
+            return addressInfo;
         }
-
-        private MitsubishiMCWrite ConvertWriteArg_Qna_3E(string address, byte[] writeData)
-        {
-            MitsubishiMCWrite arg = new MitsubishiMCWrite(ConvertAddress_Qna_3E(address));
-            arg.WriteData = writeData;
-            //arg.ReadWriteBit = bit;
-            return arg;
-        }
+        #endregion
 
         #region TODO
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
@@ -1085,6 +1167,7 @@ namespace IoTClient.Clients.PLC
         }
 
         #endregion
+
         #endregion
     }
 }

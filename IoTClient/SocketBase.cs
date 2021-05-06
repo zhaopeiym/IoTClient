@@ -81,14 +81,15 @@ namespace IoTClient
         }
 
         /// <summary>
-        /// 读取
+        /// Socket读取
         /// </summary>
         /// <param name="socket">socket</param>
         /// <param name="receiveCount">读取长度</param>
+        /// <param name="warningLog">日记委托记录</param>     
         /// <returns></returns>
-        protected byte[] SocketRead(Socket socket, int receiveCount)
+        protected byte[] SocketRead(Socket socket, int receiveCount, LoggerDelegate warningLog = null)
         {
-            byte[] receiveBytes = SocketTryRead(socket, receiveCount);
+            byte[] receiveBytes = SocketTryRead(socket, receiveCount, warningLog);
             if (receiveBytes == null)
             {
                 socket?.SafeClose();
@@ -98,11 +99,11 @@ namespace IoTClient
         }
 
         /// <summary>
-        /// 读取
+        /// Socket读取
         /// </summary>
-        /// <param name="socket"></param>
-        /// <param name="receiveCount"></param>
-        /// <param name="warningLog"></param>        
+        /// <param name="socket">socket</param>
+        /// <param name="receiveCount">读取长度</param>
+        /// <param name="warningLog">日记委托记录</param>        
         /// <returns>读到的数据，如果内部出现异常则返回null</returns>
         protected byte[] SocketTryRead(Socket socket, int receiveCount, LoggerDelegate warningLog = null)
         {

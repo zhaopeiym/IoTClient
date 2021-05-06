@@ -58,7 +58,7 @@ namespace IoTClient.Clients.Modbus
         protected override Result Connect()
         {
             var result = new Result();
-            socket?.Close();
+            socket?.SafeClose();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -72,15 +72,17 @@ namespace IoTClient.Clients.Modbus
 
                 //连接
                 socket.Connect(ipAndPoint);
-                return result.EndTime();
             }
             catch (Exception ex)
             {
                 socket?.SafeClose();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                return result.EndTime();
+                result.ErrCode = 408;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
             }
+            return result.EndTime();
         }
 
         #region 发送报文，并获取响应报文

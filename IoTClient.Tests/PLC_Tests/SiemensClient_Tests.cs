@@ -1,11 +1,11 @@
 ﻿using IoTClient.Clients.PLC;
 using IoTClient.Common.Enums;
-using System.Net;
-using Xunit;
-using IoTServer.Common;
-using System.Collections.Generic;
 using IoTClient.Enums;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using Xunit;
 
 namespace IoTClient.Tests.PLCTests
 {
@@ -24,80 +24,101 @@ namespace IoTClient.Tests.PLCTests
         [Fact]
         public void 短连接自动开关()
         {
-            var value = true;
-            var result = client.Write("Q1.3", value);
-            Assert.True(client.ReadBoolean("Q1.3").Value);
-            value = false;
-            client.Write("Q1.3", value);
-            Assert.False(client.ReadBoolean("Q1.3").Value);
+            Random rnd = new Random((int)Stopwatch.GetTimestamp());
+            for (int i = 0; i < 100; i++)
+            {
+                short short_number = (short)rnd.Next(short.MinValue, short.MaxValue);
+                ushort short_number_1 = (ushort)rnd.Next(ushort.MinValue, ushort.MaxValue);
 
-            short value_short = 11;
-            client.Write("V2205", value_short);
-            Assert.True(client.ReadInt16("V2205").Value == value_short);
+                int int_number = rnd.Next(int.MinValue, int.MaxValue);
+                uint int_number_1 = (uint)rnd.Next(0, int.MaxValue);
 
-            short value_short_1 = -11;
-            client.Write("V2205", value_short_1);
-            Assert.True(client.ReadInt16("V2205").Value == value_short_1);
+                float float_number = int_number / 100;
+                var bool_value = short_number % 2 == 1;
 
-            int value_int = 33;
-            client.Write("V2205", value_int);
-            Assert.True(client.ReadInt32("V2205").Value == value_int);
+                string value_string = "BennyZhao"+ float_number;
 
-            long value_long = 44;
-            client.Write("V2205", value_long);
-            Assert.True(client.ReadInt64("V2205").Value == value_long);
+                client.Write("Q1.3", bool_value);
+                Assert.True(client.ReadBoolean("Q1.3").Value == bool_value);
+                client.Write("Q1.4", bool_value);
+                Assert.True(client.ReadBoolean("Q1.4").Value == bool_value);
+                client.Write("Q1.5", !bool_value);
+                Assert.True(client.ReadBoolean("Q1.5").Value == !bool_value);
 
-            float value_float = 44.5f;
-            client.Write("V2205", value_float);
-            Assert.True(client.ReadFloat("V2205").Value == value_float);
+                client.Write("V100", short_number);
+                Assert.True(client.ReadInt16("V100").Value == short_number);
+                client.Write("V100", short_number_1);
+                Assert.True(client.ReadUInt16("V100").Value == short_number_1);
 
-            double value_double = 44.5d;
-            client.Write("V2205", value_double);
-            Assert.True(client.ReadDouble("V2205").Value == value_double);
+                client.Write("V100", int_number);
+                Assert.True(client.ReadInt32("V100").Value == int_number);
+                client.Write("V100", int_number_1);
+                Assert.True(client.ReadUInt32("V100").Value == int_number_1);
 
-            string value_string = "BennyZhao";
-            client.Write("V2205", value_string);
-            Assert.True(client.ReadString("V2205").Value == value_string);
+                client.Write("V100", Convert.ToInt64(int_number));
+                Assert.True(client.ReadInt64("V100").Value == Convert.ToInt64(int_number));
+                client.Write("V100", Convert.ToUInt64(int_number_1));
+                Assert.True(client.ReadUInt64("V100").Value == Convert.ToUInt64(int_number_1));
+
+                client.Write("V200", float_number);
+                Assert.True(client.ReadFloat("V200").Value == float_number);
+                client.Write("V300", Convert.ToDouble(float_number));
+                Assert.True(client.ReadDouble("V300").Value == Convert.ToDouble(float_number));
+                 
+                client.Write("V2205", value_string);
+                Assert.True(client.ReadString("V2205").Value == value_string);
+            }
         }
 
         [Fact]
         public void 长连接主动开关()
         {
             client.Open();
-            var value = true;
-            client.Write("Q1.3", value);
-            Assert.True(client.ReadBoolean("Q1.3").Value);
-            value = false;
-            client.Write("Q1.3", value);
-            Assert.False(client.ReadBoolean("Q1.3").Value);
 
-            short value_short = 11;
-            client.Write("V2205", value_short);
-            Assert.True(client.ReadInt16("V2205").Value == value_short);
+            Random rnd = new Random((int)Stopwatch.GetTimestamp());
+            for (int i = 0; i < 100; i++)
+            {
+                short short_number = (short)rnd.Next(short.MinValue, short.MaxValue);
+                ushort short_number_1 = (ushort)rnd.Next(ushort.MinValue, ushort.MaxValue);
 
-            short value_short_1 = -11;
-            client.Write("V2205", value_short_1);
-            Assert.True(client.ReadInt16("V2205").Value == value_short_1);
+                int int_number = rnd.Next(int.MinValue, int.MaxValue);
+                uint int_number_1 = (uint)rnd.Next(0, int.MaxValue);
 
-            int value_int = 33;
-            client.Write("V2205", value_int);
-            Assert.True(client.ReadInt32("V2205").Value == value_int);
+                float float_number = int_number / 100;
+                var bool_value = short_number % 2 == 1;
 
-            long value_long = 44;
-            client.Write("V2205", value_long);
-            Assert.True(client.ReadInt64("V2205").Value == value_long);
+                string value_string = "BennyZhao" + float_number;
 
-            float value_float = 44.5f;
-            client.Write("V2205", value_float);
-            Assert.True(client.ReadFloat("V2205").Value == value_float);
+                client.Write("Q1.3", bool_value);
+                Assert.True(client.ReadBoolean("Q1.3").Value == bool_value);
+                client.Write("Q1.4", bool_value);
+                Assert.True(client.ReadBoolean("Q1.4").Value == bool_value);
+                client.Write("Q1.5", !bool_value);
+                Assert.True(client.ReadBoolean("Q1.5").Value == !bool_value);
 
-            double value_double = 44.5d;
-            client.Write("V2205", value_double);
-            Assert.True(client.ReadDouble("V2205").Value == value_double);
+                client.Write("V100", short_number);
+                Assert.True(client.ReadInt16("V100").Value == short_number);
+                client.Write("V100", short_number_1);
+                Assert.True(client.ReadUInt16("V100").Value == short_number_1);
 
-            string value_string = "BennyZhao";
-            client.Write("V2205", value_string);
-            Assert.True(client.ReadString("V2205").Value == value_string);
+                client.Write("V100", int_number);
+                Assert.True(client.ReadInt32("V100").Value == int_number);
+                client.Write("V100", int_number_1);
+                Assert.True(client.ReadUInt32("V100").Value == int_number_1);
+
+                client.Write("V100", Convert.ToInt64(int_number));
+                Assert.True(client.ReadInt64("V100").Value == Convert.ToInt64(int_number));
+                client.Write("V100", Convert.ToUInt64(int_number_1));
+                Assert.True(client.ReadUInt64("V100").Value == Convert.ToUInt64(int_number_1));
+
+                client.Write("V200", float_number);
+                Assert.True(client.ReadFloat("V200").Value == float_number);
+                client.Write("V300", Convert.ToDouble(float_number));
+                Assert.True(client.ReadDouble("V300").Value == Convert.ToDouble(float_number));
+
+                client.Write("V2205", value_string);
+                Assert.True(client.ReadString("V2205").Value == value_string);
+            }
 
             client?.Close();
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IoTClient.Models
+namespace IoTClient
 {
     /// <summary>
     /// 请求结果
@@ -49,6 +49,16 @@ namespace IoTClient.Models
         public string Response { get; set; }
 
         /// <summary>
+        /// 请求报文2
+        /// </summary>
+        public string Requst2 { get; set; }
+
+        /// <summary>
+        /// 响应报文2
+        /// </summary>
+        public string Response2 { get; set; }
+
+        /// <summary>
         /// 耗时（毫秒）
         /// </summary>
         public double? TimeConsuming { get; private set; }
@@ -66,6 +76,21 @@ namespace IoTClient.Models
         /// 开始时间
         /// </summary>
         public DateTime InitialTime { get; protected set; } = DateTime.Now;
+
+        /// <summary>
+        /// 设置异常信息和Succeed状态
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public Result SetErrInfo(Result result)
+        {
+            IsSucceed = result.IsSucceed;
+            Err = result.Err;
+            ErrList = result.ErrList;
+            ErrCode = result.ErrCode;
+            Exception = result.Exception;
+            return this;
+        }
     }
 
     /// <summary>
@@ -120,6 +145,17 @@ namespace IoTClient.Models
             Response = result.Response;
             Exception = result.Exception;
             ErrCode = result.ErrCode;
+        }
+
+        /// <summary>
+        /// 设置异常信息和Succeed状态
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public new Result<T> SetErrInfo(Result result)
+        {
+            base.SetErrInfo(result);
+            return this;
         }
     }
 }

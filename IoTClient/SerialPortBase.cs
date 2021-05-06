@@ -45,10 +45,14 @@ namespace IoTClient
             }
             catch (Exception ex)
             {
+                if (serialPort?.IsOpen ?? false) serialPort?.Close();
                 result.IsSucceed = false;
                 result.Err = ex.Message;
+                result.ErrCode = 408;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
             }
-            return result;
+            return result.EndTime();
         }
 
         /// <summary>
@@ -103,7 +107,7 @@ namespace IoTClient
             {
                 //延时处理
                 Thread.Sleep(20);
-            }          
+            }
             byte[] buffer = new byte[serialPort.BytesToRead];
             var length = serialPort.Read(buffer, 0, buffer.Length);
             //TODO 是否 length 可能 不等于 buffer.Length ??

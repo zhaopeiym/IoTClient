@@ -120,6 +120,35 @@
             </summary>
             <param name="newSocket"></param>
         </member>
+        <member name="M:IoTServer.Servers.PLC.AllenBradleyServer.#ctor(System.Int32,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="port"></param>
+            <param name="ip"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.AllenBradleyServer.Start">
+            <summary>
+            启动服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.AllenBradleyServer.Stop">
+            <summary>
+            停止服务
+            </summary>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.AllenBradleyServer.Accept(System.Net.Sockets.Socket)">
+            <summary>
+            客户端连接到服务端
+            </summary>
+            <param name="socket"></param>
+        </member>
+        <member name="M:IoTServer.Servers.PLC.AllenBradleyServer.Receive(System.Net.Sockets.Socket)">
+            <summary>
+            接收客户端发送的消息
+            </summary>
+            <param name="newSocket"></param>
+        </member>
         <member name="M:IoTServer.Servers.PLC.IIoTServer.Start">
             <summary>
             启动服务

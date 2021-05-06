@@ -1,9 +1,7 @@
-﻿using IoTClient.Core.Models;
-
-namespace IoTClient.Common.Constants
+﻿namespace IoTClient.Common.Constants
 {
     /// <summary>
-    /// 
+    /// Siemens命令常量
     /// </summary>
     public class SiemensConstant
     {
@@ -20,7 +18,7 @@ namespace IoTClient.Common.Constants
             0x03,0x00,0x00,0x16,0x11,0xE0,0x00,0x00,
             0x00,0x01,0x00,0xC0,0x01,0x0A,0xC1,0x02,
             0x01,0x02,0xC2,0x02,0x01,0x00
-        };       
+        };
 
         /// <summary>
         /// 第二次初始化指令交互报文
