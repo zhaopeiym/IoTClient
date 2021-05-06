@@ -55,7 +55,7 @@ client.ReadFloat("24", stationNumber, 3);   //float type data read
 client.ReadDouble("28", stationNumber, 3);  //double type data read
 client.ReadCoil("32", stationNumber, 1);    //Coil type data read
 client.ReadDiscrete("32", stationNumber, 2);//Discrete type data read
-client.ReadString("100", stationNumber,10); //Read string
+client.ReadString("100", stationNumber,readLength:10); //Read string
 
 //4、If there is no active Open, it will automatically open and close the connection every time you read and write operations, which will greatly reduce the efficiency of reading and writing. So it is recommended to open and close manually.
 client.Open();
