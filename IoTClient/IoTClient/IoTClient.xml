@@ -1299,7 +1299,7 @@
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
             <param name="encoding">编码</param>
-            <param name="readLength">编码</param>
+            <param name="readLength">读取长度</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadCoil(System.String,System.Byte,System.Byte)">
@@ -2570,22 +2570,13 @@
             <param name="command"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.Read(System.String,System.UInt16,System.Boolean)">
             <summary>
             读取字节数组
             </summary>
             <param name="address">地址</param>
             <param name="length">读取长度</param>
-            <param name="isBit">是否Bit类型</param>
-            <param name="setEndian">暂未使用</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadString(System.String,System.UInt16)">
-            <summary>
-            读取字符串
-            </summary>
-            <param name="address">地址</param>
-            <param name="length">读取长度</param>
+            <param name="isBit">是否Bit类型</param>        
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
@@ -2639,6 +2630,13 @@
             </summary>
             <param name="address">地址</param>
             <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt16(System.String,System.Action{System.Int16,System.Boolean,System.String})">
+            <summary>
+            定时读取，回调更新
+            </summary>
+            <param name="address"></param>
+            <param name="action"></param>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadInt16(System.String,System.UInt16)">
             <summary>
@@ -2758,6 +2756,14 @@
             读取String
             </summary>
             <param name="address">地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.ReadString(System.String,System.UInt16)">
+            <summary>
+            读取字符串
+            </summary>
+            <param name="address">地址</param>
+            <param name="length">读取长度</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object})">
@@ -3428,15 +3434,6 @@
             <param name="batchNumber">批量读取数量</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
-            <summary>
-            读取数据
-            </summary>
-            <param name="address">地址</param>
-            <param name="length"></param>
-            <param name="isBit"></param>
-            <returns></returns>
-        </member>
         <member name="M:IoTClient.Interfaces.IEthernetClient.ReadByte(System.String)">
             <summary>
             
@@ -3520,15 +3517,6 @@
             </summary>
             <param name="addresses">地址集合</param>
             <param name="batchNumber">批量读取数量</param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Byte[],System.Boolean)">
-            <summary>
-            写入数据
-            </summary>
-            <param name="address">地址</param>
-            <param name="data">值</param>
-            <param name="isBit">值</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Byte)">

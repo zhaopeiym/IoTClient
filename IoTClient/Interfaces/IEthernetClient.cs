@@ -60,7 +60,7 @@ namespace IoTClient.Interfaces
         /// <param name="length"></param>
         /// <param name="isBit"></param>
         /// <returns></returns>
-        Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true);
+        //Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true);
 
         /// <summary>
         /// 
@@ -158,7 +158,7 @@ namespace IoTClient.Interfaces
         /// <param name="data">值</param>
         /// <param name="isBit">值</param>
         /// <returns></returns>
-        Result Write(string address, byte[] data, bool isBit = false);
+        //Result Write(string address, byte[] data, bool isBit = false);
 
         /// <summary>
         /// 写入数据

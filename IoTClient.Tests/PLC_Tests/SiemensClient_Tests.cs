@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using Xunit;
 
 namespace IoTClient.Tests.PLCTests
@@ -36,7 +37,7 @@ namespace IoTClient.Tests.PLCTests
                 float float_number = int_number / 100;
                 var bool_value = short_number % 2 == 1;
 
-                string value_string = "BennyZhao"+ float_number;
+                string value_string = "BennyZhao" + float_number;
 
                 client.Write("Q1.3", bool_value);
                 Assert.True(client.ReadBoolean("Q1.3").Value == bool_value);
@@ -64,7 +65,7 @@ namespace IoTClient.Tests.PLCTests
                 Assert.True(client.ReadFloat("V200").Value == float_number);
                 client.Write("V300", Convert.ToDouble(float_number));
                 Assert.True(client.ReadDouble("V300").Value == Convert.ToDouble(float_number));
-                 
+
                 client.Write("V2205", value_string);
                 Assert.True(client.ReadString("V2205").Value == value_string);
             }
@@ -297,6 +298,22 @@ namespace IoTClient.Tests.PLCTests
             var r3 = client.Write("DB1.482.0", false);
             var result2 = client.Write("DB1.434.0", false);
             client.Write("DB1.434.0", true);
+        }
+
+        [Fact]
+        public void 定时更新()
+        {
+            client.ReadInt16("V100", (value,isSucceed,err) =>
+            {
+                Debug.WriteLine($"V100:{value}  err:{err}");
+            });
+
+            client.ReadInt16("V102", (value, isSucceed, err) =>
+            {
+                Debug.WriteLine($"V102:{value}  err:{err}");
+            });
+
+            Thread.Sleep(1000 * 30);
         }
     }
 }

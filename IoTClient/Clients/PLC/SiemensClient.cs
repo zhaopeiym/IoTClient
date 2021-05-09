@@ -11,6 +11,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IoTClient.Clients.PLC
 {
@@ -204,10 +206,9 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         /// <param name="address">地址</param>
         /// <param name="length">读取长度</param>
-        /// <param name="isBit">是否Bit类型</param>
-        /// <param name="setEndian">暂未使用</param>
+        /// <param name="isBit">是否Bit类型</param>        
         /// <returns></returns>
-        public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
+        public Result<byte[]> Read(string address, ushort length, bool isBit = false)
         {
             if (!socket?.Connected ?? true)
             {
@@ -236,71 +237,6 @@ namespace IoTClient.Clients.PLC
                 Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 result.Value = responseData.Reverse().ToArray();
-            }
-            catch (SocketException ex)
-            {
-                result.IsSucceed = false;
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
-                }
-                else
-                {
-                    result.Err = ex.Message;
-                    result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
-                }
-                socket?.SafeClose();
-            }
-            catch (Exception ex)
-            {
-                result.IsSucceed = false;
-                result.Err = ex.Message;
-                result.Exception = ex;
-                result.ErrList.Add(ex.Message);
-                socket?.SafeClose();
-            }
-            finally
-            {
-                if (isAutoOpen) Dispose();
-            }
-            return result.EndTime();
-        }
-
-        /// <summary>
-        /// 读取字符串
-        /// </summary>
-        /// <param name="address">地址</param>
-        /// <param name="length">读取长度</param>
-        /// <returns></returns>
-        public Result<byte[]> ReadString(string address, ushort length)
-        {
-            if (!socket?.Connected ?? true)
-            {
-                var connectResult = Connect();
-                if (!connectResult.IsSucceed)
-                {
-                    return new Result<byte[]>(connectResult);
-                }
-            }
-            var result = new Result<byte[]>();
-            try
-            {
-                //发送读取信息
-                var arg = ConvertArg(address);
-                arg.ReadWriteLength = length;
-                byte[] command = GetReadCommand(arg);
-                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var sendResult = SendPackage(command);
-                if (!sendResult.IsSucceed)
-                    return result.SetErrInfo(sendResult).EndTime();
-
-                var dataPackage = sendResult.Value;
-                byte[] requst = new byte[length];
-                Array.Copy(dataPackage, 25, requst, 0, length);
-                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-                result.Value = requst;
             }
             catch (SocketException ex)
             {
@@ -570,6 +506,31 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
             return result.EndTime();
+        }
+
+        /// <summary>
+        /// 定时读取，回调更新
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="action"></param>
+        public void ReadInt16(string address, Action<short, bool, string> action)
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        Thread.Sleep(400);
+                        var value = ReadInt16(address);
+                        action(value.Value, value.IsSucceed, value.Err);
+                    }
+                    catch (Exception ex)
+                    {
+                        action(0, false, ex.Message);
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -903,6 +864,70 @@ namespace IoTClient.Clients.PLC
             //return Encoding.ASCII.GetString(, 1, length[0]);
         }
 
+        /// <summary>
+        /// 读取字符串
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="length">读取长度</param>
+        /// <returns></returns>
+        public Result<byte[]> ReadString(string address, ushort length)
+        {
+            if (!socket?.Connected ?? true)
+            {
+                var connectResult = Connect();
+                if (!connectResult.IsSucceed)
+                {
+                    return new Result<byte[]>(connectResult);
+                }
+            }
+            var result = new Result<byte[]>();
+            try
+            {
+                //发送读取信息
+                var arg = ConvertArg(address);
+                arg.ReadWriteLength = length;
+                byte[] command = GetReadCommand(arg);
+                result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
+                var sendResult = SendPackage(command);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+
+                var dataPackage = sendResult.Value;
+                byte[] requst = new byte[length];
+                Array.Copy(dataPackage, 25, requst, 0, length);
+                result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+                result.Value = requst;
+            }
+            catch (SocketException ex)
+            {
+                result.IsSucceed = false;
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    result.Err = "连接超时";
+                    result.ErrList.Add("连接超时");
+                }
+                else
+                {
+                    result.Err = ex.Message;
+                    result.Exception = ex;
+                    result.ErrList.Add(ex.Message);
+                }
+                socket?.SafeClose();
+            }
+            catch (Exception ex)
+            {
+                result.IsSucceed = false;
+                result.Err = ex.Message;
+                result.Exception = ex;
+                result.ErrList.Add(ex.Message);
+                socket?.SafeClose();
+            }
+            finally
+            {
+                if (isAutoOpen) Dispose();
+            }
+            return result.EndTime();
+        }
         #endregion
 
         #region Write
