@@ -2540,21 +2540,35 @@
             为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.Net.IPEndPoint,System.Int32)">
+        <member name="P:IoTClient.Clients.PLC.SiemensClient.Slot">
+            <summary>
+            PLC的槽号 
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.SiemensClient.Rack">
+            <summary>
+            PLC的机架号
+            </summary>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.Net.IPEndPoint,System.Byte,System.Byte,System.Int32)">
             <summary>
             构造函数
             </summary>
             <param name="version">CPU版本</param>
             <param name="ipAndPoint">IP地址和端口号</param>
             <param name="timeout">超时时间</param>
+            <param name="slot">PLC的槽号</param>
+            <param name="rack">PLC的机架号</param>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.String,System.Int32,System.Int32)">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.String,System.Int32,System.Byte,System.Byte,System.Int32)">
             <summary>
             构造函数
             </summary>
             <param name="version">CPU版本</param>
             <param name="ip">IP地址</param>
             <param name="port">端口号</param>
+            <param name="slot">PLC的槽号</param>
+            <param name="rack">PLC的机架号</param>
             <param name="timeout">超时时间</param>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.Connect">

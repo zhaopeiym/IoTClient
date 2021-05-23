@@ -50,13 +50,27 @@ namespace IoTClient.Clients.PLC
         public LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
+        /// 插槽号 
+        /// </summary>
+        public byte Slot { get; private set; }
+
+        /// <summary>
+        /// 机架号
+        /// </summary>
+        public byte Rack { get; private set; }
+
+        /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="version">CPU版本</param>
         /// <param name="ipAndPoint">IP地址和端口号</param>
         /// <param name="timeout">超时时间</param>
-        public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint, int timeout = 1500)
+        /// <param name="slot">PLC的插槽号</param>
+        /// <param name="rack">PLC的机架号</param>
+        public SiemensClient(SiemensVersion version, IPEndPoint ipAndPoint, byte slot = 0x00, byte rack = 0x00, int timeout = 1500)
         {
+            Slot = slot;
+            Rack = rack;
             this.version = version;
             IpAndPoint = ipAndPoint;
             this.timeout = timeout;
@@ -68,9 +82,13 @@ namespace IoTClient.Clients.PLC
         /// <param name="version">CPU版本</param>
         /// <param name="ip">IP地址</param>
         /// <param name="port">端口号</param>
+        /// <param name="slot">PLC的槽号</param>
+        /// <param name="rack">PLC的机架号</param>
         /// <param name="timeout">超时时间</param>
-        public SiemensClient(SiemensVersion version, string ip, int port, int timeout = 1500)
+        public SiemensClient(SiemensVersion version, string ip, int port, byte slot = 0x00, byte rack = 0x00, int timeout = 1500)
         {
+            Slot = slot;
+            Rack = rack;
             this.version = version;
             IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
             this.timeout = timeout;
@@ -111,17 +129,17 @@ namespace IoTClient.Clients.PLC
                         Command2 = SiemensConstant.Command2_200Smart;
                         break;
                     case SiemensVersion.S7_300:
-                        Command1[21] = 0x02;
+                        Command1[21] = (byte)((Rack * 0x20) + Slot); //0x02;
                         break;
                     case SiemensVersion.S7_400:
-                        Command1[21] = 0x03;
+                        Command1[21] = (byte)((Rack * 0x20) + Slot); //0x03;
                         Command1[17] = 0x00;
                         break;
                     case SiemensVersion.S7_1200:
-                        Command1[21] = 0x00;
+                        Command1[21] = (byte)((Rack * 0x20) + Slot); //0x00;
                         break;
                     case SiemensVersion.S7_1500:
-                        Command1[21] = 0x00;
+                        Command1[21] = (byte)((Rack * 0x20) + Slot); //0x00;
                         break;
                     default:
                         Command1[18] = 0x00;
