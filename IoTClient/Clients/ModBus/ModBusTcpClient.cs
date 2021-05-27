@@ -21,7 +21,7 @@ namespace IoTClient.Clients.Modbus
 
         /// <summary>
         /// 警告日志委托
-        /// 为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
         /// </summary>
         public LoggerDelegate WarningLog { get; set; }
 

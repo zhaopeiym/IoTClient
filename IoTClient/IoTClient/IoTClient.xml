@@ -2542,12 +2542,12 @@
         </member>
         <member name="P:IoTClient.Clients.PLC.SiemensClient.Slot">
             <summary>
-            PLC的槽号 
+            插槽号 
             </summary>
         </member>
         <member name="P:IoTClient.Clients.PLC.SiemensClient.Rack">
             <summary>
-            PLC的机架号
+            机架号
             </summary>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.Net.IPEndPoint,System.Byte,System.Byte,System.Int32)">
@@ -2557,7 +2557,7 @@
             <param name="version">CPU版本</param>
             <param name="ipAndPoint">IP地址和端口号</param>
             <param name="timeout">超时时间</param>
-            <param name="slot">PLC的槽号</param>
+            <param name="slot">PLC的插槽号</param>
             <param name="rack">PLC的机架号</param>
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.#ctor(IoTClient.Common.Enums.SiemensVersion,System.String,System.Int32,System.Byte,System.Byte,System.Int32)">

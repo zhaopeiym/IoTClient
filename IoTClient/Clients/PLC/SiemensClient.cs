@@ -255,6 +255,29 @@ namespace IoTClient.Clients.PLC
                 Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 result.Value = responseData.Reverse().ToArray();
+
+                //0x04 读 0x01 读取一个长度 //如果是批量读取，批量读取方法里面有验证
+                if (dataPackage[19] == 0x04 && dataPackage[20] == 0x01)
+                {
+                    if (dataPackage[21] == 0x0A && dataPackage[22] == 0x00)
+                    {
+                        result.IsSucceed = false;
+                        result.Err = $"读取{address}失败，请确认是否存在地址{address}";
+                        result.ErrList.Add(result.Err);
+                    }
+                    else if (dataPackage[21] == 0x05 && dataPackage[22] == 0x00)
+                    {
+                        result.IsSucceed = false;
+                        result.Err = $"读取{address}失败，请确认是否存在地址{address}";
+                        result.ErrList.Add(result.Err);
+                    }
+                    else if (dataPackage[21] != 0xFF)
+                    {
+                        result.IsSucceed = false;
+                        result.Err = $"读取{address}失败，异常代码[{21}]:{dataPackage[21]}";
+                        result.ErrList.Add(result.Err);
+                    }
+                }
             }
             catch (SocketException ex)
             {
@@ -303,18 +326,21 @@ namespace IoTClient.Clients.PLC
             {
                 var tempAddresses = addresses.Skip(i * batchNumber).Take(batchNumber).ToDictionary(t => t.Key, t => t.Value);
                 var tempResult = BatchRead(tempAddresses);
-                if (tempResult.IsSucceed)
-                {
-                    foreach (var item in tempResult.Value)
-                    {
-                        result.Value.Add(item.Key, item.Value);
-                    }
-                }
-                else
+                if (!tempResult.IsSucceed)
                 {
                     result.IsSucceed = false;
                     result.Err = tempResult.Err;
+                    result.ErrList.AddRange(tempResult.ErrList);
+                    result.Exception = tempResult.Exception;
                 }
+
+                foreach (var item in tempResult.Value)
+                {
+                    result.Value.Add(item.Key, item.Value);
+                }
+
+                result.Requst = tempResult.Requst;
+                result.Response = tempResult.Response;
             }
             return result.EndTime();
         }
@@ -348,9 +374,14 @@ namespace IoTClient.Clients.PLC
                     return new Result<Dictionary<string, object>>(sendResult);
 
                 var dataPackage = sendResult.Value;
+
+                //2021.5.27注释，直接使用【var length = dataPackage.Length - 21】代替。
                 //DataType类型为Bool的时候需要读取两个字节
-                var length = args.Sum(t => t.ReadWriteLength == 1 ? 2 : t.ReadWriteLength) + args.Length * 4;
-                if (args.Last().ReadWriteLength == 1) length--;//最后一个如果是 ReadWriteLength == 1  ，结果会少一个字节。
+                //var length = args.Sum(t => t.ReadWriteLength == 1 ? 2 : t.ReadWriteLength) + args.Length * 4;
+                //if (args.Last().ReadWriteLength == 1) length--;//最后一个如果是 ReadWriteLength == 1  ，结果会少一个字节。
+
+                var length = dataPackage.Length - 21;
+
                 byte[] responseData = new byte[length];
 
                 Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
@@ -360,7 +391,35 @@ namespace IoTClient.Clients.PLC
                 foreach (var item in args)
                 {
                     object value;
+
+                    var isSucceed = true;
+                    if (responseData[cursor] == 0x0A && responseData[cursor + 1] == 0x00)
+                    {
+                        isSucceed = false;
+                        result.Err = $"读取{item.Address}失败，请确认是否存在地址{item.Address}";
+
+                    }
+                    else if (responseData[cursor] == 0x05 && responseData[cursor + 1] == 0x00)
+                    {
+                        isSucceed = false;
+                        result.Err = $"读取{item.Address}失败，请确认是否存在地址{item.Address}";
+                    }
+                    else if (responseData[cursor] != 0xFF)
+                    {
+                        isSucceed = false;
+                        result.Err = $"读取{item.Address}失败，异常代码[{cursor}]:{responseData[cursor]}";
+                    }
+
                     cursor += 4;
+
+                    //如果本次读取有异常
+                    if (!isSucceed)
+                    {
+                        result.IsSucceed = false;
+                        result.ErrList.Add(result.Err);
+                        continue;
+                    }
+
                     var readResut = responseData.Skip(cursor).Take(item.ReadWriteLength).Reverse().ToArray();
                     cursor += item.ReadWriteLength == 1 ? 2 : item.ReadWriteLength;
                     switch (item.DataType)
@@ -1020,6 +1079,38 @@ namespace IoTClient.Clients.PLC
 
                 var dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+
+                if (dataPackage.Length == arg.Length + 21)
+                {
+                    for (int i = 0; i < arg.Length; i++)
+                    {
+                        var offset = 21 + i;
+                        if (dataPackage[offset] == 0x0A)
+                        {
+                            result.IsSucceed = false;
+                            result.Err = $"写入{arg[i].Address}失败，请确认是否存在地址{arg[i].Address}，异常代码[{offset}]:{dataPackage[offset]}";
+                            result.ErrList.Add(result.Err);
+                        }
+                        else if (dataPackage[offset] == 0x05)
+                        {
+                            result.IsSucceed = false;
+                            result.Err = $"写入{arg[i].Address}失败，请确认是否存在地址{arg[i].Address}，异常代码[{offset}]:{dataPackage[offset]}";
+                            result.ErrList.Add(result.Err);
+                        }
+                        else if (dataPackage[offset] != 0xFF)
+                        {
+                            result.IsSucceed = false;
+                            result.Err = $"写入{arg[i].Address}失败，异常代码[{offset}]:{dataPackage[offset]}";
+                            result.ErrList.Add(result.Err);
+                        }
+                    }
+                }
+                else
+                {
+                    result.IsSucceed = false;
+                    result.Err = $"写入数据数量和响应结果数量不一致，写入数据：{arg.Length} 响应数量：{dataPackage.Length - 21}";
+                    result.ErrList.Add(result.Err);
+                }
             }
             catch (SocketException ex)
             {
@@ -1071,7 +1162,10 @@ namespace IoTClient.Clients.PLC
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Err = tempResult.Err;
+                    result.ErrList.AddRange(tempResult.ErrList);
                 }
+                result.Requst = tempResult.Requst;
+                result.Response = tempResult.Response;
             }
             return result.EndTime();
         }
@@ -1087,60 +1181,6 @@ namespace IoTClient.Clients.PLC
             Dictionary<string, object> writeAddresses = new Dictionary<string, object>();
             writeAddresses.Add(address, value);
             return BatchWrite(writeAddresses);
-
-            #region 注释
-            //if (!socket?.Connected ?? true)
-            //{
-            //    var connectResult = Connect();
-            //    if (!connectResult.IsSucceed)
-            //    {
-            //        return connectResult;
-            //    }
-            //}
-            //Result result = new Result();
-            //try
-            //{               
-            //    //发送写入信息
-            //    var arg = ConvertWriteArg(address, value ? new byte[1] { 0x01 } : new byte[1] { 0x00 }, true);
-            //    byte[] command = GetWriteCommand(arg);
-            //    result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-            //    var sendResult = SendPackage(command);
-            //    if (!sendResult.IsSucceed)
-            //        return sendResult;
-
-            //    var dataPackage = sendResult.Value;
-            //    result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
-            //}
-            //catch (SocketException ex)
-            //{
-            //    result.IsSucceed = false;
-            //    if (ex.SocketErrorCode == SocketError.TimedOut)
-            //    {
-            //        result.Err = "连接超时";
-            //        result.ErrList.Add("连接超时");
-            //    }
-            //    else
-            //    {
-            //        result.Err = ex.Message;
-            //        result.Exception = ex;
-            //        result.ErrList.Add(ex.Message);
-            //    }
-            //    socket?.SafeClose();
-            //}
-            //catch (Exception ex)
-            //{
-            //    result.IsSucceed = false;
-            //    result.Err = ex.Message;
-            //    result.Exception = ex;
-            //    result.ErrList.Add(ex.Message);
-            //    socket?.SafeClose();
-            //}
-            //finally
-            //{
-            //    if (isAutoOpen) Dispose();
-            //}
-            //return result.EndTime(); 
-            #endregion
         }
 
         /// <summary>
@@ -1174,6 +1214,26 @@ namespace IoTClient.Clients.PLC
 
                 var dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
+
+                var offset = dataPackage.Length - 1;
+                if (dataPackage[offset] == 0x0A)
+                {
+                    result.IsSucceed = false;
+                    result.Err = $"写入{address}失败，请确认是否存在地址{address}，异常代码[{offset}]:{dataPackage[offset]}";
+                    result.ErrList.Add(result.Err);
+                }
+                else if (dataPackage[offset] == 0x05)
+                {
+                    result.IsSucceed = false;
+                    result.Err = $"写入{address}失败，请确认是否存在地址{address}，异常代码[{offset}]:{dataPackage[offset]}";
+                    result.ErrList.Add(result.Err);
+                }
+                else if (dataPackage[offset] != 0xFF)
+                {
+                    result.IsSucceed = false;
+                    result.Err = $"写入{address}失败，异常代码[{offset}]:{dataPackage[offset]}";
+                    result.ErrList.Add(result.Err);
+                }
             }
             catch (SocketException ex)
             {
