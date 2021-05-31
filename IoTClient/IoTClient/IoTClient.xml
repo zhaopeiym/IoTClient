@@ -366,7 +366,7 @@
         <member name="P:IoTClient.Clients.Modbus.IModbusClient.WarningLog">
             <summary>
             警告日志委托
-            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.SendPackage(System.Byte[])">
@@ -1111,7 +1111,7 @@
         <member name="P:IoTClient.Clients.Modbus.ModbusTcpClient.WarningLog">
             <summary>
             警告日志委托
-            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat)">
@@ -3425,7 +3425,7 @@
         <member name="P:IoTClient.Interfaces.IEthernetClient.WarningLog">
             <summary>
             警告日志委托
-            为了可用性，会对异常网络已经进行重试。此类日志通过委托接口给出去。
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="M:IoTClient.Interfaces.IEthernetClient.Open">

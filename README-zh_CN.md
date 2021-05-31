@@ -12,14 +12,38 @@ IoTClient
 - 开发工具：Visual Studio 2019 
 - QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
 
+## 文档目录
+<!-- TOC -->
+- [使用说明](#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
+    - [引用组件](#%E5%BC%95%E7%94%A8%E7%BB%84%E4%BB%B6)
+    - [ModBusTcp读写操作](#modbustcp%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [ModBusRtu读写操作](#modbusrtu%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [ModBusAscii读写操作](#modbusascii%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [ModbusRtuOverTcp读写操作](#modbusrtuovertcp%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [SiemensClient(西门子)读写操作](#siemensclient%E8%A5%BF%E9%97%A8%E5%AD%90%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [注意：关于Siemens的PLC地址](#%E6%B3%A8%E6%84%8F%E5%85%B3%E4%BA%8Esiemens%E7%9A%84plc%E5%9C%B0%E5%9D%80)
+    - [SiemensClient最佳实践](#siemensclient%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5)
+    - [MitsubishiClient(三菱)读写操作](#mitsubishiclient%E4%B8%89%E8%8F%B1%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [OmronFinsClient(欧姆龙)读写操作](#omronfinsclient%E6%AC%A7%E5%A7%86%E9%BE%99%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+    - [AllenBradleyClient(罗克韦尔)读写操作](#allenbradleyclient%E7%BD%97%E5%85%8B%E9%9F%A6%E5%B0%94%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
+- [基于IoTClient库的一些项目](#%E5%9F%BA%E4%BA%8Eiotclient%E5%BA%93%E7%9A%84%E4%B8%80%E4%BA%9B%E9%A1%B9%E7%9B%AE)
+    - [IoTClient Tool 桌面程序工具（开源）](#iotclient-tool-%E6%A1%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E5%B7%A5%E5%85%B7%E5%BC%80%E6%BA%90)        
+    - [能源管理系统（商用）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
+        - [能源管理（现场-单项目）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%8E%B0%E5%9C%BA-%E5%8D%95%E9%A1%B9%E7%9B%AE)
+        - [能源管理（云端-多项目）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E4%BA%91%E7%AB%AF-%E5%A4%9A%E9%A1%B9%E7%9B%AE)
+        - [能源管理（移动端）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+    - [海底捞末端控制（商用）](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6%E5%95%86%E7%94%A8)
+        - [海底捞末端控制-web](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-web)
+        - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+
+<!-- /TOC -->
+
 # 使用说明
+
 ## 引用组件
 [Nuget安装](https://www.nuget.org/packages/IoTClient/) ```Install-Package IoTClient ```  
 或图形化安装   
 ![image](https://user-images.githubusercontent.com/5820324/68722366-2fc5bf00-05f0-11ea-8282-f2b0a58a9f9d.png)  
-
-<details>
-<summary>ModBusTcp读写操作（点击展开）</summary>
 
 ## ModBusTcp读写操作
 ```
@@ -104,11 +128,6 @@ ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502, 1500, EndianForma
 ``` 
 ModBusTcp更多使用方式，请参考[单元测试](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)  
 
-</details>
-
-<details>
-<summary>ModBusRtu读写操作</summary>
-
 ## ModBusRtu读写操作
 ```
 //实例化客户端 - [COM端口名称,波特率,数据位,停止位,奇偶校验]
@@ -116,10 +135,6 @@ ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Pari
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
-</details>
-
-<details>
-<summary>ModBusAscii读写操作</summary>
 
 ## ModBusAscii读写操作
 ```
@@ -128,10 +143,6 @@ ModbusAsciiClient client = new ModbusAsciiClient("COM3", 9600, 8, StopBits.One, 
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
-</details>
-
-<details>
-<summary>ModbusRtuOverTcp读写操作</summary>
 
 ## ModbusRtuOverTcp读写操作
 ```
@@ -142,10 +153,6 @@ ModbusRtuOverTcpClient client = new ModbusRtuOverTcpClient("127.0.0.1", 502, 150
 
 //其他读写操作和ModBusTcpClient的读写操作一致
 ```
-</details>
-
-<details>
-<summary>SiemensClient(西门子)读写操作</summary>
 
 ## SiemensClient(西门子)读写操作
 ```
@@ -180,10 +187,6 @@ var response = result.Response;
 var value4 = result.Value;
 
 ```
-</details>
-
-<details>
-<summary>注意：关于Siemens的PLC地址</summary>
 
 ## 注意：关于Siemens的PLC地址
 ```
@@ -203,10 +206,6 @@ DB1.DBD0    - client.ReadFloat("DB1.0")
 |byte | VB1 | DB1.DBB1
 |shor <br> ushort  | VW2 | DB1.DBW2
 |int <br> uint <br> float | VD4 | DB1.DBD4
-</details>
-
-<details>
-<summary>SiemensClient最佳实践</summary>
 
 ## SiemensClient最佳实践
 ```
@@ -240,10 +239,6 @@ client.Write("DB4.12", (float)9);   //写入的是float类型
 5、SiemensClient是线程安全类
 由于plc长连接有限，SiemensClient被设计成线程安全类。可以把SiemensClient设置成单例，在多个线程之间使用SiemensClient的实例读写操作plc。
 ```
-</details>
-
-<details>
-<summary>MitsubishiClient(三菱)读写操作</summary>
 
 ## MitsubishiClient(三菱)读写操作
 ```
@@ -276,10 +271,6 @@ var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
 ```
-</details>
-
-<details>
-<summary>OmronFinsClient(欧姆龙)读写操作</summary>
 
 ## OmronFinsClient(欧姆龙)读写操作
 ```
@@ -312,10 +303,6 @@ var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
 ```
-</details>
-
-<details>
-<summary>AllenBradleyClient(罗克韦尔)读写操作</summary>
 
 ## AllenBradleyClient(罗克韦尔)读写操作
 ```
@@ -344,11 +331,10 @@ var response = result.Response;
 //5.5 读取到的值
 var value4 = result.Value;
 ```
-</details>
 
 # 基于IoTClient库的一些项目
-<details>
-<summary>IoTClient Tool 桌面程序工具（开源）</summary>
+
+## IoTClient Tool 桌面程序工具（开源）
 
 ### [IoTClient Tool](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) 桌面程序工具，[开源地址](https://github.com/zhaopeiym/IoTClient.Examples)。     
 
@@ -374,10 +360,8 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/115138606-c73e0580-a05f-11eb-9ca1-5ece1bae8e71.png)  
 
 ![image](https://user-images.githubusercontent.com/5820324/115138607-c86f3280-a05f-11eb-83f1-d1706331406a.png)  
-</details>
 
-<details>
-<summary>能源管理系统（商用）</summary>
+## 能源管理系统（商用）
 
 ### 能源管理（现场-单项目）
 ![image](https://user-images.githubusercontent.com/5820324/117001443-f10c5300-ad14-11eb-8597-bcc6e573c542.png)  
@@ -394,10 +378,7 @@ var value4 = result.Value;
 ### 能源管理（移动端）
 ![image](https://user-images.githubusercontent.com/5820324/116964170-796f0180-acdd-11eb-9514-fd9a05c15eae.png)![image](https://user-images.githubusercontent.com/5820324/116964172-7a079800-acdd-11eb-91ac-13c1a321145d.png)![image](https://user-images.githubusercontent.com/5820324/116964174-7aa02e80-acdd-11eb-8051-158f13ed2993.png)![image](https://user-images.githubusercontent.com/5820324/116964175-7b38c500-acdd-11eb-80b4-97827ee03374.png)![image](https://user-images.githubusercontent.com/5820324/116964177-7c69f200-acdd-11eb-94b8-ddbf5081ddaf.png)![image](https://user-images.githubusercontent.com/5820324/116964179-7d028880-acdd-11eb-95c6-601e235e3b6b.png)![image](https://user-images.githubusercontent.com/5820324/116964181-7d9b1f00-acdd-11eb-9914-911167e0af05.png)
 
-</details>
-
-<details>
-<summary>海底捞末端控制（商用）</summary>
+## 海底捞末端控制（商用）
 
 ### 海底捞末端控制-web
 ![image](https://user-images.githubusercontent.com/5820324/117001939-87d90f80-ad15-11eb-8848-7a4956ba1ce9.png)  
@@ -407,5 +388,3 @@ var value4 = result.Value;
 
 ### 海底捞末端控制-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964517-5002a580-acde-11eb-9bfb-c859a57307c7.png)![image](https://user-images.githubusercontent.com/5820324/116964519-509b3c00-acde-11eb-8245-573ac3fa7f16.png)![image](https://user-images.githubusercontent.com/5820324/116964521-5133d280-acde-11eb-85de-b09dde1ca41e.png)![image](https://user-images.githubusercontent.com/5820324/116964525-51cc6900-acde-11eb-924f-f3320e4a179c.png)
-
-</details>

@@ -12,14 +12,39 @@ IoTClient
 - Development tools：Visual Studio 2019 
 - QQ exchange group：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
 
+## Document directory
+<!-- TOC -->
+
+- [Instructions for use](#instructions-for-use)
+    - [Reference component](#reference-component)
+    - [ModBusTcp read and write operations](#modbustcp-read-and-write-operations)
+    - [ModBusRtu read and write operations](#modbusrtu-read-and-write-operations)
+    - [ModBusAscii read and write operations](#modbusascii-read-and-write-operations)
+    - [ModbusRtuOverTcp read and write operations](#modbusrtuovertcp-read-and-write-operations)
+    - [SiemensClient (Siemens) read and write operations](#siemensclient-siemens-read-and-write-operations)
+    - [Note: About Siemens PLC address](#note-about-siemens-plc-address)
+    - [SiemensClient best practices](#siemensclient-best-practices)
+    - [MitsubishiClient (Mitsubishi) read and write operations](#mitsubishiclient-mitsubishi-read-and-write-operations)
+    - [OmronFinsClient (Omron) read and write operations](#omronfinsclient-omron-read-and-write-operations)
+    - [AllenBradleyClient read and write operations](#allenbradleyclient-read-and-write-operations)
+- [Some projects based on IoTClient library](#some-projects-based-on-iotclient-library)
+    - [IoTClient Tool Desktop program tool (open source)](#iotclient-tool-desktop-program-tool-open-source)
+    - [Energy Management System (Commercial)](#energy-management-system-commercial)
+        - [能源管理（现场-单项目）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%8E%B0%E5%9C%BA-%E5%8D%95%E9%A1%B9%E7%9B%AE)
+        - [能源管理（云端-多项目）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E4%BA%91%E7%AB%AF-%E5%A4%9A%E9%A1%B9%E7%9B%AE)
+        - [能源管理（移动端）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+    - [Haidilao terminal control (commercial)](#haidilao-terminal-control-commercial)
+        - [海底捞末端控制-web](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-web)
+        - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+
+<!-- /TOC -->
+
 # Instructions for use
+
 ## Reference component
 [Nuget installation](https://www.nuget.org/packages/IoTClient/) ```Install-Package IoTClient ```  
 Or graphical installation   
 ![image](https://user-images.githubusercontent.com/5820324/68722366-2fc5bf00-05f0-11ea-8282-f2b0a58a9f9d.png)  
-
-<details>
-<summary>ModBusTcp read and write operations (click to expand)</summary>
 
 ## ModBusTcp read and write operations
 ```
@@ -104,11 +129,6 @@ ModBusTcpClient client = new ModBusTcpClient("127.0.0.1", 502, 1500, EndianForma
 ``` 
 For more usage of ModBusTcp, please refer to [Unit Test](https://github.com/zhaopeiym/IoTClient/blob/master/IoTClient.Tests/Modbus_Tests/ModBusTcpClient_tests.cs)  
 
-</details>
-
-<details>
-<summary>ModBusRtu read and write operations</summary>
-
 ## ModBusRtu read and write operations
 ```
 //Instantiate the client-[COM port name, baud rate, data bits, stop bits, parity]
@@ -116,10 +136,6 @@ ModBusRtuClient client = new ModBusRtuClient("COM3", 9600, 8, StopBits.One, Pari
 
 //Other read and write operations are the same as ModBusTcpClient's read and write operations
 ```
-</details>
-
-<details>
-<summary>ModBusAscii read and write operations</summary>
 
 ## ModBusAscii read and write operations
 ```
@@ -128,10 +144,6 @@ ModbusAsciiClient client = new ModbusAsciiClient("COM3", 9600, 8, StopBits.One, 
 
 //Other read and write operations are the same as ModBusTcpClient's read and write operations
 ```
-</details>
-
-<details>
-<summary>ModbusRtuOverTcp read and write operations</summary>
 
 ## ModbusRtuOverTcp read and write operations
 ```
@@ -142,10 +154,6 @@ ModbusRtuOverTcpClient client = new ModbusRtuOverTcpClient("127.0.0.1", 502, 150
 
 //Other read and write operations are the same as ModBusTcpClient's read and write operations
 ```
-</details>
-
-<details>
-<summary>SiemensClient (Siemens) read and write operations</summary>
 
 ## SiemensClient (Siemens) read and write operations
 ```
@@ -180,10 +188,6 @@ var response = result.Response;
 var value4 = result.Value;
 
 ```
-</details>
-
-<details>
-<summary>Note: About Siemens PLC address</summary>
 
 ## Note: About Siemens PLC address
 ```
@@ -203,10 +207,6 @@ DB1.DBD0    - client.ReadFloat("DB1.0")
 |byte | VB1 | DB1.DBB1
 |shor <br> ushort  | VW2 | DB1.DBW2
 |int <br> uint <br> float | VD4 | DB1.DBD4
-</details>
-
-<details>
-<summary>SiemensClient best practices</summary>
 
 ## SiemensClient best practices
 ```
@@ -240,10 +240,6 @@ client.Write("DB4.12", (float)9);   //What is written is a float type
 5、SiemensClient is a thread safe class
 Due to limited long PLC connections, SiemensClient is designed as a thread-safe class. You can set SiemensClient as a singleton, and use the instance of SiemensClient to read and write PLC between multiple threads.
 ```
-</details>
-
-<details>
-<summary>MitsubishiClient (Mitsubishi) read and write operations</summary>
 
 ## MitsubishiClient (Mitsubishi) read and write operations
 ```
@@ -276,10 +272,6 @@ var response = result.Response;
 //5.5 Read value
 var value4 = result.Value;
 ```
-</details>
-
-<details>
-<summary>OmronFinsClient (Omron) read and write operations</summary>
 
 ## OmronFinsClient (Omron) read and write operations
 ```
@@ -312,10 +304,6 @@ var response = result.Response;
 //5.5 Read value
 var value4 = result.Value;
 ```
-</details>
-
-<details>
-<summary>AllenBradleyClient read and write operations</summary>
 
 ## AllenBradleyClient read and write operations
 ```
@@ -344,11 +332,10 @@ var response = result.Response;
 //5.5 Read value
 var value4 = result.Value;
 ```
-</details>
 
 # Some projects based on IoTClient library
-<details>
-<summary>IoTClient Tool Desktop program tool (open source) </summary>
+
+## IoTClient Tool Desktop program tool (open source)
 
 ### [IoTClient Tool](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) 桌面程序工具，[开源地址](https://github.com/zhaopeiym/IoTClient.Examples)。     
 
@@ -374,10 +361,8 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/115138606-c73e0580-a05f-11eb-9ca1-5ece1bae8e71.png)  
 
 ![image](https://user-images.githubusercontent.com/5820324/115138607-c86f3280-a05f-11eb-83f1-d1706331406a.png)  
-</details>
 
-<details>
-<summary>Energy Management System (Commercial)</summary>
+## Energy Management System (Commercial) 
 
 ### 能源管理（现场-单项目）
 ![image](https://user-images.githubusercontent.com/5820324/117001443-f10c5300-ad14-11eb-8597-bcc6e573c542.png)  
@@ -394,10 +379,7 @@ var value4 = result.Value;
 ### 能源管理（移动端）
 ![image](https://user-images.githubusercontent.com/5820324/116964170-796f0180-acdd-11eb-9514-fd9a05c15eae.png)![image](https://user-images.githubusercontent.com/5820324/116964172-7a079800-acdd-11eb-91ac-13c1a321145d.png)![image](https://user-images.githubusercontent.com/5820324/116964174-7aa02e80-acdd-11eb-8051-158f13ed2993.png)![image](https://user-images.githubusercontent.com/5820324/116964175-7b38c500-acdd-11eb-80b4-97827ee03374.png)![image](https://user-images.githubusercontent.com/5820324/116964177-7c69f200-acdd-11eb-94b8-ddbf5081ddaf.png)![image](https://user-images.githubusercontent.com/5820324/116964179-7d028880-acdd-11eb-95c6-601e235e3b6b.png)![image](https://user-images.githubusercontent.com/5820324/116964181-7d9b1f00-acdd-11eb-9914-911167e0af05.png)
 
-</details>
-
-<details>
-<summary>Haidilao terminal control (commercial)</summary>
+## Haidilao terminal control (commercial)
 
 ### 海底捞末端控制-web
 ![image](https://user-images.githubusercontent.com/5820324/117001939-87d90f80-ad15-11eb-8848-7a4956ba1ce9.png)  
@@ -407,5 +389,3 @@ var value4 = result.Value;
 
 ### 海底捞末端控制-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964517-5002a580-acde-11eb-9bfb-c859a57307c7.png)![image](https://user-images.githubusercontent.com/5820324/116964519-509b3c00-acde-11eb-8245-573ac3fa7f16.png)![image](https://user-images.githubusercontent.com/5820324/116964521-5133d280-acde-11eb-85de-b09dde1ca41e.png)![image](https://user-images.githubusercontent.com/5820324/116964525-51cc6900-acde-11eb-924f-f3320e4a179c.png)
-
-</details>
