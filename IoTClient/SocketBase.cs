@@ -95,10 +95,10 @@ namespace IoTClient
         protected Result<byte[]> SocketRead(Socket socket, int receiveCount)
         {
             var result = new Result<byte[]>();
-            if (receiveCount <= 0)
+            if (receiveCount < 0)
             {
                 result.IsSucceed = false;
-                result.Err = $"读取长度[receiveCount]为{receiveCount}，必须大于0";
+                result.Err = $"读取长度[receiveCount]为{receiveCount}";
                 result.AddErr2List();
                 return result;
             }

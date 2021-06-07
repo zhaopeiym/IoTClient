@@ -36,6 +36,13 @@ namespace IoTClient.Interfaces
         /// <returns></returns>
         Result Close();
 
+        /// <summary>
+        /// 发送报文，并获取响应报文
+        /// </summary>
+        /// <param name="command">发送命令</param>
+        /// <returns></returns>
+        Result<byte[]> SendPackageSingle(byte[] command);
+
         #region Read 
 
         /// <summary>
@@ -134,7 +141,7 @@ namespace IoTClient.Interfaces
         /// <param name="batchNumber">批量读取数量</param>
         /// <returns></returns>
         Result BatchWrite(Dictionary<string, object> addresses, int batchNumber);
-       
+
         /// <summary>
         /// 写入数据
         /// </summary>

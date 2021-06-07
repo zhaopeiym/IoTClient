@@ -369,6 +369,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.SendPackageReliable(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
             读取数据
@@ -3449,6 +3456,13 @@
             <summary>
             关闭连接
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IIoTClient.SendPackageSingle(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文
+            </summary>
+            <param name="command">发送命令</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Interfaces.IIoTClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">

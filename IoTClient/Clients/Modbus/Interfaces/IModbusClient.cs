@@ -24,7 +24,14 @@ namespace IoTClient.Clients.Modbus
         /// 关闭连接
         /// </summary>
         /// <returns></returns>
-        Result Close(); 
+        Result Close();
+
+        /// <summary>
+        /// 发送报文，并获取响应报文
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        Result<byte[]> SendPackageReliable(byte[] command);
 
         #region  Read 读取
         /// <summary>
