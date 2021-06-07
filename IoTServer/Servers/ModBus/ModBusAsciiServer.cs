@@ -27,10 +27,6 @@ namespace IoTServer.Servers.Modbus
 
             serialPort.ReadTimeout = timeout;
             serialPort.WriteTimeout = timeout;
-#if DEBUG
-            serialPort.ReadTimeout *= 10;
-            serialPort.WriteTimeout *= 10;
-#endif
             serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceived);
             dataPersist = new DataPersist("ModbusTcpServer");
         }

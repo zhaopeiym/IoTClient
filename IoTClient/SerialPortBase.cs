@@ -99,8 +99,9 @@ namespace IoTClient
         /// </summary>
         /// <param name="serialPort"></param>
         /// <returns></returns>
-        protected byte[] SerialPortRead(SerialPort serialPort)
+        protected Result<byte[]> SerialPortRead(SerialPort serialPort)
         {
+            Result<byte[]> result = new Result<byte[]>();
             DateTime beginTime = DateTime.Now;
             //在没有取到数据且没有超时的情况，延时处理
             while (serialPort.BytesToRead == 0 && DateTime.Now - beginTime <= TimeSpan.FromMilliseconds(serialPort.ReadTimeout))
@@ -109,9 +110,19 @@ namespace IoTClient
                 Thread.Sleep(20);
             }
             byte[] buffer = new byte[serialPort.BytesToRead];
-            var length = serialPort.Read(buffer, 0, buffer.Length);
-            //TODO 是否 length 可能 不等于 buffer.Length ??
-            return buffer;
+            var receiveFinish = 0;
+            while (receiveFinish < buffer.Length)
+            {
+                var readLeng = serialPort.Read(buffer, receiveFinish, buffer.Length);
+                if (readLeng == 0)
+                {
+                    result.Value = null;
+                    return result.EndTime();
+                }
+                receiveFinish += readLeng;
+            }
+            result.Value = buffer;
+            return result.EndTime();
         }
     }
 }

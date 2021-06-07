@@ -1,6 +1,5 @@
 ﻿using IoTClient.Common.Helpers;
 using IoTClient.Enums;
-using IoTClient.Models;
 using System;
 using System.IO.Ports;
 using System.Linq;
@@ -49,7 +48,10 @@ namespace IoTClient.Clients.Modbus
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
 
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(commandCRC16);
+                var sendResult = SendPackageReliable(commandCRC16);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var responsePackage = sendResult.Value;
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
@@ -104,7 +106,11 @@ namespace IoTClient.Clients.Modbus
                 var commandCRC16 = CRC16.GetCRC16(command);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(commandCRC16);
+                var sendResult = SendPackageReliable(commandCRC16);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var responsePackage = sendResult.Value;
+
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
@@ -154,7 +160,10 @@ namespace IoTClient.Clients.Modbus
 
                 var commandCRC16 = CRC16.GetCRC16(command);
                 result.Requst = string.Join(" ", commandCRC16.Select(t => t.ToString("X2")));
-                var responsePackage = SendPackage(commandCRC16);
+                var sendResult = SendPackageReliable(commandCRC16);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var responsePackage = sendResult.Value;
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;

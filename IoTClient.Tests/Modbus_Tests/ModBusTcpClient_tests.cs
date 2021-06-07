@@ -130,6 +130,11 @@ namespace IoTClient.Tests.Modbus
         [Fact]
         public void 批量读取()
         {
+            client.WarningLog = (msg, ex) =>
+            {
+                string aa = msg;
+            };
+
             var list = new List<ModbusInput>();
             list.Add(new ModbusInput()
             {

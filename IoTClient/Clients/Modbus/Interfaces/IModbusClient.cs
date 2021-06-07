@@ -9,10 +9,10 @@ namespace IoTClient.Clients.Modbus
     public interface IModbusClient
     {
         /// <summary>
-        /// 关闭连接
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
         /// </summary>
-        /// <returns></returns>
-        Result Close();
+        LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
         /// 打开连接
@@ -21,17 +21,10 @@ namespace IoTClient.Clients.Modbus
         Result Open();
 
         /// <summary>
-        /// 警告日志委托
-        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+        /// 关闭连接
         /// </summary>
-        LoggerDelegate WarningLog { get; set; }
-
-        /// <summary>
-        /// 发送报文，并获取响应报文
-        /// </summary>
-        /// <param name="dataPackage"></param>
         /// <returns></returns>
-        byte[] SendPackage(byte[] dataPackage);
+        Result Close(); 
 
         #region  Read 读取
         /// <summary>

@@ -21,7 +21,7 @@
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.SendPackage(System.Byte[])">
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.SendPackageReliable(System.Byte[])">
             <summary>
             发送报文，并获取响应报文
             </summary>
@@ -351,11 +351,11 @@
             
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.IModbusClient.Close">
+        <member name="P:IoTClient.Clients.Modbus.IModbusClient.WarningLog">
             <summary>
-            关闭连接
+            警告日志委托
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
-            <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.Open">
             <summary>
@@ -363,17 +363,10 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:IoTClient.Clients.Modbus.IModbusClient.WarningLog">
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.Close">
             <summary>
-            警告日志委托
-            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+            关闭连接
             </summary>
-        </member>
-        <member name="M:IoTClient.Clients.Modbus.IModbusClient.SendPackage(System.Byte[])">
-            <summary>
-            发送报文，并获取响应报文
-            </summary>
-            <param name="dataPackage"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
@@ -763,11 +756,6 @@
             Tcp的方式发送ModbusRtu协议报文 - 客户端
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.WarningLog">
-            <summary>
-            警告日志委托        
-            </summary>
-        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             构造函数
@@ -782,6 +770,7 @@
             发送报文，并获取响应报文
             </summary>
             <param name="command"></param>
+            <param name="lenght"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
@@ -1108,12 +1097,6 @@
             ModbusTcp协议客户端
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.Modbus.ModbusTcpClient.WarningLog">
-            <summary>
-            警告日志委托
-            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-            </summary>
-        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat)">
             <summary>
             
@@ -1137,9 +1120,9 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.SendPackage(System.Byte[])">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.SendPackageSingle(System.Byte[])">
             <summary>
-            发送报文，并获取响应报文
+            发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
             </summary>
             <param name="command"></param>
             <returns></returns>
@@ -1690,12 +1673,6 @@
             插槽
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.WarningLog">
-            <summary>
-            警告日志委托
-            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-            </summary>
-        </member>
         <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.Session">
             <summary>
             会话句柄(由AB PLC生成)
@@ -1710,6 +1687,13 @@
             <summary>
             打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.SendPackageSingle(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
+            </summary>
+            <param name="command"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ReadBoolean(System.String)">
@@ -1870,6 +1854,15 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.Write(System.String,System.Object,IoTClient.Enums.DataTypeEnum)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <param name="type">数据类型</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.ConvertArg(System.String,System.Boolean)">
             <summary>
             地址信息解析
@@ -1895,13 +1888,6 @@
             <param name="typeCode"></param>
             <param name="value"></param>
             <param name="length"></param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.SendPackage(System.Byte[])">
-            <summary>
-            发送报文，并获取响应报文
-            </summary>
-            <param name="command"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.AllenBradleyClient.GetContentLength(System.Byte[])">
@@ -1931,12 +1917,6 @@
             是否是连接的
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.WarningLog">
-            <summary>
-            警告日志委托
-            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-            </summary>
-        </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.#ctor(IoTClient.Enums.MitsubishiVersion,System.String,System.Int32,System.Int32)">
             <summary>
             构造函数
@@ -1952,9 +1932,9 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.SendPackage(System.Byte[])">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.SendPackageSingle(System.Byte[])">
             <summary>
-            发送报文，并获取响应报文
+            发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
             </summary>
             <param name="command"></param>
             <returns></returns>
@@ -1967,14 +1947,13 @@
             <param name="receiveCount"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Read(System.String,System.UInt16,System.Boolean)">
             <summary>
             读取数据
             </summary>
             <param name="address">地址</param>
             <param name="length"></param>
             <param name="isBit"></param>
-            <param name="setEndian"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ReadBoolean(System.String)">
@@ -2161,6 +2140,15 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.Write(System.String,System.Object,IoTClient.Enums.DataTypeEnum)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <param name="type">数据类型</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.MitsubishiClient.GetReadCommand_Qna_3E(System.Int32,System.Byte[],System.UInt16,System.Boolean)">
             <summary>
             获取Qna_3E读取命令
@@ -2201,18 +2189,20 @@
             <param name="isBit"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertArg_Qna_3E(System.String)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertArg_Qna_3E(System.String,IoTClient.Enums.DataTypeEnum,System.Boolean)">
             <summary>
             Qna_3E地址解析
             </summary>
             <param name="address"></param>
+            <param name="toUpper"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertArg_A_1E(System.String)">
+        <member name="M:IoTClient.Clients.PLC.MitsubishiClient.ConvertArg_A_1E(System.String,System.Boolean)">
             <summary>
             A_1E地址解析
             </summary>
             <param name="address"></param>
+            <param name="toUpper"></param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Clients.PLC.Models.OmronFinsAddress">
@@ -2266,12 +2256,6 @@
             是否是连接的
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.WarningLog">
-            <summary>
-            警告日志委托
-            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-            </summary>
-        </member>
         <member name="P:IoTClient.Clients.PLC.OmronFinsClient.UnitAddress">
             <summary>
             DA2(即Destination unit address，目标单元地址)
@@ -2293,6 +2277,13 @@
             <summary>
             打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.SendPackageSingle(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
+            </summary>
+            <param name="command"></param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Read(System.String,System.UInt16,System.Boolean,System.Boolean)">
@@ -2472,6 +2463,15 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.Write(System.String,System.Object,IoTClient.Enums.DataTypeEnum)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <param name="type">数据类型</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ConvertArg(System.String,System.Boolean)">
             <summary>
             地址信息解析
@@ -2494,13 +2494,6 @@
             </summary>
             <param name="arg"></param>
             <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.SendPackage(System.Byte[])">
-            <summary>
-            发送报文，并获取响应报文
-            </summary>
-            <param name="command"></param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Clients.PLC.SiemensClient">
@@ -2532,12 +2525,6 @@
         <member name="P:IoTClient.Clients.PLC.SiemensClient.IpAndPoint">
             <summary>
             连接地址
-            </summary>
-        </member>
-        <member name="P:IoTClient.Clients.PLC.SiemensClient.WarningLog">
-            <summary>
-            警告日志委托
-            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
         <member name="P:IoTClient.Clients.PLC.SiemensClient.Slot">
@@ -2577,9 +2564,9 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.SiemensClient.SendPackage(System.Byte[])">
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.SendPackageSingle(System.Byte[])">
             <summary>
-            发送报文，并获取响应报文
+            发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
             </summary>
             <param name="command"></param>
             <returns></returns>
@@ -2901,6 +2888,15 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.PLC.SiemensClient.Write(System.String,System.Object,IoTClient.Enums.DataTypeEnum)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <param name="type">数据类型</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.ConvertArg(System.String)">
             <summary>
             获取区域类型代码
@@ -3007,7 +3003,12 @@
             类型的代号
             </summary>
         </member>
-        <member name="P:IoTClient.Models.MitsubishiMCAddress.DataType">
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.TypeChar">
+            <summary>
+            类型的代号
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.BitType">
             <summary>
             数据的类型，0代表按字，1代表按位
             </summary>
@@ -3015,6 +3016,11 @@
         <member name="P:IoTClient.Models.MitsubishiMCAddress.Format">
             <summary>
             指示地址是10进制，还是16进制的
+            </summary>
+        </member>
+        <member name="P:IoTClient.Models.MitsubishiMCAddress.DataTypeEnum">
+            <summary>
+            数据类型
             </summary>
         </member>
         <member name="T:IoTClient.Models.SiemensWriteAddress">
@@ -3407,40 +3413,45 @@
             以太网形式
             </summary>
         </member>
-        <member name="P:IoTClient.Interfaces.IEthernetClient.Version">
-            <summary>
-            版本
-            </summary>
-        </member>
         <member name="P:IoTClient.Interfaces.IEthernetClient.IpAndPoint">
             <summary>
             IPEndPoint
             </summary>
         </member>
-        <member name="P:IoTClient.Interfaces.IEthernetClient.Connected">
+        <member name="T:IoTClient.Interfaces.IIoTClient">
+            <summary>
+            IIoTClient 接口
+            </summary>
+        </member>
+        <member name="P:IoTClient.Interfaces.IIoTClient.Version">
+            <summary>
+            版本
+            </summary>
+        </member>
+        <member name="P:IoTClient.Interfaces.IIoTClient.Connected">
             <summary>
             是否是连接的
             </summary>
         </member>
-        <member name="P:IoTClient.Interfaces.IEthernetClient.WarningLog">
+        <member name="P:IoTClient.Interfaces.IIoTClient.WarningLog">
             <summary>
             警告日志委托
             为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
             </summary>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Open">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Open">
             <summary>
             打开连接（如果已经是连接状态会先关闭再打开）
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Close">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Close">
             <summary>
             关闭连接
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
             <summary>
             分批读取
             </summary>
@@ -3448,84 +3459,84 @@
             <param name="batchNumber">批量读取数量</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadByte(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadByte(System.String)">
             <summary>
-            
+            读取Byte
             </summary>
             <param name="address"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadBoolean(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadBoolean(System.String)">
             <summary>
             读取Boolean
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadUInt16(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadUInt16(System.String)">
             <summary>
             读取UInt16
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadInt16(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadInt16(System.String)">
             <summary>
             读取Int16
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadUInt32(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadUInt32(System.String)">
             <summary>
             读取UInt32
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadInt32(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadInt32(System.String)">
             <summary>
             读取Int32
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadUInt64(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadUInt64(System.String)">
             <summary>
             读取UInt64
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadInt64(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadInt64(System.String)">
             <summary>
             读取Int64
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadFloat(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadFloat(System.String)">
             <summary>
             读取Float
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadDouble(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadDouble(System.String)">
             <summary>
             读取Double
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.ReadString(System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.ReadString(System.String)">
             <summary>
             读取String
             </summary>
             <param name="address">地址</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32)">
             <summary>
             分批写入 
             </summary>
@@ -3533,7 +3544,7 @@
             <param name="batchNumber">批量读取数量</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Byte)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Byte)">
             <summary>
             写入数据
             </summary>
@@ -3541,7 +3552,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Boolean)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Boolean)">
             <summary>
             写入数据
             </summary>
@@ -3549,7 +3560,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.SByte)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.SByte)">
             <summary>
             写入数据
             </summary>
@@ -3557,7 +3568,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.UInt16)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.UInt16)">
             <summary>
             写入数据
             </summary>
@@ -3565,7 +3576,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Int16)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Int16)">
             <summary>
             写入数据
             </summary>
@@ -3573,7 +3584,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.UInt32)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.UInt32)">
             <summary>
             写入数据
             </summary>
@@ -3581,7 +3592,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Int32)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Int32)">
             <summary>
             写入数据
             </summary>
@@ -3589,7 +3600,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.UInt64)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.UInt64)">
             <summary>
             写入数据
             </summary>
@@ -3597,7 +3608,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Int64)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Int64)">
             <summary>
             写入数据
             </summary>
@@ -3605,7 +3616,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Single)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Single)">
             <summary>
             写入数据
             </summary>
@@ -3613,7 +3624,7 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.Double)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Double)">
             <summary>
             写入数据
             </summary>
@@ -3621,12 +3632,21 @@
             <param name="value">值</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Interfaces.IEthernetClient.Write(System.String,System.String)">
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.String)">
             <summary>
             写入数据
             </summary>
             <param name="address">地址</param>
             <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Interfaces.IIoTClient.Write(System.String,System.Object,IoTClient.Enums.DataTypeEnum)">
+            <summary>
+            写入数据
+            </summary>
+            <param name="address">地址</param>
+            <param name="value">值</param>
+            <param name="type">数据类型</param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Result">
@@ -3701,6 +3721,11 @@
             </summary>
             <param name="result"></param>
             <returns></returns>
+        </member>
+        <member name="M:IoTClient.Result.AddErr2List">
+            <summary>
+            添加异常到异常集合
+            </summary>
         </member>
         <member name="T:IoTClient.Result`1">
             <summary>
@@ -3793,6 +3818,12 @@
             Socket基类
             </summary>
         </member>
+        <member name="P:IoTClient.SocketBase.WarningLog">
+            <summary>
+            警告日志委托
+            为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+            </summary>
+        </member>
         <member name="F:IoTClient.SocketBase.BufferSize">
             <summary>
             分批缓冲区大小
@@ -3832,23 +3863,27 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.SocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32,IoTClient.LoggerDelegate)">
+        <member name="M:IoTClient.SocketBase.SocketRead(System.Net.Sockets.Socket,System.Int32)">
             <summary>
             Socket读取
             </summary>
             <param name="socket">socket</param>
-            <param name="receiveCount">读取长度</param>
-            <param name="warningLog">日记委托记录</param>     
+            <param name="receiveCount">读取长度</param>          
             <returns></returns>
         </member>
-        <member name="M:IoTClient.SocketBase.SocketTryRead(System.Net.Sockets.Socket,System.Int32,IoTClient.LoggerDelegate)">
+        <member name="M:IoTClient.SocketBase.SendPackageSingle(System.Byte[])">
             <summary>
-            Socket读取
+            发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
             </summary>
-            <param name="socket">socket</param>
-            <param name="receiveCount">读取长度</param>
-            <param name="warningLog">日记委托记录</param>        
-            <returns>读到的数据，如果内部出现异常则返回null</returns>
+            <param name="command">发送命令</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.SocketBase.SendPackageReliable(System.Byte[])">
+            <summary>
+            发送报文，并获取响应报文（如果网络异常，会自动进行一次重试）
+            </summary>
+            <param name="command"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

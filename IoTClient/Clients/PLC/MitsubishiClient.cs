@@ -33,12 +33,6 @@ namespace IoTClient.Clients.PLC
         public bool Connected => socket?.Connected ?? false;
 
         /// <summary>
-        /// 警告日志委托
-        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-        /// </summary>
-        public LoggerDelegate WarningLog { get; set; }
-
-        /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="version">三菱型号版本</param>
@@ -63,12 +57,9 @@ namespace IoTClient.Clients.PLC
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                #region 超时时间设置
-#if !DEBUG
+                //超时时间设置
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
-#endif
-                #endregion
 
                 socket.Connect(IpAndPoint);
             }
@@ -86,43 +77,30 @@ namespace IoTClient.Clients.PLC
 
         #region 发送报文，并获取响应报文
         /// <summary>
-        /// 发送报文，并获取响应报文
+        /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public Result<byte[]> SendPackage(byte[] command)
+        public override Result<byte[]> SendPackageSingle(byte[] command)
         {
             //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
             lock (this)
             {
                 Result<byte[]> result = new Result<byte[]>();
+                socket.Send(command);
+                var socketReadResul = SocketRead(socket, 9);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var headPackage = socketReadResul.Value;
 
-                void _sendPackage()
-                {
-                    socket.Send(command);
-                    var headPackage = SocketRead(socket, 9);
-                    //其后内容的总长度
-                    var contentLength = BitConverter.ToUInt16(headPackage, 7);
-                    var dataPackage = SocketRead(socket, contentLength);
-                    result.Value = headPackage.Concat(dataPackage).ToArray();
-                }
+                //其后内容的总长度
+                var contentLength = BitConverter.ToUInt16(headPackage, 7);
+                socketReadResul = SocketRead(socket, contentLength);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var dataPackage = socketReadResul.Value;
 
-                try
-                {
-                    _sendPackage();
-                }
-                catch (Exception ex)
-                {
-                    WarningLog?.Invoke(ex.Message, ex);
-                    //如果出现异常，则进行一次重试
-                    //重新打开连接
-                    var conentResult = Connect();
-                    if (!conentResult.IsSucceed)
-                        return new Result<byte[]>(conentResult);
-
-                    _sendPackage();
-                }
-
+                result.Value = headPackage.Concat(dataPackage).ToArray();
                 return result.EndTime();
             }
         }
@@ -135,35 +113,50 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result<byte[]> SendPackage(byte[] command, int receiveCount)
         {
-            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
-            lock (this)
+
+            Result<byte[]> _sendPackage()
             {
-                Result<byte[]> result = new Result<byte[]>();
-
-                void _sendPackage()
+                //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+                lock (this)
                 {
+                    Result<byte[]> result = new Result<byte[]>();
                     socket.Send(command);
-                    var dataPackage = SocketRead(socket, receiveCount);
-                    result.Value = dataPackage.ToArray();
-                }
+                    var socketReadResul = SocketRead(socket, receiveCount);
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var dataPackage = socketReadResul.Value;
 
-                try
-                {
-                    _sendPackage();
+                    result.Value = dataPackage.ToArray();
+                    return result.EndTime();
                 }
-                catch (Exception ex)
+            }
+
+            try
+            {
+                var result = _sendPackage();
+                if (!result.IsSucceed)
                 {
-                    WarningLog?.Invoke(ex.Message, ex);
-                    //如果出现异常，则进行一次重试
-                    //重新打开连接
+                    WarningLog?.Invoke(result.Err, result.Exception);
+                    //如果出现异常，则进行一次重试         
                     var conentResult = Connect();
                     if (!conentResult.IsSucceed)
                         return new Result<byte[]>(conentResult);
 
-                    _sendPackage();
+                    return _sendPackage();
                 }
+                else
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                WarningLog?.Invoke(ex.Message, ex);
+                //如果出现异常，则进行一次重试
+                //重新打开连接
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return new Result<byte[]>(conentResult);
 
-                return result.EndTime();
+                return _sendPackage();
             }
         }
         #endregion
@@ -175,9 +168,8 @@ namespace IoTClient.Clients.PLC
         /// <param name="address">地址</param>
         /// <param name="length"></param>
         /// <param name="isBit"></param>
-        /// <param name="setEndian"></param>
         /// <returns></returns>
-        public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
+        public Result<byte[]> Read(string address, ushort length, bool isBit = false)
         {
             if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
@@ -211,7 +203,7 @@ namespace IoTClient.Clients.PLC
                             sendResult = SendPackage(command, lenght * 2 + 2);
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        sendResult = SendPackage(command);
+                        sendResult = SendPackageReliable(command);
                         break;
                 }
                 if (!sendResult.IsSucceed) return sendResult;
@@ -362,6 +354,29 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        private Result<short> ReadInt16(int startAddressInt, int addressInt, byte[] values)
+        {
+            //if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+            //    throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var interval = addressInt - startAddressInt;
+                var byteArry = values.Skip(interval * 2).Take(2).ToArray();
+                return new Result<short>
+                {
+                    Value = BitConverter.ToInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<short>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// 读取UInt16
         /// </summary>
@@ -488,6 +503,30 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        public Result<float> ReadFloat(int beginAddressInt, int addressInt, byte[] values)
+        {
+            //if (!int.TryParse(address?.Trim(), out int addressInt) || !int.TryParse(beginAddress?.Trim(), out int beginAddressInt))
+            //    throw new Exception($"只能是数字，参数address：{address}  beginAddress：{beginAddress}");
+            try
+            {
+                var interval = (addressInt - beginAddressInt) / 2;
+                var offset = (addressInt - beginAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray();//.ByteFormatting(format);
+                return new Result<float>
+                {
+                    Value = BitConverter.ToSingle(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<float>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// 读取Double
         /// </summary>
@@ -569,7 +608,7 @@ namespace IoTClient.Clients.PLC
                         sendResult = SendPackage(command, 2);
                         break;
                     case MitsubishiVersion.Qna_3E:
-                        sendResult = SendPackage(command);
+                        sendResult = SendPackageReliable(command);
                         break;
                 }
                 if (!sendResult.IsSucceed) return sendResult;
@@ -733,6 +772,52 @@ namespace IoTClient.Clients.PLC
             Array.Reverse(bytes);
             return Write(address, bytes);
         }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <param name="type">数据类型</param>
+        /// <returns></returns>
+        public Result Write(string address, object value, DataTypeEnum type)
+        {
+            var result = new Result() { IsSucceed = false };
+            switch (type)
+            {
+                case DataTypeEnum.Bool:
+                    result = Write(address, Convert.ToBoolean(value));
+                    break;
+                case DataTypeEnum.Byte:
+                    result = Write(address, Convert.ToByte(value));
+                    break;
+                case DataTypeEnum.Int16:
+                    result = Write(address, Convert.ToInt16(value));
+                    break;
+                case DataTypeEnum.UInt16:
+                    result = Write(address, Convert.ToUInt16(value));
+                    break;
+                case DataTypeEnum.Int32:
+                    result = Write(address, Convert.ToInt32(value));
+                    break;
+                case DataTypeEnum.UInt32:
+                    result = Write(address, Convert.ToUInt32(value));
+                    break;
+                case DataTypeEnum.Int64:
+                    result = Write(address, Convert.ToInt64(value));
+                    break;
+                case DataTypeEnum.UInt64:
+                    result = Write(address, Convert.ToUInt64(value));
+                    break;
+                case DataTypeEnum.Float:
+                    result = Write(address, Convert.ToSingle(value));
+                    break;
+                case DataTypeEnum.Double:
+                    result = Write(address, Convert.ToDouble(value));
+                    break;
+            }
+            return result;
+        }
         #endregion
 
         #region 生成报文命令
@@ -878,91 +963,105 @@ namespace IoTClient.Clients.PLC
         /// Qna_3E地址解析
         /// </summary>
         /// <param name="address"></param>
+        /// <param name="toUpper"></param>
         /// <returns></returns>
-        private MitsubishiMCAddress ConvertArg_Qna_3E(string address)
+        private MitsubishiMCAddress ConvertArg_Qna_3E(string address, DataTypeEnum dataType = DataTypeEnum.None, bool toUpper = true)
         {
-            address = address.ToUpper();
-            var addressInfo = new MitsubishiMCAddress();
+            if (toUpper) address = address.ToUpper();
+            var addressInfo = new MitsubishiMCAddress()
+            {
+                DataTypeEnum = dataType
+            };
             switch (address[0])
             {
                 case 'M'://M中间继电器
                     {
                         addressInfo.TypeCode = new byte[] { 0x90 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'X':// X输入继电器
                     {
                         addressInfo.TypeCode = new byte[] { 0x9C };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 16;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'Y'://Y输出继电器
                     {
                         addressInfo.TypeCode = new byte[] { 0x9D };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 16;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'D'://D数据寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0xA8 };
-                        addressInfo.DataType = 0x00;
+                        addressInfo.BitType = 0x00;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'W'://W链接寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0xB4 };
-                        addressInfo.DataType = 0x00;
+                        addressInfo.BitType = 0x00;
                         addressInfo.Format = 16;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'L'://L锁存继电器
                     {
                         addressInfo.TypeCode = new byte[] { 0x92 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'F'://F报警器
                     {
                         addressInfo.TypeCode = new byte[] { 0x93 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'V'://V边沿继电器
                     {
                         addressInfo.TypeCode = new byte[] { 0x94 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'B'://B链接继电器
                     {
                         addressInfo.TypeCode = new byte[] { 0xA0 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 16;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'R'://R文件寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0xAF };
-                        addressInfo.DataType = 0x00;
+                        addressInfo.BitType = 0x00;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'S':
@@ -971,33 +1070,37 @@ namespace IoTClient.Clients.PLC
                         if (address[1] == 'C')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC6 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //累计定时器的触点
                         else if (address[1] == 'S')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC7 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //累计定时器的当前值
                         else if (address[1] == 'N')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC8 };
-                            addressInfo.DataType = 0x00;
+                            addressInfo.BitType = 0x00;
                             addressInfo.Format = 100;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         // S步进继电器
                         else
                         {
                             addressInfo.TypeCode = new byte[] { 0x98 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 1);
                         }
                         break;
                     }
@@ -1007,17 +1110,19 @@ namespace IoTClient.Clients.PLC
                         if (address[1] == 'R')
                         {
                             addressInfo.TypeCode = new byte[] { 0xB0 };
-                            addressInfo.DataType = 0x00;
+                            addressInfo.BitType = 0x00;
                             addressInfo.Format = 16;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //变址寄存器
                         else
                         {
                             addressInfo.TypeCode = new byte[] { 0xCC };
-                            addressInfo.DataType = 0x00;
+                            addressInfo.BitType = 0x00;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 1);
                         }
                         break;
                     }
@@ -1027,25 +1132,28 @@ namespace IoTClient.Clients.PLC
                         if (address[1] == 'N')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC2 };
-                            addressInfo.DataType = 0x00;
+                            addressInfo.BitType = 0x00;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //定时器的触点
                         else if (address[1] == 'S')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC1 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //定时器的线圈
                         else if (address[1] == 'C')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC0 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         break;
                     }
@@ -1055,25 +1163,28 @@ namespace IoTClient.Clients.PLC
                         if (address[1] == 'N')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC5 };
-                            addressInfo.DataType = 0x00;
+                            addressInfo.BitType = 0x00;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //计数器的触点
                         else if (address[1] == 'S')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC4 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         //计数器的线圈
                         else if (address[1] == 'C')
                         {
                             addressInfo.TypeCode = new byte[] { 0xC3 };
-                            addressInfo.DataType = 0x01;
+                            addressInfo.BitType = 0x01;
                             addressInfo.Format = 10;
                             addressInfo.BeginAddress = Convert.ToInt32(address.Substring(2), addressInfo.Format);
+                            addressInfo.TypeChar = address.Substring(0, 2);
                         }
                         break;
                     }
@@ -1085,59 +1196,66 @@ namespace IoTClient.Clients.PLC
         /// A_1E地址解析
         /// </summary>
         /// <param name="address"></param>
+        /// <param name="toUpper"></param>
         /// <returns></returns>
-        private MitsubishiMCAddress ConvertArg_A_1E(string address)
+        private MitsubishiMCAddress ConvertArg_A_1E(string address, bool toUpper = true)
         {
-            address = address.ToUpper();
+            if (toUpper) address = address.ToUpper();
             var addressInfo = new MitsubishiMCAddress();
             switch (address[0])
             {
                 case 'X'://X输入寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0x58, 0x20 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 8;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'Y'://Y输出寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0x59, 0x20 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 8;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'M'://M中间寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0x4D, 0x20 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'S'://S状态寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0x53, 0x20 };
-                        addressInfo.DataType = 0x01;
+                        addressInfo.BitType = 0x01;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'D'://D数据寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0x44, 0x20 };
-                        addressInfo.DataType = 0x00;
+                        addressInfo.BitType = 0x00;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
                 case 'R'://R文件寄存器
                     {
                         addressInfo.TypeCode = new byte[] { 0x52, 0x20 };
-                        addressInfo.DataType = 0x00;
+                        addressInfo.BitType = 0x00;
                         addressInfo.Format = 10;
                         addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1), addressInfo.Format);
+                        addressInfo.TypeChar = address.Substring(0, 1);
                     }
                     break;
             }
@@ -1148,7 +1266,119 @@ namespace IoTClient.Clients.PLC
         #region TODO
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
         {
-            throw new NotImplementedException();
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+
+            var mitsubishiMCAddresses = addresses.Select(t => ConvertArg_Qna_3E(t.Key, t.Value)).ToList();
+            var typeChars = mitsubishiMCAddresses.Select(t => t.TypeChar).Distinct();
+            foreach (var typeChar in typeChars)
+            {
+                var tempAddresses = mitsubishiMCAddresses.Where(t => t.TypeChar == typeChar).ToList();
+                var minAddress = tempAddresses.Select(t => t.BeginAddress).Min();
+                var maxAddress = tempAddresses.Select(t => t.BeginAddress).Max();
+
+                while (maxAddress >= minAddress)
+                {
+                    int readLength = 121;//TODO 分批读取的长度
+
+                    var tempAddress = tempAddresses.Where(t => t.BeginAddress >= minAddress && t.BeginAddress <= minAddress + readLength).ToList();
+                    //如果范围内没有数据。按正确逻辑不存在这种情况。
+                    if (!tempAddress.Any())
+                    {
+                        minAddress = minAddress + readLength;
+                        continue;
+                    }
+
+                    var tempMax = tempAddress.OrderByDescending(t => t.BeginAddress).FirstOrDefault();
+                    switch (tempMax.DataTypeEnum)
+                    {
+                        case DataTypeEnum.Bool:
+                        case DataTypeEnum.Byte:
+                            readLength = tempMax.BeginAddress + 1 - minAddress;
+                            break;
+                        case DataTypeEnum.Int16:
+                        case DataTypeEnum.UInt16:
+                            readLength = tempMax.BeginAddress * 2 + 2 - minAddress * 2;
+                            break;
+                        case DataTypeEnum.Int32:
+                        case DataTypeEnum.UInt32:
+                        case DataTypeEnum.Float:
+                            readLength = tempMax.BeginAddress * 4 + 4 - minAddress * 4;
+                            break;
+                        case DataTypeEnum.Int64:
+                        case DataTypeEnum.UInt64:
+                        case DataTypeEnum.Double:
+                            readLength = tempMax.BeginAddress + 8 - minAddress;
+                            break;
+                        default:
+                            throw new Exception("Err BatchRead 未定义类型 -1");
+                    }
+
+                    //TODO isbit
+                    //TODO 直接传入MitsubishiMCAddress
+                    var tempResult = Read(typeChar + minAddress.ToString(), Convert.ToUInt16(readLength), false);
+
+                    if (!tempResult.IsSucceed)
+                    {
+                        result.IsSucceed = tempResult.IsSucceed;
+                        result.Exception = tempResult.Exception;
+                        result.Err = tempResult.Err;
+                        result.ErrList.AddRange(tempResult.ErrList);
+                        return result.EndTime();
+                    }
+
+                    var rValue = tempResult.Value.ToArray();
+                    foreach (var item in tempAddress)
+                    {
+                        object tempVaue = null;
+
+                        switch (item.DataTypeEnum)
+                        {
+                            case DataTypeEnum.Bool:
+                            //tempVaue = ReadCoil(minAddress, item.Key, rValue).Value;
+                            //break;
+                            case DataTypeEnum.Byte:
+                                throw new Exception("Err BatchRead 未定义类型 -2");
+                            case DataTypeEnum.Int16:
+                                tempVaue = ReadInt16(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            //case DataTypeEnum.UInt16:
+                            //    tempVaue = ReadUInt16(minAddress, item.BeginAddress, rValue).Value;
+                            //    break;
+                            //case DataTypeEnum.Int32:
+                            //    tempVaue = ReadInt32(minAddress, item.BeginAddress, rValue).Value;
+                            //    break;
+                            //case DataTypeEnum.UInt32:
+                            //    tempVaue = ReadUInt32(minAddress, item.BeginAddress, rValue).Value;
+                            //    break;
+                            //case DataTypeEnum.Int64:
+                            //    tempVaue = ReadInt64(minAddress, item.BeginAddress, rValue).Value;
+                            //    break;
+                            //case DataTypeEnum.UInt64:
+                            //    tempVaue = ReadUInt64(minAddress, item.BeginAddress, rValue).Value;
+                            //    break;
+                            case DataTypeEnum.Float:
+                                tempVaue = ReadFloat(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            //case DataTypeEnum.Double:
+                            //    tempVaue = ReadDouble(minAddress, item.BeginAddress, rValue).Value;
+                            //    break;
+                            default:
+                                throw new Exception("Err BatchRead 未定义类型 -3");
+                        }
+
+                        result.Value.Add(item.TypeChar + item.BeginAddress.ToString(), tempVaue);
+                    }
+                    minAddress = minAddress + readLength;
+
+                    if (tempAddresses.Any(t => t.BeginAddress >= minAddress))
+                        minAddress = tempAddresses.Where(t => t.BeginAddress >= minAddress).OrderBy(t => t.BeginAddress).FirstOrDefault().BeginAddress;
+                    //else
+                    //    return result.EndTime();
+                }
+                //return result.EndTime();
+            }
+            return result.EndTime();
         }
 
         public Result<byte> ReadByte(string address)
@@ -1168,6 +1398,22 @@ namespace IoTClient.Clients.PLC
 
         #endregion
 
+        ///// <summary>
+        ///// 获取地址的区域类型
+        ///// </summary>
+        ///// <param name="address"></param>
+        ///// <returns></returns>
+        //private string GetAddressType(string address)
+        //{
+        //    if (address.Length < 2)
+        //        throw new Exception("address格式不正确");
+
+        //    if ((address[1] >= 'A' && address[1] <= 'Z') ||
+        //        (address[1] >= 'a' && address[1] <= 'z'))
+        //        return address.Substring(0, 2);
+        //    else
+        //        return address.Substring(0, 1);
+        //}
         #endregion
     }
 }

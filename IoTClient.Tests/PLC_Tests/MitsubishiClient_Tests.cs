@@ -1,6 +1,7 @@
 ﻿using IoTClient.Clients.PLC;
 using IoTClient.Enums;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit;
 
@@ -147,6 +148,38 @@ namespace IoTClient.Tests.PLCTests
             Assert.True(client.ReadInt16("D104").Value == short_number5);
 
             client?.Close();
+        }
+
+        [Theory]
+        [InlineData(MitsubishiVersion.Qna_3E, 6000)]
+        public void 批量读取(MitsubishiVersion version, int port)
+        {
+            client = new MitsubishiClient(version, ip, port);
+
+            Dictionary<string, DataTypeEnum> readAddresses = new Dictionary<string, DataTypeEnum>();
+            //readAddresses.Add("V2634.0", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.1", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.2", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.3", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.4", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.5", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.6", DataTypeEnum.Bool);
+            //readAddresses.Add("V2634.7", DataTypeEnum.Bool);
+            //readAddresses.Add("V2642", DataTypeEnum.Float);
+            //readAddresses.Add("V2646", DataTypeEnum.Float);
+            //readAddresses.Add("V2650", DataTypeEnum.Float);
+            readAddresses.Add("D100", DataTypeEnum.Float);
+            readAddresses.Add("D102", DataTypeEnum.Float);
+            readAddresses.Add("D104", DataTypeEnum.Float);
+            readAddresses.Add("D263", DataTypeEnum.Int16);
+            readAddresses.Add("D265", DataTypeEnum.Int16);
+            //readAddresses.Add("V2670", DataTypeEnum.Float);
+            //readAddresses.Add("V2674", DataTypeEnum.Float);
+            //readAddresses.Add("V1650", DataTypeEnum.Byte);
+            //readAddresses.Add("V1651", DataTypeEnum.Byte);
+            //readAddresses.Add("V1652", DataTypeEnum.Byte);
+
+            var result = client.BatchRead(readAddresses, 10);
         }
     }
 }

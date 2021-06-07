@@ -42,11 +42,6 @@ namespace IoTClient.Clients.Modbus
             serialPort.WriteTimeout = timeout;
 
             this.format = format;
-#if DEBUG
-            serialPort.ReadTimeout *= 10;
-            serialPort.WriteTimeout *= 10;
-#endif
-
         }
 
         #region 发送报文，并获取响应报文
@@ -55,15 +50,46 @@ namespace IoTClient.Clients.Modbus
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public byte[] SendPackage(byte[] command)
+        public Result<byte[]> SendPackageReliable(byte[] command)
         {
-            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
-            lock (this)
+            Result<byte[]> _sendPackage()
             {
-                //发送命令
-                serialPort.Write(command, 0, command.Length);
-                //获取响应报文
-                return SerialPortRead(serialPort);
+                //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+                lock (this)
+                {
+                    //发送命令
+                    serialPort.Write(command, 0, command.Length);
+                    //获取响应报文
+                    return SerialPortRead(serialPort);
+                }
+            }
+
+            try
+            {
+                var result = _sendPackage();
+                if (!result.IsSucceed)
+                {
+                    WarningLog?.Invoke(result.Err, result.Exception);
+                    //如果出现异常，则进行一次重试         
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
+
+                    return _sendPackage();
+                }
+                else
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                WarningLog?.Invoke(ex.Message, ex);
+                //如果出现异常，则进行一次重试
+                //重新打开连接
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return new Result<byte[]>(conentResult);
+
+                return _sendPackage();
             }
         }
         #endregion
@@ -710,6 +736,7 @@ namespace IoTClient.Clients.Modbus
                         result.IsSucceed = tempResult.IsSucceed;
                         result.Err = tempResult.Err;
                         result.ErrList.AddRange(tempResult.ErrList);
+                        result.Exception = tempResult.Exception;
                     }
                 }
             }
@@ -766,8 +793,8 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Exception = tempResult.Exception;
-                    result.Err = tempResult.Err;
-                    result.ErrList.AddRange(tempResult.ErrList);
+                    result.Err = $"读取 地址:{minAddress} 站号:{stationNumber} 功能码:{functionCode} 失败。{tempResult.Err}";
+                    result.AddErr2List();
                     return result.EndTime();
                 }
 

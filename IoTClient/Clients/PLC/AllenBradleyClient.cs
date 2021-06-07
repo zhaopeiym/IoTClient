@@ -38,12 +38,6 @@ namespace IoTClient.Clients.PLC
         /// </summary>
         private readonly byte slot;
 
-        /// <summary>
-        /// 警告日志委托
-        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-        /// </summary>
-        public LoggerDelegate WarningLog { get; set; }
-
         public AllenBradleyClient(string ip, int port, byte slot = 0, int timeout = 1500)
         {
             IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
@@ -82,12 +76,9 @@ namespace IoTClient.Clients.PLC
 
             try
             {
-                #region 超时时间设置
-#if !DEBUG
+                //超时时间设置
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
-#endif
-                #endregion
 
                 //连接
                 socket.Connect(IpAndPoint);
@@ -95,8 +86,16 @@ namespace IoTClient.Clients.PLC
                 result.Requst = string.Join(" ", RegisteredCommand.Select(t => t.ToString("X2")));
                 socket.Send(RegisteredCommand);
 
-                var head = SocketRead(socket, 24);
-                var content = SocketRead(socket, GetContentLength(head));
+                var socketReadResul = SocketRead(socket, 24);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var head = socketReadResul.Value;
+
+                socketReadResul = SocketRead(socket, GetContentLength(head));
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var content = socketReadResul.Value;
+
                 var response = head.Concat(content).ToArray();
                 result.Response = string.Join(" ", response.Select(t => t.ToString("X2")));
 
@@ -120,6 +119,33 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        /// <summary>
+        /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public override Result<byte[]> SendPackageSingle(byte[] command)
+        {
+            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+            lock (this)
+            {
+                Result<byte[]> result = new Result<byte[]>();
+                socket.Send(command);
+                var socketReadResul = SocketRead(socket, 24);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var head = socketReadResul.Value;
+
+                socketReadResul = SocketRead(socket, GetContentLength(head));
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var content = socketReadResul.Value;
+
+                result.Value = head.Concat(content).ToArray();
+                return result.EndTime();
+            }
+        }
+
         #region Read
         public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
         {
@@ -137,7 +163,7 @@ namespace IoTClient.Clients.PLC
                 var command = GetReadCommand(address, 1);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return sendResult;
                 var dataPackage = sendResult.Value;
@@ -336,7 +362,7 @@ namespace IoTClient.Clients.PLC
                 //var arg = ConvertWriteArg(address, data, false);
                 byte[] command = GetWriteCommand(address, typeCode, data, 1);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return sendResult;
 
@@ -504,6 +530,52 @@ namespace IoTClient.Clients.PLC
             Array.Reverse(bytes);
             return Write(address, 0xC4, bytes);
         }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <param name="type">数据类型</param>
+        /// <returns></returns>
+        public Result Write(string address, object value, DataTypeEnum type)
+        {
+            var result = new Result() { IsSucceed = false };
+            switch (type)
+            {
+                case DataTypeEnum.Bool:
+                    result = Write(address, Convert.ToBoolean(value));
+                    break;
+                case DataTypeEnum.Byte:
+                    result = Write(address, Convert.ToByte(value));
+                    break;
+                case DataTypeEnum.Int16:
+                    result = Write(address, Convert.ToInt16(value));
+                    break;
+                case DataTypeEnum.UInt16:
+                    result = Write(address, Convert.ToUInt16(value));
+                    break;
+                case DataTypeEnum.Int32:
+                    result = Write(address, Convert.ToInt32(value));
+                    break;
+                case DataTypeEnum.UInt32:
+                    result = Write(address, Convert.ToUInt32(value));
+                    break;
+                case DataTypeEnum.Int64:
+                    result = Write(address, Convert.ToInt64(value));
+                    break;
+                case DataTypeEnum.UInt64:
+                    result = Write(address, Convert.ToUInt64(value));
+                    break;
+                case DataTypeEnum.Float:
+                    result = Write(address, Convert.ToSingle(value));
+                    break;
+                case DataTypeEnum.Double:
+                    result = Write(address, Convert.ToDouble(value));
+                    break;
+            }
+            return result;
+        }
         #endregion
 
         /// <summary>
@@ -659,47 +731,7 @@ namespace IoTClient.Clients.PLC
             command[11 + 26 + 24 + address_ASCII.Length + value.Length] = slot;
             return command;
 
-        }
-
-        /// <summary>
-        /// 发送报文，并获取响应报文
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        public Result<byte[]> SendPackage(byte[] command)
-        {
-            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
-            lock (this)
-            {
-                Result<byte[]> result = new Result<byte[]>();
-
-                void _sendPackage()
-                {
-
-                    socket.Send(command);
-                    var head = SocketRead(socket, 24);
-                    var content = SocketRead(socket, GetContentLength(head));
-                    result.Value = head.Concat(content).ToArray();
-                }
-
-                try
-                {
-                    _sendPackage();
-                }
-                catch (Exception ex)
-                {
-                    WarningLog?.Invoke(ex.Message, ex);
-                    //如果出现异常，则进行一次重试
-                    //重新打开连接
-                    var conentResult = Connect();
-                    if (!conentResult.IsSucceed)
-                        return new Result<byte[]>(conentResult);
-
-                    _sendPackage();
-                }
-                return result.EndTime();
-            }
-        }
+        }       
 
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
         {

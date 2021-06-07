@@ -14,7 +14,7 @@ IoTClient
 
 ## Document directory
 <!-- TOC -->
-
+    
 - [Instructions for use](#instructions-for-use)
     - [Reference component](#reference-component)
     - [ModBusTcp read and write operations](#modbustcp-read-and-write-operations)
@@ -28,11 +28,11 @@ IoTClient
     - [OmronFinsClient (Omron) read and write operations](#omronfinsclient-omron-read-and-write-operations)
     - [AllenBradleyClient read and write operations](#allenbradleyclient-read-and-write-operations)
 - [Some projects based on IoTClient library](#some-projects-based-on-iotclient-library)
-    - [IoTClient Tool Desktop program tool (open source)](#iotclient-tool-desktop-program-tool-open-source)
+    - [IoTClient Tool Desktop program tool (open source)](#iotclient-tool-desktop-program-tool-open-source)        
     - [Energy Management System (Commercial)](#energy-management-system-commercial)
-        - [能源管理（现场-单项目）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%8E%B0%E5%9C%BA-%E5%8D%95%E9%A1%B9%E7%9B%AE)
-        - [能源管理（云端-多项目）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E4%BA%91%E7%AB%AF-%E5%A4%9A%E9%A1%B9%E7%9B%AE)
-        - [能源管理（移动端）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+        - [能源管理-现场-单项目](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E7%8E%B0%E5%9C%BA-%E5%8D%95%E9%A1%B9%E7%9B%AE)
+        - [能源管理-云端-多项目](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E4%BA%91%E7%AB%AF-%E5%A4%9A%E9%A1%B9%E7%9B%AE)
+        - [能源管理-移动端](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
     - [Haidilao terminal control (commercial)](#haidilao-terminal-control-commercial)
         - [海底捞末端控制-web](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-web)
         - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
@@ -364,11 +364,11 @@ var value4 = result.Value;
 
 ## Energy Management System (Commercial) 
 
-### 能源管理（现场-单项目）
+### 能源管理-现场-单项目
 ![image](https://user-images.githubusercontent.com/5820324/117001443-f10c5300-ad14-11eb-8597-bcc6e573c542.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001444-f1a4e980-ad14-11eb-80ea-0972211e46a1.png)   
 
-### 能源管理（云端-多项目）
+### 能源管理-云端-多项目
 ![image](https://user-images.githubusercontent.com/5820324/117001447-f23d8000-ad14-11eb-9771-1854b13bef4b.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001451-f2d61680-ad14-11eb-9507-bf4123e5cbe8.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001454-f36ead00-ad14-11eb-8ea1-e993298eca9b.png)  
@@ -376,7 +376,7 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/117001461-f5d10700-ad14-11eb-9d82-d73a7347ad32.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001464-f6699d80-ad14-11eb-8810-50b20f8954ae.png)  
 
-### 能源管理（移动端）
+### 能源管理-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964170-796f0180-acdd-11eb-9514-fd9a05c15eae.png)![image](https://user-images.githubusercontent.com/5820324/116964172-7a079800-acdd-11eb-91ac-13c1a321145d.png)![image](https://user-images.githubusercontent.com/5820324/116964174-7aa02e80-acdd-11eb-8051-158f13ed2993.png)![image](https://user-images.githubusercontent.com/5820324/116964175-7b38c500-acdd-11eb-80b4-97827ee03374.png)![image](https://user-images.githubusercontent.com/5820324/116964177-7c69f200-acdd-11eb-94b8-ddbf5081ddaf.png)![image](https://user-images.githubusercontent.com/5820324/116964179-7d028880-acdd-11eb-95c6-601e235e3b6b.png)![image](https://user-images.githubusercontent.com/5820324/116964181-7d9b1f00-acdd-11eb-9914-911167e0af05.png)
 
 ## Haidilao terminal control (commercial)

@@ -56,7 +56,11 @@ namespace IoTClient.Clients.Modbus
                 result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
 
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(finalCommand);
+                var sendResult = SendPackageReliable(finalCommand);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var responsePackage = sendResult.Value;
+
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
@@ -121,7 +125,10 @@ namespace IoTClient.Clients.Modbus
 
                 result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
                 //发送命令并获取响应报文
-                var responsePackage = SendPackage(finalCommand);
+                var sendResult = SendPackageReliable(finalCommand);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var responsePackage = sendResult.Value;
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;
@@ -180,7 +187,10 @@ namespace IoTClient.Clients.Modbus
                 finalCommand[finalCommand.Length - 1] = 0x0A;
 
                 result.Requst = string.Join(" ", finalCommand.Select(t => t.ToString("X2")));
-                var responsePackage = SendPackage(finalCommand);
+                var sendResult = SendPackageReliable(finalCommand);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var responsePackage = sendResult.Value;
                 if (!responsePackage.Any())
                 {
                     result.IsSucceed = false;

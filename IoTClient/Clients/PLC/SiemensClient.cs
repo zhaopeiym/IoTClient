@@ -44,12 +44,6 @@ namespace IoTClient.Clients.PLC
         public IPEndPoint IpAndPoint { get; }
 
         /// <summary>
-        /// 警告日志委托
-        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-        /// </summary>
-        public LoggerDelegate WarningLog { get; set; }
-
-        /// <summary>
         /// 插槽号 
         /// </summary>
         public byte Slot { get; private set; }
@@ -105,12 +99,9 @@ namespace IoTClient.Clients.PLC
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                #region 超时时间设置
-#if !DEBUG
+                //超时时间设置
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
-#endif 
-                #endregion
 
                 //连接
                 socket.Connect(IpAndPoint);
@@ -149,15 +140,34 @@ namespace IoTClient.Clients.PLC
                 result.Requst = string.Join(" ", Command1.Select(t => t.ToString("X2")));
                 //第一次初始化指令交互
                 socket.Send(Command1);
-                var head1 = SocketRead(socket, SiemensConstant.InitHeadLength, WarningLog);
-                var content1 = SocketRead(socket, GetContentLength(head1), WarningLog);
+
+                var socketReadResul = SocketRead(socket, SiemensConstant.InitHeadLength);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var head1 = socketReadResul.Value;
+
+
+                socketReadResul = SocketRead(socket, GetContentLength(head1));
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var content1 = socketReadResul.Value;
+
                 result.Response = string.Join(" ", head1.Concat(content1).Select(t => t.ToString("X2")));
 
                 result.Requst2 = string.Join(" ", Command2.Select(t => t.ToString("X2")));
                 //第二次初始化指令交互
                 socket.Send(Command2);
-                var head2 = SocketRead(socket, SiemensConstant.InitHeadLength, WarningLog);
-                var content2 = SocketRead(socket, GetContentLength(head2), WarningLog);
+
+                socketReadResul = SocketRead(socket, SiemensConstant.InitHeadLength);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var head2 = socketReadResul.Value;
+
+                socketReadResul = SocketRead(socket, GetContentLength(head2));
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var content2 = socketReadResul.Value;
+
                 result.Response2 = string.Join(" ", head2.Concat(content2).Select(t => t.ToString("X2")));
             }
             catch (Exception ex)
@@ -172,51 +182,32 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
-        #region 发送报文，并获取响应报文
         /// <summary>
-        /// 发送报文，并获取响应报文
+        /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public Result<byte[]> SendPackage(byte[] command)
+        public override Result<byte[]> SendPackageSingle(byte[] command)
         {
             //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
             lock (this)
             {
                 Result<byte[]> result = new Result<byte[]>();
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    WarningLog?.Invoke(ex.Message, ex);
-                    //如果出现异常，则进行一次重试
-                    //重新打开连接
-                    var conentResult = Connect();
-                    if (!conentResult.IsSucceed)
-                        return result.SetErrInfo(conentResult);
+                socket.Send(command);
+                var socketReadResul = SocketRead(socket, SiemensConstant.InitHeadLength);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var headPackage = socketReadResul.Value;
 
-                    socket.Send(command);
-                }
-                var headPackage = SocketTryRead(socket, SiemensConstant.InitHeadLength, WarningLog);
-                //如果出现异常，则进行一次重试
-                if (headPackage == null)
-                {
-                    //重新打开连接
-                    var conentResult = Connect();
-                    if (!conentResult.IsSucceed)
-                        return result.SetErrInfo(conentResult);
+                socketReadResul = SocketRead(socket, GetContentLength(headPackage));
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var dataPackage = socketReadResul.Value;
 
-                    socket.Send(command);
-                    headPackage = SocketRead(socket, SiemensConstant.InitHeadLength, WarningLog);
-                }
-                var dataPackage = SocketRead(socket, GetContentLength(headPackage), WarningLog);
                 result.Value = headPackage.Concat(dataPackage).ToArray();
                 return result.EndTime();
             }
         }
-        #endregion
 
         #region Read 
         /// <summary>
@@ -246,7 +237,7 @@ namespace IoTClient.Clients.PLC
                 byte[] command = GetReadCommand(arg);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return result.SetErrInfo(sendResult).EndTime();
 
@@ -334,9 +325,12 @@ namespace IoTClient.Clients.PLC
                     result.Exception = tempResult.Exception;
                 }
 
-                foreach (var item in tempResult.Value)
+                if (tempResult.Value?.Any() ?? false)
                 {
-                    result.Value.Add(item.Key, item.Value);
+                    foreach (var item in tempResult.Value)
+                    {
+                        result.Value.Add(item.Key, item.Value);
+                    }
                 }
 
                 result.Requst = tempResult.Requst;
@@ -369,7 +363,7 @@ namespace IoTClient.Clients.PLC
                 byte[] command = GetReadCommand(args);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return new Result<Dictionary<string, object>>(sendResult);
 
@@ -965,7 +959,7 @@ namespace IoTClient.Clients.PLC
                 arg.ReadWriteLength = length;
                 byte[] command = GetReadCommand(arg);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return result.SetErrInfo(sendResult).EndTime();
 
@@ -1073,7 +1067,7 @@ namespace IoTClient.Clients.PLC
                 var arg = ConvertWriteArg(newAddresses);
                 byte[] command = GetWriteCommand(arg);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return sendResult;
 
@@ -1208,7 +1202,7 @@ namespace IoTClient.Clients.PLC
                 var arg = ConvertWriteArg(address, data, false);
                 byte[] command = GetWriteCommand(arg);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var sendResult = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
                     return sendResult;
 
@@ -1390,6 +1384,52 @@ namespace IoTClient.Clients.PLC
             valueBytes.CopyTo(bytes, 1);
             Array.Reverse(bytes);
             return Write(address, bytes);
+        }
+
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="address">地址</param>
+        /// <param name="value">值</param>
+        /// <param name="type">数据类型</param>
+        /// <returns></returns>
+        public Result Write(string address, object value, DataTypeEnum type)
+        {
+            var result = new Result() { IsSucceed = false };
+            switch (type)
+            {
+                case DataTypeEnum.Bool:
+                    result = Write(address, Convert.ToBoolean(value));
+                    break;
+                case DataTypeEnum.Byte:
+                    result = Write(address, Convert.ToByte(value));
+                    break;
+                case DataTypeEnum.Int16:
+                    result = Write(address, Convert.ToInt16(value));
+                    break;
+                case DataTypeEnum.UInt16:
+                    result = Write(address, Convert.ToUInt16(value));
+                    break;
+                case DataTypeEnum.Int32:
+                    result = Write(address, Convert.ToInt32(value));
+                    break;
+                case DataTypeEnum.UInt32:
+                    result = Write(address, Convert.ToUInt32(value));
+                    break;
+                case DataTypeEnum.Int64:
+                    result = Write(address, Convert.ToInt64(value));
+                    break;
+                case DataTypeEnum.UInt64:
+                    result = Write(address, Convert.ToUInt64(value));
+                    break;
+                case DataTypeEnum.Float:
+                    result = Write(address, Convert.ToSingle(value));
+                    break;
+                case DataTypeEnum.Double:
+                    result = Write(address, Convert.ToDouble(value));
+                    break;
+            }
+            return result;
         }
         #endregion
 

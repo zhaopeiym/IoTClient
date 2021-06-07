@@ -19,11 +19,6 @@ namespace IoTClient.Clients.Modbus
         private EndianFormat format;
 
         /// <summary>
-        /// 警告日志委托        
-        /// </summary>
-        public LoggerDelegate WarningLog { get; set; }
-
-        /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="ip"></param>
@@ -44,13 +39,8 @@ namespace IoTClient.Clients.Modbus
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
-#if DEBUG
-                socket.ReceiveTimeout *= 10;
-                socket.SendTimeout *= 10;
-#endif                 
 
                 //连接
                 socket.Connect(ipAndPoint);
@@ -72,41 +62,59 @@ namespace IoTClient.Clients.Modbus
         /// 发送报文，并获取响应报文
         /// </summary>
         /// <param name="command"></param>
+        /// <param name="lenght"></param>
         /// <returns></returns>
         public Result<byte[]> SendPackage(byte[] command, int lenght)
         {
-            //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
-            lock (this)
+            Result<byte[]> _SendPackage()
             {
-                Result<byte[]> result = new Result<byte[]>();
-                try
+                lock (this)
                 {
+                    //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
+                    Result<byte[]> result = new Result<byte[]>();
                     //发送命令
                     socket.Send(command);
-                    //获取响应报文           
-                    result.Value = SocketRead(socket, lenght);
+                    //获取响应报文    
+                    var socketReadResul = SocketRead(socket, lenght);
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    result.Value = socketReadResul.Value;
+                    return result.EndTime();
                 }
-                catch (Exception ex)
+            }
+
+            try
+            {
+                var result = _SendPackage();
+                if (!result.IsSucceed)
                 {
-                    WarningLog?.Invoke(ex.Message, ex);
-                    //如果出现异常，则进行一次重试
-                    //重新打开连接
+                    WarningLog?.Invoke(result.Err, result.Exception);
+                    //如果出现异常，则进行一次重试         
                     var conentResult = Connect();
                     if (!conentResult.IsSucceed)
                         return new Result<byte[]>(conentResult);
 
-                    //发送命令
-                    socket.Send(command);
-                    //获取响应报文           
-                    result.Value = SocketRead(socket, lenght);
+                    return _SendPackage();
                 }
-                return result.EndTime();
+                else
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                WarningLog?.Invoke(ex.Message, ex);
+                //如果出现异常，则进行一次重试
+                //重新打开连接
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return new Result<byte[]>(conentResult);
+
+                return _SendPackage();
             }
         }
 
-        public byte[] SendPackage(byte[] command)
+        public override Result<byte[]> SendPackageSingle(byte[] command)
         {
-            return null;
+            throw new NotImplementedException();
         }
         #endregion
 
@@ -808,6 +816,7 @@ namespace IoTClient.Clients.Modbus
                     {
                         result.IsSucceed = tempResult.IsSucceed;
                         result.Err = tempResult.Err;
+                        result.Exception = tempResult.Exception;
                         result.ErrList.AddRange(tempResult.ErrList);
                     }
                 }
@@ -865,8 +874,8 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Exception = tempResult.Exception;
-                    result.Err = tempResult.Err;
-                    result.ErrList.AddRange(tempResult.ErrList);
+                    result.Err = $"读取 地址:{minAddress} 站号:{stationNumber} 功能码:{functionCode} 失败。{tempResult.Err}";
+                    result.AddErr2List();
                     return result.EndTime();
                 }
 

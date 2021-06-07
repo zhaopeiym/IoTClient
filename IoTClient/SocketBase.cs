@@ -18,6 +18,12 @@ namespace IoTClient
     public abstract class SocketBase
     {
         /// <summary>
+        /// 警告日志委托
+        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+        /// </summary>
+        public LoggerDelegate WarningLog { get; set; }
+
+        /// <summary>
         /// 分批缓冲区大小
         /// </summary>
         protected const int BufferSize = 4096;
@@ -84,29 +90,19 @@ namespace IoTClient
         /// Socket读取
         /// </summary>
         /// <param name="socket">socket</param>
-        /// <param name="receiveCount">读取长度</param>
-        /// <param name="warningLog">日记委托记录</param>     
+        /// <param name="receiveCount">读取长度</param>          
         /// <returns></returns>
-        protected byte[] SocketRead(Socket socket, int receiveCount, LoggerDelegate warningLog = null)
+        protected Result<byte[]> SocketRead(Socket socket, int receiveCount)
         {
-            byte[] receiveBytes = SocketTryRead(socket, receiveCount, warningLog);
-            if (receiveBytes == null)
+            var result = new Result<byte[]>();
+            if (receiveCount <= 0)
             {
-                socket?.SafeClose();
-                throw new Exception("连接被断开");
+                result.IsSucceed = false;
+                result.Err = $"读取长度[receiveCount]为{receiveCount}，必须大于0";
+                result.AddErr2List();
+                return result;
             }
-            return receiveBytes;
-        }
 
-        /// <summary>
-        /// Socket读取
-        /// </summary>
-        /// <param name="socket">socket</param>
-        /// <param name="receiveCount">读取长度</param>
-        /// <param name="warningLog">日记委托记录</param>        
-        /// <returns>读到的数据，如果内部出现异常则返回null</returns>
-        protected byte[] SocketTryRead(Socket socket, int receiveCount, LoggerDelegate warningLog = null)
-        {
             byte[] receiveBytes = new byte[receiveCount];
             int receiveFinish = 0;
             while (receiveFinish < receiveCount)
@@ -118,17 +114,71 @@ namespace IoTClient
                     var readLeng = socket.Receive(receiveBytes, receiveFinish, receiveLength, SocketFlags.None);
                     if (readLeng == 0)
                     {
-                        return null;
+                        socket?.SafeClose();
+                        result.IsSucceed = false;
+                        result.Err = $"连接被断开";
+                        result.AddErr2List();
+                        return result;
                     }
                     receiveFinish += readLeng;
                 }
                 catch (SocketException ex)
                 {
-                    warningLog?.Invoke(ex.Message, ex);
-                    return null;
+                    socket?.SafeClose();
+                    if (ex.SocketErrorCode == SocketError.TimedOut)
+                        result.Err = $"连接超时：{ex.Message}";
+                    else
+                        result.Err = $"连接被断开，{ex.Message}";
+                    result.IsSucceed = false;
+                    result.AddErr2List();
+                    result.Exception = ex;
+                    return result;
                 }
             }
-            return receiveBytes;
+            result.Value = receiveBytes;
+            return result.EndTime();
+        }
+
+        /// <summary>
+        /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
+        /// </summary>
+        /// <param name="command">发送命令</param>
+        /// <returns></returns>
+        public abstract Result<byte[]> SendPackageSingle(byte[] command);
+
+        /// <summary>
+        /// 发送报文，并获取响应报文（如果网络异常，会自动进行一次重试）
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public Result<byte[]> SendPackageReliable(byte[] command)
+        {
+            try
+            {
+                var result = SendPackageSingle(command);
+                if (!result.IsSucceed)
+                {
+                    WarningLog?.Invoke(result.Err, result.Exception);
+                    //如果出现异常，则进行一次重试         
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
+
+                    return SendPackageSingle(command);
+                }
+                else
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                WarningLog?.Invoke(ex.Message, ex);
+                //如果出现异常，则进行一次重试                
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return new Result<byte[]>(conentResult);
+
+                return SendPackageSingle(command);
+            }
         }
     }
 }

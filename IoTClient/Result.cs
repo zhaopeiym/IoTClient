@@ -91,6 +91,14 @@ namespace IoTClient
             Exception = result.Exception;
             return this;
         }
+
+        /// <summary>
+        /// 添加异常到异常集合
+        /// </summary>
+        public void AddErr2List()
+        {
+            ErrList.Add(Err);
+        }
     }
 
     /// <summary>

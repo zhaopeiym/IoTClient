@@ -129,6 +129,11 @@ namespace IoTClient.Tests.PLCTests
         {
             client.Open();
 
+            client.WarningLog = (msg, ex) =>
+            {
+                string aa = msg;
+            };
+
             var re = new Random(DateTime.Now.Second);
 
             var number0 = re.Next(0, 255) % 2 == 1;

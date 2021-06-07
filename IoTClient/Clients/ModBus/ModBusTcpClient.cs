@@ -20,12 +20,6 @@ namespace IoTClient.Clients.Modbus
         private EndianFormat format;
 
         /// <summary>
-        /// 警告日志委托
-        /// 为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
-        /// </summary>
-        public LoggerDelegate WarningLog { get; set; }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="ipAndPoint"></param>
@@ -66,10 +60,6 @@ namespace IoTClient.Clients.Modbus
                 //超时时间设置
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
-#if DEBUG               
-                socket.ReceiveTimeout *= 10;
-                socket.SendTimeout *= 10;
-#endif                 
 
                 //连接
                 socket.Connect(ipAndPoint);
@@ -85,49 +75,33 @@ namespace IoTClient.Clients.Modbus
             }
             return result.EndTime();
         }
-
-        #region 发送报文，并获取响应报文
+      
         /// <summary>
-        /// 发送报文，并获取响应报文
+        /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public byte[] SendPackage(byte[] command)
+        public override Result<byte[]> SendPackageSingle(byte[] command)
         {
             //从发送命令到读取响应为最小单元，避免多线程执行串数据（可线程安全执行）
             lock (this)
             {
-                //发送命令               
-                try
-                {
-                    socket.Send(command);
-                }
-                catch (Exception ex)
-                {
-                    WarningLog?.Invoke(ex.Message, ex);
-                    //如果出现异常，则进行一次重试         
-                    Connect();
-                    //TODO 
-                    //1、判断result.IsSucceed
-                    //2、Rtu、Ascii、TcpRtu 没进行重试
-                    socket.Send(command);
-                }
-
-                //获取响应报文
-                //如果出现异常，则进行一次重试  
-                var headPackage = SocketTryRead(socket, 8, WarningLog);
-                if (headPackage == null)
-                {
-                    Connect();
-                    socket.Send(command);
-                    headPackage = SocketRead(socket, 8);
-                }
+                Result<byte[]> result = new Result<byte[]>();
+                socket.Send(command);
+                var socketReadResul = SocketRead(socket, 8);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var headPackage = socketReadResul.Value;
                 int length = headPackage[4] * 256 + headPackage[5] - 2;
-                var dataPackage = SocketRead(socket, length);
-                return headPackage.Concat(dataPackage).ToArray();
+                socketReadResul = SocketRead(socket, length);
+                if (!socketReadResul.IsSucceed)
+                    return socketReadResul;
+                var dataPackage = socketReadResul.Value;
+
+                result.Value = headPackage.Concat(dataPackage).ToArray();
+                return result.EndTime();
             }
         }
-        #endregion
 
         #region Read 读取
         /// <summary>
@@ -141,8 +115,14 @@ namespace IoTClient.Clients.Modbus
         /// <returns></returns>
         public Result<byte[]> Read(string address, byte stationNumber = 1, byte functionCode = 3, ushort readLength = 1, bool byteFormatting = true)
         {
-            if (!socket?.Connected ?? true) Connect();
             var result = new Result<byte[]>();
+
+            if (!socket?.Connected ?? true)
+            {
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return result.SetErrInfo(conentResult);
+            }
             try
             {
                 var chenkHead = GetCheckHead(functionCode);
@@ -150,7 +130,10 @@ namespace IoTClient.Clients.Modbus
                 byte[] command = GetReadCommand(address, stationNumber, functionCode, readLength, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //获取响应报文
-                var dataPackage = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var dataPackage = sendResult.Value;
                 byte[] resultBuffer = new byte[dataPackage.Length - 9];
                 Array.Copy(dataPackage, 9, resultBuffer, 0, resultBuffer.Length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
@@ -1037,6 +1020,7 @@ namespace IoTClient.Clients.Modbus
                     else
                     {
                         result.IsSucceed = tempResult.IsSucceed;
+                        result.Exception = tempResult.Exception;
                         result.Err = tempResult.Err;
                         result.ErrList.AddRange(tempResult.ErrList);
                     }
@@ -1095,8 +1079,8 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Exception = tempResult.Exception;
-                    result.Err = tempResult.Err;
-                    result.ErrList.AddRange(tempResult.ErrList);
+                    result.Err = $"读取 地址:{minAddress} 站号:{stationNumber} 功能码:{functionCode} 失败。{tempResult.Err}";
+                    result.AddErr2List();
                     return result.EndTime();
                 }
 
@@ -1165,14 +1149,22 @@ namespace IoTClient.Clients.Modbus
         /// <param name="functionCode">功能码</param>
         public Result Write(string address, bool value, byte stationNumber = 1, byte functionCode = 5)
         {
-            if (!socket?.Connected ?? true) Connect();
             var result = new Result();
+            if (!socket?.Connected ?? true)
+            {
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return result.SetErrInfo(conentResult);
+            }
             try
             {
                 var chenkHead = GetCheckHead(functionCode);
                 var command = GetWriteCoilCommand(address, value, stationNumber, functionCode, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var dataPackage = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
@@ -1215,9 +1207,13 @@ namespace IoTClient.Clients.Modbus
         /// <returns></returns>
         public Result Write(string address, byte[] values, byte stationNumber = 1, byte functionCode = 16, bool byteFormatting = true)
         {
-            if (!socket?.Connected ?? true) Connect();
-
             var result = new Result();
+            if (!socket?.Connected ?? true)
+            {
+                var conentResult = Connect();
+                if (!conentResult.IsSucceed)
+                    return result.SetErrInfo(conentResult);
+            }
             try
             {
                 if (byteFormatting)
@@ -1225,7 +1221,10 @@ namespace IoTClient.Clients.Modbus
                 var chenkHead = GetCheckHead(functionCode);
                 var command = GetWriteCommand(address, values, stationNumber, functionCode, chenkHead);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
-                var dataPackage = SendPackage(command);
+                var sendResult = SendPackageReliable(command);
+                if (!sendResult.IsSucceed)
+                    return result.SetErrInfo(sendResult).EndTime();
+                var dataPackage = sendResult.Value;
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
