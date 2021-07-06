@@ -36,6 +36,8 @@ IoTClient
     - [海底捞末端控制（商用）](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6%E5%95%86%E7%94%A8)
         - [海底捞末端控制-web](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-web)
         - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+- [友情链接](#%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5)
+    - [YuebonCore](#yueboncore)
 
 <!-- /TOC -->
 
@@ -375,6 +377,7 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/117001460-f49fda00-ad14-11eb-8c75-eb88a24983b6.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001461-f5d10700-ad14-11eb-9d82-d73a7347ad32.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001464-f6699d80-ad14-11eb-8810-50b20f8954ae.png)  
+![image](https://img2020.cnblogs.com/blog/208266/202106/208266-20210630094808579-2089270828.svg)   
 
 ### 能源管理-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964170-796f0180-acdd-11eb-9514-fd9a05c15eae.png)![image](https://user-images.githubusercontent.com/5820324/116964172-7a079800-acdd-11eb-91ac-13c1a321145d.png)![image](https://user-images.githubusercontent.com/5820324/116964174-7aa02e80-acdd-11eb-8051-158f13ed2993.png)![image](https://user-images.githubusercontent.com/5820324/116964175-7b38c500-acdd-11eb-80b4-97827ee03374.png)![image](https://user-images.githubusercontent.com/5820324/116964177-7c69f200-acdd-11eb-94b8-ddbf5081ddaf.png)![image](https://user-images.githubusercontent.com/5820324/116964179-7d028880-acdd-11eb-95c6-601e235e3b6b.png)![image](https://user-images.githubusercontent.com/5820324/116964181-7d9b1f00-acdd-11eb-9914-911167e0af05.png)
@@ -389,3 +392,13 @@ var value4 = result.Value;
 
 ### 海底捞末端控制-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964517-5002a580-acde-11eb-9bfb-c859a57307c7.png)![image](https://user-images.githubusercontent.com/5820324/116964519-509b3c00-acde-11eb-8245-573ac3fa7f16.png)![image](https://user-images.githubusercontent.com/5820324/116964521-5133d280-acde-11eb-85de-b09dde1ca41e.png)![image](https://user-images.githubusercontent.com/5820324/116964525-51cc6900-acde-11eb-924f-f3320e4a179c.png)
+
+# 友情链接
+
+## YuebonCore
+开源地址：  
+https://gitee.com/yuebon/YuebonNetCore  
+
+概述：  
+YuebonCore是基于.Net5.0开发的权限管理及快速开发框架，整合应用最新技术包括Asp.NetCore MVC、Dapper、WebAPI、Swagger、EF、Vue等，核心模块包括：组织机构、角色用户、权限授权、多系统、多应用管理、定时任务、业务单据编码规则、代码生成器等。它的架构易于扩展，规范了一套业务实现的代码结构与操作流程，使YuebonCore框架更易于应用到实际项目开发中。  
+YuebonCore FW其核心设计目标是开发迅速、代码量少、学习简单、功能强大、轻量级、易扩展，让Web开发更快速、简单，解决70%重复工作。轻松开发，专注您的业务，从YuebonCore FW开始！  
