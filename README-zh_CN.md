@@ -37,6 +37,7 @@ IoTClient
         - [海底捞末端控制-web](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-web)
         - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
     - [越邦智能分拣系统（商用）](#%E8%B6%8A%E9%82%A6%E6%99%BA%E8%83%BD%E5%88%86%E6%8B%A3%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
+    - [电表监控系统（商用）](#%E7%94%B5%E8%A1%A8%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
 - [友情链接](#%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5)
     - [YuebonCore](#yueboncore)
 
@@ -402,6 +403,11 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/124534498-fa19bd80-de46-11eb-9c6d-89c6e7323ed5.jpg)  
 ![image](https://user-images.githubusercontent.com/5820324/124534506-fdad4480-de46-11eb-983c-b074b72e0922.jpg)  
 
+## 电表监控系统（商用）
+所属公司：[哈工大机器人南昌智能制造研究院](http://www.hrgrobotics.cn)  
+![image](https://user-images.githubusercontent.com/5820324/124694128-3f0b2600-df13-11eb-9266-fa7d2ef7de11.png)  
+![image](https://user-images.githubusercontent.com/5820324/124694129-403c5300-df13-11eb-8452-12f73260a7a9.png)  
+
 # 友情链接
 
 ## YuebonCore
@@ -410,4 +416,3 @@ https://gitee.com/yuebon/YuebonNetCore
 
 概述：  
 YuebonCore是基于.Net5.0开发的权限管理及快速开发框架，整合应用最新技术包括Asp.NetCore MVC、Dapper、WebAPI、Swagger、EF、Vue等，核心模块包括：组织机构、角色用户、权限授权、多系统、多应用管理、定时任务、业务单据编码规则、代码生成器等。它的架构易于扩展，规范了一套业务实现的代码结构与操作流程，使YuebonCore框架更易于应用到实际项目开发中。  
-YuebonCore FW其核心设计目标是开发迅速、代码量少、学习简单、功能强大、轻量级、易扩展，让Web开发更快速、简单，解决70%重复工作。轻松开发，专注您的业务，从YuebonCore FW开始！  
