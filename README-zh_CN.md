@@ -28,7 +28,7 @@ IoTClient
     - [OmronFinsClient(欧姆龙)读写操作](#omronfinsclient%E6%AC%A7%E5%A7%86%E9%BE%99%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
     - [AllenBradleyClient(罗克韦尔)读写操作](#allenbradleyclient%E7%BD%97%E5%85%8B%E9%9F%A6%E5%B0%94%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
 - [基于IoTClient库的一些项目](#%E5%9F%BA%E4%BA%8Eiotclient%E5%BA%93%E7%9A%84%E4%B8%80%E4%BA%9B%E9%A1%B9%E7%9B%AE)
-    - [IoTClient Tool 桌面程序工具（开源）](#iotclient-tool-%E6%A1%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E5%B7%A5%E5%85%B7%E5%BC%80%E6%BA%90)        
+    - [IoTClient Tool 桌面程序工具（开源）](#iotclient-tool-%E6%A1%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E5%B7%A5%E5%85%B7%E5%BC%80%E6%BA%90)
     - [能源管理系统（商用）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
         - [能源管理-现场-单项目](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E7%8E%B0%E5%9C%BA-%E5%8D%95%E9%A1%B9%E7%9B%AE)
         - [能源管理-云端-多项目](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E4%BA%91%E7%AB%AF-%E5%A4%9A%E9%A1%B9%E7%9B%AE)
@@ -36,6 +36,10 @@ IoTClient
     - [海底捞末端控制（商用）](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6%E5%95%86%E7%94%A8)
         - [海底捞末端控制-web](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-web)
         - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
+    - [越邦智能分拣系统（商用）](#%E8%B6%8A%E9%82%A6%E6%99%BA%E8%83%BD%E5%88%86%E6%8B%A3%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
+    - [电表监控系统（商用）](#%E7%94%B5%E8%A1%A8%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
+- [友情链接](#%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5)
+    - [YuebonCore](#yueboncore)
 
 <!-- /TOC -->
 
@@ -336,6 +340,7 @@ var value4 = result.Value;
 # 基于IoTClient库的一些项目
 
 ## IoTClient Tool 桌面程序工具（开源）
+所属个人：[农码一生](https://www.cnblogs.com/zhaopei)  
 
 ### [IoTClient Tool](https://github.com/zhaopeiym/IoTClient/releases/download/0.4.0/IoTClient.0.4.0.exe) 桌面程序工具，[开源地址](https://github.com/zhaopeiym/IoTClient.Examples)。     
 
@@ -363,6 +368,7 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/115138607-c86f3280-a05f-11eb-83f1-d1706331406a.png)  
 
 ## 能源管理系统（商用）
+所属公司：[擎呐科技](https://qingnakeji.com)   
 
 ### 能源管理-现场-单项目
 ![image](https://user-images.githubusercontent.com/5820324/117001443-f10c5300-ad14-11eb-8597-bcc6e573c542.png)  
@@ -375,11 +381,13 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/117001460-f49fda00-ad14-11eb-8c75-eb88a24983b6.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001461-f5d10700-ad14-11eb-9d82-d73a7347ad32.png)  
 ![image](https://user-images.githubusercontent.com/5820324/117001464-f6699d80-ad14-11eb-8810-50b20f8954ae.png)  
+![image](https://img2020.cnblogs.com/blog/208266/202106/208266-20210630094808579-2089270828.svg)   
 
 ### 能源管理-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964170-796f0180-acdd-11eb-9514-fd9a05c15eae.png)![image](https://user-images.githubusercontent.com/5820324/116964172-7a079800-acdd-11eb-91ac-13c1a321145d.png)![image](https://user-images.githubusercontent.com/5820324/116964174-7aa02e80-acdd-11eb-8051-158f13ed2993.png)![image](https://user-images.githubusercontent.com/5820324/116964175-7b38c500-acdd-11eb-80b4-97827ee03374.png)![image](https://user-images.githubusercontent.com/5820324/116964177-7c69f200-acdd-11eb-94b8-ddbf5081ddaf.png)![image](https://user-images.githubusercontent.com/5820324/116964179-7d028880-acdd-11eb-95c6-601e235e3b6b.png)![image](https://user-images.githubusercontent.com/5820324/116964181-7d9b1f00-acdd-11eb-9914-911167e0af05.png)
 
 ## 海底捞末端控制（商用）
+所属公司：[擎呐科技](https://qingnakeji.com)   
 
 ### 海底捞末端控制-web
 ![image](https://user-images.githubusercontent.com/5820324/117001939-87d90f80-ad15-11eb-8848-7a4956ba1ce9.png)  
@@ -389,3 +397,22 @@ var value4 = result.Value;
 
 ### 海底捞末端控制-移动端
 ![image](https://user-images.githubusercontent.com/5820324/116964517-5002a580-acde-11eb-9bfb-c859a57307c7.png)![image](https://user-images.githubusercontent.com/5820324/116964519-509b3c00-acde-11eb-8245-573ac3fa7f16.png)![image](https://user-images.githubusercontent.com/5820324/116964521-5133d280-acde-11eb-85de-b09dde1ca41e.png)![image](https://user-images.githubusercontent.com/5820324/116964525-51cc6900-acde-11eb-924f-f3320e4a179c.png)
+
+## 越邦智能分拣系统（商用）
+所属公司：[越邦科技](http://www.yuebon.com)  
+![image](https://user-images.githubusercontent.com/5820324/124534498-fa19bd80-de46-11eb-9c6d-89c6e7323ed5.jpg)  
+![image](https://user-images.githubusercontent.com/5820324/124534506-fdad4480-de46-11eb-983c-b074b72e0922.jpg)  
+
+## 电表监控系统（商用）
+所属公司：[哈工大机器人南昌智能制造研究院](http://www.hrgrobotics.cn)  
+![image](https://user-images.githubusercontent.com/5820324/124694128-3f0b2600-df13-11eb-9266-fa7d2ef7de11.png)  
+![image](https://user-images.githubusercontent.com/5820324/124694129-403c5300-df13-11eb-8452-12f73260a7a9.png)  
+
+# 友情链接
+
+## YuebonCore
+开源地址：  
+https://gitee.com/yuebon/YuebonNetCore  
+
+概述：  
+YuebonCore是基于.Net5.0开发的权限管理及快速开发框架，整合应用最新技术包括Asp.NetCore MVC、Dapper、WebAPI、Swagger、EF、Vue等，核心模块包括：组织机构、角色用户、权限授权、多系统、多应用管理、定时任务、业务单据编码规则、代码生成器等。它的架构易于扩展，规范了一套业务实现的代码结构与操作流程，使YuebonCore框架更易于应用到实际项目开发中。  

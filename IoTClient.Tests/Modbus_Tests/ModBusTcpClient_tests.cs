@@ -129,7 +129,9 @@ namespace IoTClient.Tests.Modbus
 
         [Fact]
         public void 批量读取()
-        {
+        {            
+            var result1 = client.ReadInt16("12");
+
             client.WarningLog = (msg, ex) =>
             {
                 string aa = msg;

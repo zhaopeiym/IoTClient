@@ -15,7 +15,7 @@ namespace IoTClient.Clients.Modbus
     /// </summary>
     public class ModbusTcpClient : SocketBase, IModbusClient
     {
-        private IPEndPoint ipAndPoint;
+        private IPEndPoint ipEndPoint;
         private int timeout = -1;
         private EndianFormat format;
 
@@ -28,7 +28,7 @@ namespace IoTClient.Clients.Modbus
         public ModbusTcpClient(IPEndPoint ipAndPoint, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             this.timeout = timeout;
-            this.ipAndPoint = ipAndPoint;
+            this.ipEndPoint = ipAndPoint;
             this.format = format;
         }
 
@@ -42,7 +42,9 @@ namespace IoTClient.Clients.Modbus
         public ModbusTcpClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
         {
             this.timeout = timeout;
-            this.ipAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            if (!IPAddress.TryParse(ip, out IPAddress address))
+                address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
+            ipEndPoint = new IPEndPoint(address, port);            
             this.format = format;
         }
 
@@ -62,7 +64,7 @@ namespace IoTClient.Clients.Modbus
                 socket.SendTimeout = timeout;
 
                 //连接
-                socket.Connect(ipAndPoint);
+                socket.Connect(ipEndPoint);
             }
             catch (Exception ex)
             {
@@ -71,11 +73,10 @@ namespace IoTClient.Clients.Modbus
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
             }
             return result.EndTime();
         }
-      
+
         /// <summary>
         /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
         /// </summary>
@@ -121,7 +122,10 @@ namespace IoTClient.Clients.Modbus
             {
                 var conentResult = Connect();
                 if (!conentResult.IsSucceed)
+                {
+                    conentResult.Err = $"读取 地址:{address} 站号:{stationNumber} 功能码:{functionCode} 失败。{ conentResult.Err}";
                     return result.SetErrInfo(conentResult);
+                }
             }
             try
             {
@@ -132,7 +136,10 @@ namespace IoTClient.Clients.Modbus
                 //获取响应报文
                 var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
+                {
+                    sendResult.Err = $"读取 地址:{address} 站号:{stationNumber} 功能码:{functionCode} 失败。{ sendResult.Err}";
                     return result.SetErrInfo(sendResult).EndTime();
+                }
                 var dataPackage = sendResult.Value;
                 byte[] resultBuffer = new byte[dataPackage.Length - 9];
                 Array.Copy(dataPackage, 9, resultBuffer, 0, resultBuffer.Length);
@@ -146,8 +153,7 @@ namespace IoTClient.Clients.Modbus
                 if (chenkHead[0] != dataPackage[0] || chenkHead[1] != dataPackage[1])
                 {
                     result.IsSucceed = false;
-                    result.Err = "响应结果校验失败";
-                    result.ErrList.Add("响应结果校验失败");
+                    result.Err = $"读取 地址:{address} 站号:{stationNumber} 功能码:{functionCode} 失败。响应结果校验失败";
                     socket?.SafeClose();
                 }
             }
@@ -156,14 +162,12 @@ namespace IoTClient.Clients.Modbus
                 result.IsSucceed = false;
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
+                    result.Err = $"读取 地址:{address} 站号:{stationNumber} 功能码:{functionCode} 失败。连接超时";
                     socket?.SafeClose();
                 }
                 else
                 {
-                    result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
+                    result.Err = $"读取 地址:{address} 站号:{stationNumber} 功能码:{functionCode} 失败。{ ex.Message}";
                 }
             }
             finally
@@ -183,14 +187,7 @@ namespace IoTClient.Clients.Modbus
         public Result<short> ReadInt16(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<short>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<short>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
             return result.EndTime();
@@ -217,14 +214,7 @@ namespace IoTClient.Clients.Modbus
         public Result<ushort> ReadUInt16(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<ushort>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<ushort>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
             return result.EndTime();
@@ -252,14 +242,7 @@ namespace IoTClient.Clients.Modbus
         public Result<int> ReadInt32(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 2);
-            var result = new Result<int>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<int>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
             return result.EndTime();
@@ -288,14 +271,7 @@ namespace IoTClient.Clients.Modbus
         public Result<uint> ReadUInt32(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 2);
-            var result = new Result<uint>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<uint>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
             return result.EndTime();
@@ -323,14 +299,7 @@ namespace IoTClient.Clients.Modbus
         public Result<long> ReadInt64(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 4);
-            var result = new Result<long>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<long>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
             return result.EndTime();
@@ -358,14 +327,7 @@ namespace IoTClient.Clients.Modbus
         public Result<ulong> ReadUInt64(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 4);
-            var result = new Result<ulong>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<ulong>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
             return result.EndTime();
@@ -393,14 +355,7 @@ namespace IoTClient.Clients.Modbus
         public Result<float> ReadFloat(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 2);
-            var result = new Result<float>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<float>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
             return result.EndTime();
@@ -428,14 +383,7 @@ namespace IoTClient.Clients.Modbus
         public Result<double> ReadDouble(string address, byte stationNumber = 1, byte functionCode = 3)
         {
             var readResut = Read(address, stationNumber, functionCode, readLength: 4);
-            var result = new Result<double>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<double>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
             return result.EndTime();
@@ -468,14 +416,7 @@ namespace IoTClient.Clients.Modbus
 
             readLength = (ushort)Math.Ceiling((float)readLength / 2);
             var readResut = Read(address, stationNumber, functionCode, readLength: readLength, byteFormatting: false);
-            var result = new Result<string>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<string>(readResut);
             if (result.IsSucceed)
                 result.Value = encoding.GetString(readResut.Value.Reverse().ToArray())?.Replace("\0", "");
             return result.EndTime();
@@ -491,14 +432,7 @@ namespace IoTClient.Clients.Modbus
         public Result<bool> ReadCoil(string address, byte stationNumber = 1, byte functionCode = 1)
         {
             var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<bool>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<bool>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result.EndTime();
@@ -526,14 +460,7 @@ namespace IoTClient.Clients.Modbus
         public Result<bool> ReadDiscrete(string address, byte stationNumber = 1, byte functionCode = 2)
         {
             var readResut = Read(address, stationNumber, functionCode);
-            var result = new Result<bool>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<bool>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result.EndTime();
@@ -990,7 +917,7 @@ namespace IoTClient.Clients.Modbus
         /// </summary>
         /// <param name="addresses"></param>
         /// <returns></returns>
-        public Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses)
+        private Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses)
         {
             var result = new Result<List<ModbusOutput>>();
             result.Value = new List<ModbusOutput>();
@@ -1019,14 +946,33 @@ namespace IoTClient.Clients.Modbus
                     }
                     else
                     {
-                        result.IsSucceed = tempResult.IsSucceed;
-                        result.Exception = tempResult.Exception;
-                        result.Err = tempResult.Err;
-                        result.ErrList.AddRange(tempResult.ErrList);
+                        result.SetErrInfo(tempResult);
                     }
                 }
             }
             return result.EndTime();
+        }
+
+        /// <summary>
+        /// 分批读取
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <param name="retryCount">如果读取异常，重试次数</param>
+        /// <returns></returns>
+        public Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses, uint retryCount = 1)
+        {
+            var result = BatchRead(addresses);
+            for (int i = 0; i < retryCount; i++)
+            {
+                if (!result.IsSucceed)
+                {
+                    WarningLog?.Invoke(result.Err, result.Exception);
+                    result = BatchRead(addresses);
+                }
+                else
+                    break;
+            }
+            return result;
         }
 
         private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
@@ -1170,7 +1116,6 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
-                    result.ErrList.Add("响应结果校验失败");
                     socket?.SafeClose();
                 }
             }
@@ -1180,13 +1125,11 @@ namespace IoTClient.Clients.Modbus
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                     socket?.SafeClose();
                 }
                 else
                 {
                     result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
                 }
             }
             finally
@@ -1230,7 +1173,6 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = false;
                     result.Err = "响应结果校验失败";
-                    result.ErrList.Add("响应结果校验失败");
                     socket?.SafeClose();
                 }
             }
@@ -1240,13 +1182,11 @@ namespace IoTClient.Clients.Modbus
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                     socket?.SafeClose();
                 }
                 else
                 {
                     result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
                 }
             }
             finally

@@ -22,7 +22,7 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 连接地址
         /// </summary>
-        public IPEndPoint IpAndPoint { get; }
+        public IPEndPoint IpEndPoint { get; }
 
         /// <summary>
         /// 是否是连接的
@@ -40,7 +40,9 @@ namespace IoTClient.Clients.PLC
 
         public AllenBradleyClient(string ip, int port, byte slot = 0, int timeout = 1500)
         {
-            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            if (!IPAddress.TryParse(ip, out IPAddress address))
+                address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
+            IpEndPoint = new IPEndPoint(address, port);            
             this.timeout = timeout;
             this.slot = slot;
         }
@@ -81,7 +83,7 @@ namespace IoTClient.Clients.PLC
                 socket.SendTimeout = timeout;
 
                 //连接
-                socket.Connect(IpAndPoint);
+                socket.Connect(IpEndPoint);
 
                 result.Requst = string.Join(" ", RegisteredCommand.Select(t => t.ToString("X2")));
                 socket.Send(RegisteredCommand);
@@ -114,7 +116,6 @@ namespace IoTClient.Clients.PLC
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
             }
             return result.EndTime();
         }
@@ -181,13 +182,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -196,7 +195,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -375,13 +373,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -390,7 +386,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally

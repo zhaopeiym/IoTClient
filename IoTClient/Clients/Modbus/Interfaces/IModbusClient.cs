@@ -229,8 +229,9 @@ namespace IoTClient.Clients.Modbus
         /// 分批读取（批量读取，内部进行批量计算读取）
         /// </summary>
         /// <param name="addresses"></param>
+        /// <param name="retryCount">如果读取异常，重试次数</param>
         /// <returns></returns>
-        Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses);
+        Result<List<ModbusOutput>> BatchRead(List<ModbusInput> addresses, uint retryCount = 1);
         #endregion
 
         #region Write 写入

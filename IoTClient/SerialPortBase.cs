@@ -50,7 +50,6 @@ namespace IoTClient
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
             }
             return result.EndTime();
         }
@@ -103,9 +102,11 @@ namespace IoTClient
         {
             Result<byte[]> result = new Result<byte[]>();
             DateTime beginTime = DateTime.Now;
-            //在没有取到数据且没有超时的情况，延时处理
-            while (serialPort.BytesToRead == 0 && DateTime.Now - beginTime <= TimeSpan.FromMilliseconds(serialPort.ReadTimeout))
+            var tempBufferLength = serialPort.BytesToRead;
+            //在(没有取到数据或BytesToRead在继续读取)且没有超时的情况，延时处理
+            while ((serialPort.BytesToRead == 0 || tempBufferLength != serialPort.BytesToRead) && DateTime.Now - beginTime <= TimeSpan.FromMilliseconds(serialPort.ReadTimeout))
             {
+                tempBufferLength = serialPort.BytesToRead;
                 //延时处理
                 Thread.Sleep(20);
             }

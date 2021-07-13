@@ -71,7 +71,6 @@ namespace IoTClient
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 return result;
             }
         }

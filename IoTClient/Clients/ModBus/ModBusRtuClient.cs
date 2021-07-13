@@ -78,7 +78,6 @@ namespace IoTClient.Clients.Modbus
             {
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                result.ErrList.Add(ex.Message);
             }
             finally
             {
@@ -131,7 +130,6 @@ namespace IoTClient.Clients.Modbus
             {
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                result.ErrList.Add(ex.Message);
             }
             finally
             {
@@ -184,7 +182,6 @@ namespace IoTClient.Clients.Modbus
             {
                 result.IsSucceed = false;
                 result.Err = ex.Message;
-                result.ErrList.Add(ex.Message);
             }
             finally
             {

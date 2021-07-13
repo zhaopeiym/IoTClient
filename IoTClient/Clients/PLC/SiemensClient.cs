@@ -41,7 +41,7 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 连接地址
         /// </summary>
-        public IPEndPoint IpAndPoint { get; }
+        public IPEndPoint IpEndPoint { get; }
 
         /// <summary>
         /// 插槽号 
@@ -66,7 +66,7 @@ namespace IoTClient.Clients.PLC
             Slot = slot;
             Rack = rack;
             this.version = version;
-            IpAndPoint = ipAndPoint;
+            IpEndPoint = ipAndPoint;
             this.timeout = timeout;
         }
 
@@ -84,7 +84,9 @@ namespace IoTClient.Clients.PLC
             Slot = slot;
             Rack = rack;
             this.version = version;
-            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
+            if (!IPAddress.TryParse(ip, out IPAddress address))
+                address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
+            IpEndPoint = new IPEndPoint(address, port);            
             this.timeout = timeout;
         }
 
@@ -104,7 +106,7 @@ namespace IoTClient.Clients.PLC
                 socket.SendTimeout = timeout;
 
                 //连接
-                socket.Connect(IpAndPoint);
+                socket.Connect(IpEndPoint);
 
                 var Command1 = SiemensConstant.Command1;
                 var Command2 = SiemensConstant.Command2;
@@ -177,7 +179,6 @@ namespace IoTClient.Clients.PLC
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
             }
             return result.EndTime();
         }
@@ -224,6 +225,7 @@ namespace IoTClient.Clients.PLC
                 var connectResult = Connect();
                 if (!connectResult.IsSucceed)
                 {
+                    connectResult.Err = $"读取{address}失败，{ connectResult.Err}";
                     return new Result<byte[]>(connectResult);
                 }
             }
@@ -239,7 +241,10 @@ namespace IoTClient.Clients.PLC
                 //发送命令 并获取响应报文
                 var sendResult = SendPackageReliable(command);
                 if (!sendResult.IsSucceed)
+                {
+                    sendResult.Err = $"读取{address}失败，{ sendResult.Err}";
                     return result.SetErrInfo(sendResult).EndTime();
+                }
 
                 var dataPackage = sendResult.Value;
                 byte[] responseData = new byte[length];
@@ -254,19 +259,16 @@ namespace IoTClient.Clients.PLC
                     {
                         result.IsSucceed = false;
                         result.Err = $"读取{address}失败，请确认是否存在地址{address}";
-                        result.ErrList.Add(result.Err);
                     }
                     else if (dataPackage[21] == 0x05 && dataPackage[22] == 0x00)
                     {
                         result.IsSucceed = false;
                         result.Err = $"读取{address}失败，请确认是否存在地址{address}";
-                        result.ErrList.Add(result.Err);
                     }
                     else if (dataPackage[21] != 0xFF)
                     {
                         result.IsSucceed = false;
                         result.Err = $"读取{address}失败，异常代码[{21}]:{dataPackage[21]}";
-                        result.ErrList.Add(result.Err);
                     }
                 }
             }
@@ -275,14 +277,12 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
-                    result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
+                    result.Err = $"读取{address}失败，连接超时";
                 }
                 else
                 {
-                    result.Err = ex.Message;
+                    result.Err = $"读取{address}失败，{ ex.Message}";
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -291,7 +291,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -321,7 +320,6 @@ namespace IoTClient.Clients.PLC
                 {
                     result.IsSucceed = false;
                     result.Err = tempResult.Err;
-                    result.ErrList.AddRange(tempResult.ErrList);
                     result.Exception = tempResult.Exception;
                 }
 
@@ -410,7 +408,6 @@ namespace IoTClient.Clients.PLC
                     if (!isSucceed)
                     {
                         result.IsSucceed = false;
-                        result.ErrList.Add(result.Err);
                         continue;
                     }
 
@@ -460,13 +457,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -475,7 +470,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -975,13 +969,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -990,7 +982,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -1083,19 +1074,16 @@ namespace IoTClient.Clients.PLC
                         {
                             result.IsSucceed = false;
                             result.Err = $"写入{arg[i].Address}失败，请确认是否存在地址{arg[i].Address}，异常代码[{offset}]:{dataPackage[offset]}";
-                            result.ErrList.Add(result.Err);
                         }
                         else if (dataPackage[offset] == 0x05)
                         {
                             result.IsSucceed = false;
                             result.Err = $"写入{arg[i].Address}失败，请确认是否存在地址{arg[i].Address}，异常代码[{offset}]:{dataPackage[offset]}";
-                            result.ErrList.Add(result.Err);
                         }
                         else if (dataPackage[offset] != 0xFF)
                         {
                             result.IsSucceed = false;
                             result.Err = $"写入{arg[i].Address}失败，异常代码[{offset}]:{dataPackage[offset]}";
-                            result.ErrList.Add(result.Err);
                         }
                     }
                 }
@@ -1103,7 +1091,6 @@ namespace IoTClient.Clients.PLC
                 {
                     result.IsSucceed = false;
                     result.Err = $"写入数据数量和响应结果数量不一致，写入数据：{arg.Length} 响应数量：{dataPackage.Length - 21}";
-                    result.ErrList.Add(result.Err);
                 }
             }
             catch (SocketException ex)
@@ -1112,13 +1099,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -1127,7 +1112,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -1145,7 +1129,7 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber = 12)
         {
-            //TODO 为什么只能批量写12个？
+            //因为协议报文长度限制，最多只能写入12个
             var result = new Result();
             var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
             for (int i = 0; i < batchCount; i++)
@@ -1156,7 +1140,6 @@ namespace IoTClient.Clients.PLC
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Err = tempResult.Err;
-                    result.ErrList.AddRange(tempResult.ErrList);
                 }
                 result.Requst = tempResult.Requst;
                 result.Response = tempResult.Response;
@@ -1214,19 +1197,16 @@ namespace IoTClient.Clients.PLC
                 {
                     result.IsSucceed = false;
                     result.Err = $"写入{address}失败，请确认是否存在地址{address}，异常代码[{offset}]:{dataPackage[offset]}";
-                    result.ErrList.Add(result.Err);
                 }
                 else if (dataPackage[offset] == 0x05)
                 {
                     result.IsSucceed = false;
                     result.Err = $"写入{address}失败，请确认是否存在地址{address}，异常代码[{offset}]:{dataPackage[offset]}";
-                    result.ErrList.Add(result.Err);
                 }
                 else if (dataPackage[offset] != 0xFF)
                 {
                     result.IsSucceed = false;
                     result.Err = $"写入{address}失败，异常代码[{offset}]:{dataPackage[offset]}";
-                    result.ErrList.Add(result.Err);
                 }
             }
             catch (SocketException ex)
@@ -1235,13 +1215,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -1250,7 +1228,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally

@@ -25,7 +25,7 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 连接地址
         /// </summary>
-        public IPEndPoint IpAndPoint { get; }
+        public IPEndPoint IpEndPoint { get; }
 
         /// <summary>
         /// 是否是连接的
@@ -42,7 +42,9 @@ namespace IoTClient.Clients.PLC
         public MitsubishiClient(MitsubishiVersion version, string ip, int port, int timeout = 1500)
         {
             this.version = version;
-            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
+            if (!IPAddress.TryParse(ip, out IPAddress address))
+                address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
+            IpEndPoint = new IPEndPoint(address, port);            
             this.timeout = timeout;
         }
 
@@ -61,7 +63,7 @@ namespace IoTClient.Clients.PLC
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
 
-                socket.Connect(IpAndPoint);
+                socket.Connect(IpEndPoint);
             }
             catch (Exception ex)
             {
@@ -70,7 +72,6 @@ namespace IoTClient.Clients.PLC
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
             }
             return result.EndTime();
         }
@@ -239,12 +240,10 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -263,14 +262,7 @@ namespace IoTClient.Clients.PLC
         public Result<bool> ReadBoolean(string address)
         {
             var readResut = Read(address, 1, isBit: true);
-            var result = new Result<bool>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<bool>(readResut);
             if (result.IsSucceed)
                 result.Value = (readResut.Value[0] & 0b00010000) != 0;
             return result.EndTime();
@@ -316,14 +308,7 @@ namespace IoTClient.Clients.PLC
         public Result<short> ReadInt16(string address)
         {
             var readResut = Read(address, 2);
-            var result = new Result<short>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<short>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt16(readResut.Value, 0);
             return result.EndTime();
@@ -385,14 +370,7 @@ namespace IoTClient.Clients.PLC
         public Result<ushort> ReadUInt16(string address)
         {
             var readResut = Read(address, 2);
-            var result = new Result<ushort>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<ushort>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
             return result.EndTime();
@@ -406,14 +384,7 @@ namespace IoTClient.Clients.PLC
         public Result<int> ReadInt32(string address)
         {
             var readResut = Read(address, 4);
-            var result = new Result<int>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<int>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt32(readResut.Value, 0);
             return result.EndTime();
@@ -427,14 +398,7 @@ namespace IoTClient.Clients.PLC
         public Result<uint> ReadUInt32(string address)
         {
             var readResut = Read(address, 4);
-            var result = new Result<uint>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<uint>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
             return result.EndTime();
@@ -448,14 +412,7 @@ namespace IoTClient.Clients.PLC
         public Result<long> ReadInt64(string address)
         {
             var readResut = Read(address, 8);
-            var result = new Result<long>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<long>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToInt64(readResut.Value, 0);
             return result.EndTime();
@@ -469,14 +426,7 @@ namespace IoTClient.Clients.PLC
         public Result<ulong> ReadUInt64(string address)
         {
             var readResut = Read(address, 8);
-            var result = new Result<ulong>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<ulong>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
             return result.EndTime();
@@ -490,14 +440,7 @@ namespace IoTClient.Clients.PLC
         public Result<float> ReadFloat(string address)
         {
             var readResut = Read(address, 4);
-            var result = new Result<float>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<float>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToSingle(readResut.Value, 0);
             return result.EndTime();
@@ -535,14 +478,7 @@ namespace IoTClient.Clients.PLC
         public Result<double> ReadDouble(string address)
         {
             var readResut = Read(address, 8);
-            var result = new Result<double>()
-            {
-                IsSucceed = readResut.IsSucceed,
-                Err = readResut.Err,
-                ErrList = readResut.ErrList,
-                Requst = readResut.Requst,
-                Response = readResut.Response,
-            };
+            var result = new Result<double>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
             return result.EndTime();
@@ -622,13 +558,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -637,7 +571,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -1323,7 +1256,6 @@ namespace IoTClient.Clients.PLC
                         result.IsSucceed = tempResult.IsSucceed;
                         result.Exception = tempResult.Exception;
                         result.Err = tempResult.Err;
-                        result.ErrList.AddRange(tempResult.ErrList);
                         return result.EndTime();
                     }
 

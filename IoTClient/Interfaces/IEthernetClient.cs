@@ -10,6 +10,6 @@ namespace IoTClient.Interfaces
         /// <summary>
         /// IPEndPoint
         /// </summary>
-        IPEndPoint IpAndPoint { get; }
+        IPEndPoint IpEndPoint { get; }
     }
 }

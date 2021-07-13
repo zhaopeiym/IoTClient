@@ -17,10 +17,22 @@ namespace IoTClient
         /// </summary>
         public bool IsSucceed { get; set; } = true;
 
+        private string _Err;
         /// <summary>
         /// 异常消息
         /// </summary>
-        public string Err { get; set; }
+        public string Err
+        {
+            get
+            {
+                return _Err;
+            }
+            set
+            {
+                _Err = value;
+                AddErr2List();
+            }
+        }
 
         /// <summary>
         /// 异常Code
@@ -36,7 +48,7 @@ namespace IoTClient
         /// <summary>
         /// 异常集合
         /// </summary>
-        public List<string> ErrList { get; set; } = new List<string>();
+        public List<string> ErrList { get; private set; } = new List<string>();
 
         /// <summary>
         /// 请求报文
@@ -86,9 +98,13 @@ namespace IoTClient
         {
             IsSucceed = result.IsSucceed;
             Err = result.Err;
-            ErrList = result.ErrList;
             ErrCode = result.ErrCode;
             Exception = result.Exception;
+            foreach (var err in result.ErrList)
+            {
+                if (!ErrList.Contains(err))
+                    ErrList.Add(err);
+            }
             return this;
         }
 
@@ -97,7 +113,8 @@ namespace IoTClient
         /// </summary>
         public void AddErr2List()
         {
-            ErrList.Add(Err);
+            if (!ErrList.Contains(Err))
+                ErrList.Add(Err);
         }
     }
 
@@ -148,11 +165,16 @@ namespace IoTClient
             IsSucceed = result.IsSucceed;
             InitialTime = result.InitialTime;
             Err = result.Err;
-            ErrList = result.ErrList;
             Requst = result.Requst;
             Response = result.Response;
             Exception = result.Exception;
             ErrCode = result.ErrCode;
+            base.EndTime();
+            foreach (var err in result.ErrList)
+            {
+                if (!ErrList.Contains(err))
+                    ErrList.Add(err);
+            }
         }
 
         /// <summary>

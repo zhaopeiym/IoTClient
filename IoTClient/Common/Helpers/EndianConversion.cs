@@ -12,7 +12,7 @@ namespace IoTClient.Common.Helpers
         /// </summary>
         /// <param name="value"></param>
         /// <param name="format"></param>
-        /// <param name="reverse">是否反转</param>
+        /// <param name="reverse">是否经过了反转</param>
         /// <returns></returns>
         public static byte[] ByteFormatting(this byte[] value, EndianFormat format = EndianFormat.ABCD, bool reverse = true)
         {

@@ -28,7 +28,7 @@ namespace IoTClient.Clients.PLC
             0x00, 0x00, 0x00, 0x0C,//Length字段 表示其后所有字段的总长度
             0x00, 0x00, 0x00, 0x00,//Command字段 
             0x00, 0x00, 0x00, 0x00,//Error Code字段
-            0x00, 0x00, 0x00, 0x01 //Client/Server Node Address字段
+            0x00, 0x00, 0x00, 0x0B //Client/Server Node Address字段
         };
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 连接地址
         /// </summary>
-        public IPEndPoint IpAndPoint { get; private set; }
+        public IPEndPoint IpEndPoint { get; private set; }
 
         /// <summary>
         /// 是否是连接的
@@ -55,6 +55,16 @@ namespace IoTClient.Clients.PLC
         public byte UnitAddress { get; set; } = 0x00;
 
         /// <summary>
+        /// SA1 客户端节点编号
+        /// </summary>
+        public byte SA1 { get; set; } = 0x0B;
+
+        /// <summary>
+        /// DA1 服务器节点编号
+        /// </summary>
+        private byte DA1 { get; set; } = 0x01;
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="ip"></param>
@@ -63,7 +73,9 @@ namespace IoTClient.Clients.PLC
         /// <param name="endianFormat"></param>
         public OmronFinsClient(string ip, int port = 9600, int timeout = 1500, EndianFormat endianFormat = EndianFormat.CDAB)
         {
-            IpAndPoint = new IPEndPoint(IPAddress.Parse(ip), port); ;
+            if (!IPAddress.TryParse(ip, out IPAddress address))
+                address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
+            IpEndPoint = new IPEndPoint(address, port);
             this.timeout = timeout;
             this.endianFormat = endianFormat;
         }
@@ -83,8 +95,9 @@ namespace IoTClient.Clients.PLC
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
 
-                socket.Connect(IpAndPoint);
+                socket.Connect(IpEndPoint);
 
+                BasicCommand[19] = SA1;
                 result.Requst = string.Join(" ", BasicCommand.Select(t => t.ToString("X2")));
                 socket.Send(BasicCommand);
 
@@ -105,7 +118,11 @@ namespace IoTClient.Clients.PLC
                     return socketReadResul;
                 var content = socketReadResul.Value;
 
-                result.Response = string.Join(" ", head.Concat(content).Select(t => t.ToString("X2")));
+                var headContent = head.Concat(content).ToArray();
+                result.Response = string.Join(" ", headContent.Select(t => t.ToString("X2")));
+                // 服务器节点编号
+                if (headContent.Length >= 24) DA1 = headContent[23];
+                else DA1 = Convert.ToByte(IpEndPoint.Address.ToString().Substring(IpEndPoint.Address.ToString().LastIndexOf(".") + 1)); ;
             }
             catch (Exception ex)
             {
@@ -114,7 +131,6 @@ namespace IoTClient.Clients.PLC
                 result.Err = ex.Message;
                 result.ErrCode = 408;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
             }
             return result.EndTime(); ;
         }
@@ -176,7 +192,7 @@ namespace IoTClient.Clients.PLC
             try
             {
                 //发送读取信息
-                var arg = ConvertArg(address, isBit);
+                var arg = ConvertArg(address, isBit: isBit);
                 byte[] command = GetReadCommand(arg, length);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
@@ -189,9 +205,9 @@ namespace IoTClient.Clients.PLC
                 Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 if (setEndian)
-                    result.Value = responseData.Reverse().ToArray().ByteFormatting(endianFormat);
+                    result.Value = responseData.ToArray().ByteFormatting(endianFormat, false);
                 else
-                    result.Value = responseData.Reverse().ToArray();
+                    result.Value = responseData.ToArray();
             }
             catch (SocketException ex)
             {
@@ -199,13 +215,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -214,7 +228,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -236,6 +249,27 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToBoolean(readResut.Value, 0);
             return result.EndTime();
+        }
+
+        private Result<bool> ReadBoolean(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = addressInt - startAddressInt;
+                var byteArry = values.Skip(interval * 1).Take(1).ToArray();
+                return new Result<bool>
+                {
+                    Value = BitConverter.ToBoolean(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<bool>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
         }
 
         /// <summary>
@@ -262,6 +296,27 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        private Result<short> ReadInt16(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = addressInt - startAddressInt;
+                var byteArry = values.Skip(interval * 2).Take(2).Reverse().ToArray();
+                return new Result<short>
+                {
+                    Value = BitConverter.ToInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<short>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// 读取UInt16
         /// </summary>
@@ -274,6 +329,27 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
             return result.EndTime();
+        }
+
+        private Result<ushort> ReadUInt16(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = addressInt - startAddressInt;
+                var byteArry = values.Skip(interval * 2).Take(2).Reverse().ToArray();
+                return new Result<ushort>
+                {
+                    Value = BitConverter.ToUInt16(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<ushort>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
         }
 
         /// <summary>
@@ -290,6 +366,28 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        private Result<int> ReadInt32(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = (addressInt - startAddressInt) / 2;
+                var offset = (addressInt - startAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting(endianFormat, false);
+                return new Result<int>
+                {
+                    Value = BitConverter.ToInt32(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<int>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// 读取UInt32
         /// </summary>
@@ -302,6 +400,28 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt32(readResut.Value, 0);
             return result.EndTime();
+        }
+
+        private Result<uint> ReadUInt32(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = (addressInt - startAddressInt) / 2;
+                var offset = (addressInt - startAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting(endianFormat, false);
+                return new Result<uint>
+                {
+                    Value = BitConverter.ToUInt32(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<uint>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
         }
 
         /// <summary>
@@ -318,6 +438,28 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        private Result<long> ReadInt64(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = (addressInt - startAddressInt) / 4;
+                var offset = (addressInt - startAddressInt) % 4 * 2;
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting(endianFormat, false);
+                return new Result<long>
+                {
+                    Value = BitConverter.ToInt64(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<long>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// 读取UInt64
         /// </summary>
@@ -330,6 +472,28 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt64(readResut.Value, 0);
             return result.EndTime();
+        }
+
+        private Result<ulong> ReadUInt64(int startAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = (addressInt - startAddressInt) / 4;
+                var offset = (addressInt - startAddressInt) % 4 * 2;
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting(endianFormat, false);
+                return new Result<ulong>
+                {
+                    Value = BitConverter.ToUInt64(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<ulong>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
         }
 
         /// <summary>
@@ -346,6 +510,28 @@ namespace IoTClient.Clients.PLC
             return result.EndTime();
         }
 
+        public Result<float> ReadFloat(int beginAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = (addressInt - beginAddressInt) / 2;
+                var offset = (addressInt - beginAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting(endianFormat, false);
+                return new Result<float>
+                {
+                    Value = BitConverter.ToSingle(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<float>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
+        }
+
         /// <summary>
         /// 读取Double
         /// </summary>
@@ -358,6 +544,28 @@ namespace IoTClient.Clients.PLC
             if (result.IsSucceed)
                 result.Value = BitConverter.ToDouble(readResut.Value, 0);
             return result.EndTime();
+        }
+
+        public Result<double> ReadDouble(int beginAddressInt, int addressInt, byte[] values)
+        {
+            try
+            {
+                var interval = (addressInt - beginAddressInt) / 4;
+                var offset = (addressInt - beginAddressInt) % 4 * 2;
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting(endianFormat, false);
+                return new Result<double>
+                {
+                    Value = BitConverter.ToDouble(byteArry, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<double>
+                {
+                    IsSucceed = false,
+                    Err = ex.Message
+                };
+            }
         }
         #endregion
 
@@ -385,7 +593,7 @@ namespace IoTClient.Clients.PLC
             {
                 data = data.Reverse().ToArray().ByteFormatting(endianFormat);
                 //发送写入信息
-                var arg = ConvertArg(address, isBit);
+                var arg = ConvertArg(address, isBit: isBit);
                 byte[] command = GetWriteCommand(arg, data);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 var sendResult = SendPackageReliable(command);
@@ -401,13 +609,11 @@ namespace IoTClient.Clients.PLC
                 if (ex.SocketErrorCode == SocketError.TimedOut)
                 {
                     result.Err = "连接超时";
-                    result.ErrList.Add("连接超时");
                 }
                 else
                 {
                     result.Err = ex.Message;
                     result.Exception = ex;
-                    result.ErrList.Add(ex.Message);
                 }
                 socket?.SafeClose();
             }
@@ -416,7 +622,6 @@ namespace IoTClient.Clients.PLC
                 result.IsSucceed = false;
                 result.Err = ex.Message;
                 result.Exception = ex;
-                result.ErrList.Add(ex.Message);
                 socket?.SafeClose();
             }
             finally
@@ -603,13 +808,15 @@ namespace IoTClient.Clients.PLC
         /// 地址信息解析
         /// </summary>
         /// <param name="address"></param>        
+        /// <param name="dataType"></param> 
         /// <param name="isBit"></param> 
         /// <returns></returns>
-        private OmronFinsAddress ConvertArg(string address, bool isBit)
+        private OmronFinsAddress ConvertArg(string address, DataTypeEnum dataType = DataTypeEnum.None, bool isBit = false)
         {
             address = address.ToUpper();
             var addressInfo = new OmronFinsAddress()
             {
+                DataTypeEnum = dataType,
                 IsBit = isBit
             };
             switch (address[0])
@@ -618,30 +825,40 @@ namespace IoTClient.Clients.PLC
                     {
                         addressInfo.BitCode = 0x02;
                         addressInfo.WordCode = 0x82;
+                        addressInfo.TypeChar = address.Substring(0, 1);
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
                         break;
                     }
                 case 'C'://CIO区
                     {
                         addressInfo.BitCode = 0x30;
                         addressInfo.WordCode = 0xB0;
+                        addressInfo.TypeChar = address.Substring(0, 1);
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
                         break;
                     }
                 case 'W'://WR区
                     {
                         addressInfo.BitCode = 0x31;
                         addressInfo.WordCode = 0xB1;
+                        addressInfo.TypeChar = address.Substring(0, 1);
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
                         break;
                     }
                 case 'H'://HR区
                     {
                         addressInfo.BitCode = 0x32;
                         addressInfo.WordCode = 0xB2;
+                        addressInfo.TypeChar = address.Substring(0, 1);
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
                         break;
                     }
                 case 'A'://AR区
                     {
                         addressInfo.BitCode = 0x33;
                         addressInfo.WordCode = 0xB3;
+                        addressInfo.TypeChar = address.Substring(0, 1);
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
                         break;
                     }
                 case 'E':
@@ -746,10 +963,10 @@ namespace IoTClient.Clients.PLC
             command[17] = 0x00; //RSV 保留字段
             command[18] = 0x02; //GCT 网关计数
             command[19] = 0x00; //DNA 目标网络地址 00:表示本地网络  0x01~0x7F:表示远程网络
-            command[20] = 0x13; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
+            command[20] = DA1; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
             command[21] = UnitAddress; //DA2 目标单元地址
             command[22] = 0x00; //SNA 源网络地址 取值及含义同DNA字段
-            command[23] = 0x0B; //SA1 源节点编号 取值及含义同DA1字段
+            command[23] = SA1; //SA1 源节点编号 取值及含义同DA1字段
             command[24] = 0x00; //SA2 源单元地址 取值及含义同DA2字段
             command[25] = 0x00; //SID Service ID 取值0x00~0xFF，产生会话的进程的唯一标识
 
@@ -784,10 +1001,10 @@ namespace IoTClient.Clients.PLC
             command[17] = 0x00; //RSV 保留字段
             command[18] = 0x02; //GCT 网关计数
             command[19] = 0x00; //DNA 目标网络地址 00:表示本地网络  0x01~0x7F:表示远程网络
-            command[20] = 0x13; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
+            command[20] = DA1; //DA1 目标节点编号 0x01~0x3E:SYSMAC LINK网络中的节点号 0x01~0x7E:YSMAC NET网络中的节点号 0xFF:广播传输
             command[21] = UnitAddress; //DA2 目标单元地址
             command[22] = 0x00; //SNA 源网络地址 取值及含义同DNA字段
-            command[23] = 0x0B; //SA1 源节点编号 取值及含义同DA1字段
+            command[23] = SA1; //SA1 源节点编号 取值及含义同DA1字段
             command[24] = 0x00; //SA2 源单元地址 取值及含义同DA2字段
             command[25] = 0x00; //SID Service ID 取值0x00~0xFF，产生会话的进程的唯一标识
 
@@ -800,11 +1017,123 @@ namespace IoTClient.Clients.PLC
             value.CopyTo(command, 34);
 
             return command;
-        } 
+        }
 
+        /// <summary>
+        /// 批量读取
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <param name="batchNumber">此参数设置无实际效果</param>
+        /// <returns></returns>
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
         {
-            throw new NotImplementedException();
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+
+            var omronFinsAddresses = addresses.Select(t => ConvertArg(t.Key, t.Value)).ToList();
+            var typeChars = omronFinsAddresses.Select(t => t.TypeChar).Distinct();
+            foreach (var typeChar in typeChars)
+            {
+                var tempAddresses = omronFinsAddresses.Where(t => t.TypeChar == typeChar).ToList();
+                var minAddress = tempAddresses.Select(t => t.BeginAddress).Min();
+                var maxAddress = tempAddresses.Select(t => t.BeginAddress).Max();
+
+                while (maxAddress >= minAddress)
+                {
+                    int readLength = 121;//TODO 分批读取的长度还可以继续调大
+
+                    var tempAddress = tempAddresses.Where(t => t.BeginAddress >= minAddress && t.BeginAddress <= minAddress + readLength).ToList();
+                    //如果范围内没有数据。按正确逻辑不存在这种情况。
+                    if (!tempAddress.Any())
+                    {
+                        minAddress = minAddress + readLength;
+                        continue;
+                    }
+
+                    var tempMax = tempAddress.OrderByDescending(t => t.BeginAddress).FirstOrDefault();
+                    switch (tempMax.DataTypeEnum)
+                    {
+                        case DataTypeEnum.Bool:
+                        case DataTypeEnum.Byte:
+                            readLength = tempMax.BeginAddress + 1 - minAddress;
+                            break;
+                        case DataTypeEnum.Int16:
+                        case DataTypeEnum.UInt16:
+                            readLength = tempMax.BeginAddress * 2 + 2 - minAddress * 2;
+                            break;
+                        case DataTypeEnum.Int32:
+                        case DataTypeEnum.UInt32:
+                        case DataTypeEnum.Float:
+                            readLength = tempMax.BeginAddress * 2 + 4 - minAddress * 2;
+                            break;
+                        case DataTypeEnum.Int64:
+                        case DataTypeEnum.UInt64:
+                        case DataTypeEnum.Double:
+                            readLength = tempMax.BeginAddress * 2 + 8 - minAddress * 2;
+                            break;
+                        default:
+                            throw new Exception("Err BatchRead 未定义类型 -1");
+                    }
+
+                    var tempResult = Read(typeChar + minAddress.ToString(), Convert.ToUInt16(readLength), false, setEndian: false);
+
+                    if (!tempResult.IsSucceed)
+                    {
+                        result.IsSucceed = tempResult.IsSucceed;
+                        result.Exception = tempResult.Exception;
+                        result.Err = tempResult.Err;
+                        return result.EndTime();
+                    }
+
+                    var rValue = tempResult.Value.ToArray();
+                    foreach (var item in tempAddress)
+                    {
+                        object tempVaue = null;
+
+                        switch (item.DataTypeEnum)
+                        {
+                            case DataTypeEnum.Bool:
+                                tempVaue = ReadBoolean(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.Byte:
+                                throw new Exception("Err BatchRead 未定义类型 -2");
+                            case DataTypeEnum.Int16:
+                                tempVaue = ReadInt16(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.UInt16:
+                                tempVaue = ReadUInt16(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.Int32:
+                                tempVaue = ReadInt32(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.UInt32:
+                                tempVaue = ReadUInt32(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.Int64:
+                                tempVaue = ReadInt64(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.UInt64:
+                                tempVaue = ReadUInt64(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.Float:
+                                tempVaue = ReadFloat(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            case DataTypeEnum.Double:
+                                tempVaue = ReadDouble(minAddress, item.BeginAddress, rValue).Value;
+                                break;
+                            default:
+                                throw new Exception("Err BatchRead 未定义类型 -3");
+                        }
+
+                        result.Value.Add(item.TypeChar + item.BeginAddress.ToString(), tempVaue);
+                    }
+                    minAddress = minAddress + readLength / 2;
+
+                    if (tempAddresses.Any(t => t.BeginAddress >= minAddress))
+                        minAddress = tempAddresses.Where(t => t.BeginAddress >= minAddress).OrderBy(t => t.BeginAddress).FirstOrDefault().BeginAddress;
+                }
+            }
+            return result.EndTime(); ;
         }
 
         public Result<string> ReadString(string address)

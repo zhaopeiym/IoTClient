@@ -225,6 +225,14 @@
             <param name="addresses"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.BatchRead(System.Collections.Generic.List{IoTClient.Models.ModbusInput},System.UInt32)">
+            <summary>
+            分批读取
+            </summary>
+            <param name="addresses"></param>
+            <param name="retryCount">如果读取异常，重试次数</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.Write(System.String,System.Boolean,System.Byte,System.Byte)">
             <summary>
             线圈写入
@@ -567,11 +575,12 @@
             <param name="values"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.IModbusClient.BatchRead(System.Collections.Generic.List{IoTClient.Models.ModbusInput})">
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.BatchRead(System.Collections.Generic.List{IoTClient.Models.ModbusInput},System.UInt32)">
             <summary>
             分批读取（批量读取，内部进行批量计算读取）
             </summary>
             <param name="addresses"></param>
+            <param name="retryCount">如果读取异常，重试次数</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
@@ -767,8 +776,16 @@
             <summary>
             构造函数
             </summary>
-            <param name="ip"></param>
-            <param name="port"></param>
+            <param name="ip">ip地址</param>
+            <param name="port">端口</param>
+            <param name="timeout">超时时间（毫秒）</param>
+            <param name="format">大小端设置</param>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="ipEndPoint">ip地址和端口</param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
         </member>
@@ -976,6 +993,14 @@
             分批读取（批量读取，内部进行批量计算读取）
             </summary>
             <param name="addresses"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.BatchRead(System.Collections.Generic.List{IoTClient.Models.ModbusInput},System.UInt32)">
+            <summary>
+            分批读取
+            </summary>
+            <param name="addresses"></param>
+            <param name="retryCount">如果读取异常，重试次数</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
@@ -1515,6 +1540,14 @@
             <param name="addresses"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.BatchRead(System.Collections.Generic.List{IoTClient.Models.ModbusInput},System.UInt32)">
+            <summary>
+            分批读取
+            </summary>
+            <param name="addresses"></param>
+            <param name="retryCount">如果读取异常，重试次数</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Write(System.String,System.Boolean,System.Byte,System.Byte)">
             <summary>
             线圈写入
@@ -1660,7 +1693,7 @@
             https://blog.csdn.net/lishiming0308/article/details/85243041
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.IpAndPoint">
+        <member name="P:IoTClient.Clients.PLC.AllenBradleyClient.IpEndPoint">
             <summary>
             连接地址
             </summary>
@@ -1914,7 +1947,7 @@
             版本
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.IpAndPoint">
+        <member name="P:IoTClient.Clients.PLC.MitsubishiClient.IpEndPoint">
             <summary>
             连接地址
             </summary>
@@ -2217,6 +2250,16 @@
             Omron解析后的地址信息
             </summary>
         </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.BeginAddress">
+            <summary>
+            开始地址
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.TypeChar">
+            <summary>
+            类型的代号
+            </summary>
+        </member>
         <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.BitCode">
             <summary>
             位操作
@@ -2237,6 +2280,11 @@
             是否是bit
             </summary>
         </member>
+        <member name="P:IoTClient.Clients.PLC.Models.OmronFinsAddress.DataTypeEnum">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:IoTClient.Clients.PLC.OmronFinsClient">
             <summary>
             欧姆龙PLC 客户端
@@ -2253,7 +2301,7 @@
             版本
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.IpAndPoint">
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.IpEndPoint">
             <summary>
             连接地址
             </summary>
@@ -2269,6 +2317,16 @@
             0x00：PC(CPU)
             0xFE： SYSMAC NET Link Unit or SYSMAC LINK Unit connected to network；
             0x10~0x1F：CPU总线单元 ，其值等于10 + 单元号(前端面板中配置的单元号)
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.SA1">
+            <summary>
+            SA1 客户端节点编号
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.PLC.OmronFinsClient.DA1">
+            <summary>
+            DA1 服务器节点编号
             </summary>
         </member>
         <member name="M:IoTClient.Clients.PLC.OmronFinsClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
@@ -2479,11 +2537,12 @@
             <param name="type">数据类型</param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ConvertArg(System.String,System.Boolean)">
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.ConvertArg(System.String,IoTClient.Enums.DataTypeEnum,System.Boolean)">
             <summary>
             地址信息解析
             </summary>
             <param name="address"></param>        
+            <param name="dataType"></param> 
             <param name="isBit"></param> 
             <returns></returns>
         </member>
@@ -2501,6 +2560,14 @@
             </summary>
             <param name="arg"></param>
             <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.PLC.OmronFinsClient.BatchRead(System.Collections.Generic.Dictionary{System.String,IoTClient.Enums.DataTypeEnum},System.Int32)">
+            <summary>
+            批量读取
+            </summary>
+            <param name="addresses"></param>
+            <param name="batchNumber">此参数设置无实际效果</param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Clients.PLC.SiemensClient">
@@ -2529,7 +2596,7 @@
             版本
             </summary>
         </member>
-        <member name="P:IoTClient.Clients.PLC.SiemensClient.IpAndPoint">
+        <member name="P:IoTClient.Clients.PLC.SiemensClient.IpEndPoint">
             <summary>
             连接地址
             </summary>
@@ -3217,7 +3284,7 @@
             </summary>
             <param name="value"></param>
             <param name="format"></param>
-            <param name="reverse">是否反转</param>
+            <param name="reverse">是否经过了反转</param>
             <returns></returns>
         </member>
         <member name="T:IoTClient.Common.Helpers.EnumerableExtension">
@@ -3420,7 +3487,7 @@
             以太网形式
             </summary>
         </member>
-        <member name="P:IoTClient.Interfaces.IEthernetClient.IpAndPoint">
+        <member name="P:IoTClient.Interfaces.IEthernetClient.IpEndPoint">
             <summary>
             IPEndPoint
             </summary>
