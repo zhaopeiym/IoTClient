@@ -38,6 +38,7 @@ IoTClient
         - [海底捞末端控制-移动端](#%E6%B5%B7%E5%BA%95%E6%8D%9E%E6%9C%AB%E7%AB%AF%E6%8E%A7%E5%88%B6-%E7%A7%BB%E5%8A%A8%E7%AB%AF)
     - [越邦智能分拣系统（商用）](#%E8%B6%8A%E9%82%A6%E6%99%BA%E8%83%BD%E5%88%86%E6%8B%A3%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
     - [电表监控系统（商用）](#%E7%94%B5%E8%A1%A8%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
+    - [人造板行业生产管理软件（商用）](#%E4%BA%BA%E9%80%A0%E6%9D%BF%E8%A1%8C%E4%B8%9A%E7%94%9F%E4%BA%A7%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E5%95%86%E7%94%A8)
 - [友情链接](#%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5)
     - [YuebonCore](#yueboncore)
 
@@ -407,6 +408,12 @@ var value4 = result.Value;
 所属公司：[哈工大机器人南昌智能制造研究院](http://www.hrgrobotics.cn)  
 ![image](https://user-images.githubusercontent.com/5820324/124694128-3f0b2600-df13-11eb-9266-fa7d2ef7de11.png)  
 ![image](https://user-images.githubusercontent.com/5820324/124694129-403c5300-df13-11eb-8452-12f73260a7a9.png)  
+
+## 人造板行业生产管理软件（商用）
+所属公司：广州赛志科技有限公司  
+![image](https://user-images.githubusercontent.com/5820324/127763049-3018fefd-d233-41de-8c8e-e02e03776690.png)  
+![image](https://user-images.githubusercontent.com/5820324/127763052-dec0a2e8-bb9f-421f-a72b-08bb5ac50709.png)  
+![image](https://user-images.githubusercontent.com/5820324/127763055-068ec3a4-4959-47fd-928b-6bfa12ef7ed7.png)  
 
 # 友情链接
 
