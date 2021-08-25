@@ -18,6 +18,7 @@ namespace IoTClient.Clients.Modbus
         private IPEndPoint ipEndPoint;
         private int timeout = -1;
         private EndianFormat format;
+        private bool plcAddresses;
 
         /// <summary>
         /// 
@@ -25,11 +26,14 @@ namespace IoTClient.Clients.Modbus
         /// <param name="ipAndPoint"></param>
         /// <param name="timeout">超时时间（毫秒）</param>
         /// <param name="format">大小端设置</param>
-        public ModbusTcpClient(IPEndPoint ipAndPoint, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
+        /// <param name="plcAddresses">PLC地址</param>
+        /// <param name="plcAddresses">PLC地址</param>
+        public ModbusTcpClient(IPEndPoint ipAndPoint, int timeout = 1500, EndianFormat format = EndianFormat.ABCD, bool plcAddresses = false)
         {
             this.timeout = timeout;
             this.ipEndPoint = ipAndPoint;
             this.format = format;
+            this.plcAddresses = plcAddresses;
         }
 
         /// <summary>
@@ -39,13 +43,15 @@ namespace IoTClient.Clients.Modbus
         /// <param name="port"></param>
         /// <param name="timeout">超时时间（毫秒）</param>
         /// <param name="format">大小端设置</param>
-        public ModbusTcpClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
+        /// <param name="plcAddresses">PLC地址</param>
+        public ModbusTcpClient(string ip, int port, int timeout = 1500, EndianFormat format = EndianFormat.ABCD, bool plcAddresses = false)
         {
             this.timeout = timeout;
             if (!IPAddress.TryParse(ip, out IPAddress address))
                 address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
-            ipEndPoint = new IPEndPoint(address, port);            
+            ipEndPoint = new IPEndPoint(address, port);
             this.format = format;
+            this.plcAddresses = plcAddresses;
         }
 
         /// <summary>
@@ -1342,6 +1348,8 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length, byte[] check = null)
         {
             var readAddress = ushort.Parse(address?.Trim());
+            if (plcAddresses) readAddress = Convert.ToUInt16(readAddress % 10000 - 1);
+
             byte[] buffer = new byte[12];
             buffer[0] = check?[0] ?? 0x19;
             buffer[1] = check?[1] ?? 0xB2;//Client发出的检验信息
@@ -1370,6 +1378,8 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode, byte[] check = null)
         {
             var writeAddress = ushort.Parse(address?.Trim());
+            if (plcAddresses) writeAddress = Convert.ToUInt16(writeAddress % 10000 - 1);
+
             byte[] buffer = new byte[13 + values.Length];
             buffer[0] = check?[0] ?? 0x19;
             buffer[1] = check?[1] ?? 0xB2;//检验信息，用来验证response是否串数据了           
@@ -1398,6 +1408,8 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode, byte[] check = null)
         {
             var writeAddress = ushort.Parse(address?.Trim());
+            if (plcAddresses) writeAddress = Convert.ToUInt16(writeAddress % 10000 - 1);
+
             byte[] buffer = new byte[12];
             buffer[0] = check?[0] ?? 0x19;
             buffer[1] = check?[1] ?? 0xB2;//Client发出的检验信息     

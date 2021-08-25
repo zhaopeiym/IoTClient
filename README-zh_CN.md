@@ -170,11 +170,13 @@ SiemensClient client = new SiemensClient(SiemensVersion.S7_200Smart, "127.0.0.1"
 client.Write("Q1.3", true);
 client.Write("V2205", (short)11);
 client.Write("V2209", 33);
+client.Write("V2305", "orderCode");             //写入字符串
 
 //3、读操作
 var value1 = client.ReadBoolean("Q1.3").Value;
 var value2 = client.ReadInt16("V2205").Value;
 var value3 = client.ReadInt32("V2209").Value;
+var value4 = client.ReadString("V2305").Value; //读取字符串
 
 //4、如果没有主动Open，则会每次读写操作的时候自动打开自动和关闭连接，这样会使读写效率大大减低。所以建议手动Open和Close。
 client.Open();

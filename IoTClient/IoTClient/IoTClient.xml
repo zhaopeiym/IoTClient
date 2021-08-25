@@ -9,7 +9,7 @@
             警告日志委托        
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             构造函数
             </summary>
@@ -20,6 +20,7 @@
             <param name="parity">奇偶校验</param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
+            <param name="plcAddresses">PLC地址</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.SendPackageReliable(System.Byte[])">
             <summary>
@@ -679,7 +680,7 @@
             ModbusAscii
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             构造函数
             </summary>
@@ -690,6 +691,7 @@
             <param name="parity">奇偶校验</param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
+            <param name="plcAddresses">PLC地址</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusAsciiClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
@@ -725,7 +727,7 @@
             ModbusRtu协议客户端
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.#ctor(System.String,System.Int32,System.Int32,System.IO.Ports.StopBits,System.IO.Ports.Parity,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             构造函数
             </summary>
@@ -736,6 +738,7 @@
             <param name="parity">奇偶校验</param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
+            <param name="plcAddresses">PLC地址</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuClient.Read(System.String,System.Byte,System.Byte,System.UInt16,System.Boolean)">
             <summary>
@@ -772,7 +775,7 @@
             Tcp的方式发送ModbusRtu协议报文 - 客户端
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             构造函数
             </summary>
@@ -780,8 +783,9 @@
             <param name="port">端口</param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
+            <param name="plcAddresses">PLC地址</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             构造函数
             </summary>
@@ -1129,15 +1133,17 @@
             ModbusTcp协议客户端
             </summary>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             
             </summary>
             <param name="ipAndPoint"></param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
+            <param name="plcAddresses">PLC地址</param>
+            <param name="plcAddresses">PLC地址</param>
         </member>
-        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat)">
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             
             </summary>
@@ -1145,6 +1151,7 @@
             <param name="port"></param>
             <param name="timeout">超时时间（毫秒）</param>
             <param name="format">大小端设置</param>
+            <param name="plcAddresses">PLC地址</param>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.Connect">
             <summary>

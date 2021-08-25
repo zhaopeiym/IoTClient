@@ -21,8 +21,9 @@ namespace IoTClient.Clients.Modbus
         /// <param name="parity">奇偶校验</param>
         /// <param name="timeout">超时时间（毫秒）</param>
         /// <param name="format">大小端设置</param>
-        public ModbusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
-            : base(portName, baudRate, dataBits, stopBits, parity, timeout, format)
+        /// <param name="plcAddresses">PLC地址</param>
+        public ModbusRtuClient(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500, EndianFormat format = EndianFormat.ABCD, bool plcAddresses = false)
+            : base(portName, baudRate, dataBits, stopBits, parity, timeout, format, plcAddresses)
         { }
 
         #region  Read 读取

@@ -12,6 +12,7 @@ namespace IoTClient.Clients.Modbus
     public abstract class ModbusSerialBase : SerialPortBase, IModbusClient
     {
         protected EndianFormat format;
+        private bool plcAddresses;
 
         /// <summary>
         /// 警告日志委托        
@@ -28,7 +29,8 @@ namespace IoTClient.Clients.Modbus
         /// <param name="parity">奇偶校验</param>
         /// <param name="timeout">超时时间（毫秒）</param>
         /// <param name="format">大小端设置</param>
-        public ModbusSerialBase(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500, EndianFormat format = EndianFormat.ABCD)
+        /// <param name="plcAddresses">PLC地址</param>
+        public ModbusSerialBase(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity, int timeout = 1500, EndianFormat format = EndianFormat.ABCD, bool plcAddresses = false)
         {
             if (serialPort == null) serialPort = new SerialPort();
             serialPort.PortName = portName;
@@ -42,6 +44,7 @@ namespace IoTClient.Clients.Modbus
             serialPort.WriteTimeout = timeout;
 
             this.format = format;
+            this.plcAddresses = plcAddresses;
         }
 
         #region 发送报文，并获取响应报文
@@ -942,6 +945,8 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length)
         {
             var readAddress = ushort.Parse(address?.Trim());
+            if (plcAddresses) readAddress = Convert.ToUInt16(readAddress % 10000 - 1);
+
             byte[] buffer = new byte[6];
             buffer[0] = stationNumber;  //站号
             buffer[1] = functionCode;   //功能码
@@ -963,6 +968,8 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode)
         {
             var writeAddress = ushort.Parse(address?.Trim());
+            if (plcAddresses) writeAddress = Convert.ToUInt16(writeAddress % 10000 - 1);
+
             byte[] buffer = new byte[7 + values.Length];
             buffer[0] = stationNumber; //站号
             buffer[1] = functionCode;  //功能码
@@ -986,6 +993,8 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode)
         {
             var writeAddress = ushort.Parse(address?.Trim());
+            if (plcAddresses) writeAddress = Convert.ToUInt16(writeAddress % 10000 - 1);
+
             byte[] buffer = new byte[6];
             buffer[0] = stationNumber;//站号
             buffer[1] = functionCode; //功能码
