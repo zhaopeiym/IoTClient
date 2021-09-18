@@ -146,26 +146,36 @@ namespace IoTClient.Clients.PLC
             lock (this)
             {
                 Result<byte[]> result = new Result<byte[]>();
-                socket.Send(command);
-                var socketReadResul = SocketRead(socket, 8);
-                if (!socketReadResul.IsSucceed)
-                    return socketReadResul;
-                var head = socketReadResul.Value;
+                try
+                {
+                    socket.Send(command);
+                    var socketReadResul = SocketRead(socket, 8);
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var head = socketReadResul.Value;
 
-                byte[] buffer = new byte[4];
-                buffer[0] = head[7];
-                buffer[1] = head[6];
-                buffer[2] = head[5];
-                buffer[3] = head[4];
-                //4-7是Length字段 表示其后所有字段的总长度
-                var contentLength = BitConverter.ToInt32(buffer, 0);
-                socketReadResul = SocketRead(socket, contentLength);
-                if (!socketReadResul.IsSucceed)
-                    return socketReadResul;
-                var dataPackage = socketReadResul.Value;
+                    byte[] buffer = new byte[4];
+                    buffer[0] = head[7];
+                    buffer[1] = head[6];
+                    buffer[2] = head[5];
+                    buffer[3] = head[4];
+                    //4-7是Length字段 表示其后所有字段的总长度
+                    var contentLength = BitConverter.ToInt32(buffer, 0);
+                    socketReadResul = SocketRead(socket, contentLength);
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var dataPackage = socketReadResul.Value;
 
-                result.Value = head.Concat(dataPackage).ToArray();
-                return result.EndTime();
+                    result.Value = head.Concat(dataPackage).ToArray();
+                    return result.EndTime();
+                }
+                catch (Exception ex)
+                {
+                    result.IsSucceed = false;
+                    result.Err = ex.Message;
+                    result.AddErr2List();
+                    return result.EndTime();
+                } 
             }
         }
 

@@ -131,19 +131,29 @@ namespace IoTClient.Clients.PLC
             lock (this)
             {
                 Result<byte[]> result = new Result<byte[]>();
-                socket.Send(command);
-                var socketReadResul = SocketRead(socket, 24);
-                if (!socketReadResul.IsSucceed)
-                    return socketReadResul;
-                var head = socketReadResul.Value;
+                try
+                {
+                    socket.Send(command);
+                    var socketReadResul = SocketRead(socket, 24);
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var head = socketReadResul.Value;
 
-                socketReadResul = SocketRead(socket, GetContentLength(head));
-                if (!socketReadResul.IsSucceed)
-                    return socketReadResul;
-                var content = socketReadResul.Value;
+                    socketReadResul = SocketRead(socket, GetContentLength(head));
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var content = socketReadResul.Value;
 
-                result.Value = head.Concat(content).ToArray();
-                return result.EndTime();
+                    result.Value = head.Concat(content).ToArray();
+                    return result.EndTime();
+                }
+                catch (Exception ex)
+                {
+                    result.IsSucceed = false;
+                    result.Err = ex.Message;
+                    result.AddErr2List();
+                    return result.EndTime();
+                } 
             }
         }
 

@@ -194,19 +194,29 @@ namespace IoTClient.Clients.PLC
             lock (this)
             {
                 Result<byte[]> result = new Result<byte[]>();
-                socket.Send(command);
-                var socketReadResul = SocketRead(socket, SiemensConstant.InitHeadLength);
-                if (!socketReadResul.IsSucceed)
-                    return socketReadResul;
-                var headPackage = socketReadResul.Value;
+                try
+                {
+                    socket.Send(command);
+                    var socketReadResul = SocketRead(socket, SiemensConstant.InitHeadLength);
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var headPackage = socketReadResul.Value;
 
-                socketReadResul = SocketRead(socket, GetContentLength(headPackage));
-                if (!socketReadResul.IsSucceed)
-                    return socketReadResul;
-                var dataPackage = socketReadResul.Value;
+                    socketReadResul = SocketRead(socket, GetContentLength(headPackage));
+                    if (!socketReadResul.IsSucceed)
+                        return socketReadResul;
+                    var dataPackage = socketReadResul.Value;
 
-                result.Value = headPackage.Concat(dataPackage).ToArray();
-                return result.EndTime();
+                    result.Value = headPackage.Concat(dataPackage).ToArray();
+                    return result.EndTime();
+                }
+                catch (Exception ex)
+                {
+                    result.IsSucceed = false;
+                    result.Err = ex.Message;
+                    result.AddErr2List();
+                    return result.EndTime();
+                } 
             }
         }
 

@@ -147,6 +147,7 @@ namespace IoTClient
 
         /// <summary>
         /// 发送报文，并获取响应报文（如果网络异常，会自动进行一次重试）
+        /// TODO 重试机制应改成用户主动设置
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -170,13 +171,24 @@ namespace IoTClient
             }
             catch (Exception ex)
             {
-                WarningLog?.Invoke(ex.Message, ex);
-                //如果出现异常，则进行一次重试                
-                var conentResult = Connect();
-                if (!conentResult.IsSucceed)
-                    return new Result<byte[]>(conentResult);
+                try
+                {
+                    WarningLog?.Invoke(ex.Message, ex);
+                    //如果出现异常，则进行一次重试                
+                    var conentResult = Connect();
+                    if (!conentResult.IsSucceed)
+                        return new Result<byte[]>(conentResult);
 
-                return SendPackageSingle(command);
+                    return SendPackageSingle(command);
+                }
+                catch (Exception ex2)
+                {
+                    Result<byte[]> result = new Result<byte[]>();
+                    result.IsSucceed = false;
+                    result.Err = ex2.Message;
+                    result.AddErr2List();
+                    return result.EndTime();
+                }
             }
         }
     }

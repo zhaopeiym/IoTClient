@@ -3969,6 +3969,7 @@
         <member name="M:IoTClient.SocketBase.SendPackageReliable(System.Byte[])">
             <summary>
             发送报文，并获取响应报文（如果网络异常，会自动进行一次重试）
+            TODO 重试机制应改成用户主动设置
             </summary>
             <param name="command"></param>
             <returns></returns>
