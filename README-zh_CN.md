@@ -41,6 +41,7 @@ IoTClient
     - [人造板行业生产管理软件（商用）](#%E4%BA%BA%E9%80%A0%E6%9D%BF%E8%A1%8C%E4%B8%9A%E7%94%9F%E4%BA%A7%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E5%95%86%E7%94%A8)
 - [友情链接](#%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5)
     - [YuebonCore](#yueboncore)
+    - [iotgateway](#iotgateway)
 
 <!-- /TOC -->
 
@@ -425,3 +426,10 @@ https://gitee.com/yuebon/YuebonNetCore
 
 概述：  
 YuebonCore是基于.Net5.0开发的权限管理及快速开发框架，整合应用最新技术包括Asp.NetCore MVC、Dapper、WebAPI、Swagger、EF、Vue等，核心模块包括：组织机构、角色用户、权限授权、多系统、多应用管理、定时任务、业务单据编码规则、代码生成器等。它的架构易于扩展，规范了一套业务实现的代码结构与操作流程，使YuebonCore框架更易于应用到实际项目开发中。  
+
+## iotgateway
+开源地址：  
+https://gitee.com/iioter/iotgateway  
+
+概述：  
+基于.net5的跨平台物联网网关。通过可视化配置，轻松的连接到你的任何设备和系统(如PLC、扫码枪、CNC、数据库、串口设备、上位机、OPC Server、OPC UA Server、Mqtt Server等)，从而与 Thingsboard、IoTSharp或您自己的物联网平台进行双向数据通讯。提供简单的驱动开发接口；当然也可以进行边缘计算。  

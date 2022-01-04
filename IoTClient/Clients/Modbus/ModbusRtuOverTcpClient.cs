@@ -764,6 +764,7 @@ namespace IoTClient.Clients.Modbus
                         result.IsSucceed = tempResult.IsSucceed;
                         result.Err = tempResult.Err;
                         result.Exception = tempResult.Exception;
+                        result.ErrCode = tempResult.ErrCode;
                     }
                 }
             }
@@ -820,6 +821,7 @@ namespace IoTClient.Clients.Modbus
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Exception = tempResult.Exception;
+                    result.ErrCode = tempResult.ErrCode;
                     result.Err = $"读取 地址:{minAddress} 站号:{stationNumber} 功能码:{functionCode} 失败。{tempResult.Err}";
                     result.AddErr2List();
                     return result.EndTime();

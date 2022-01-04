@@ -86,7 +86,7 @@ namespace IoTClient.Clients.PLC
             this.version = version;
             if (!IPAddress.TryParse(ip, out IPAddress address))
                 address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
-            IpEndPoint = new IPEndPoint(address, port);            
+            IpEndPoint = new IPEndPoint(address, port);
             this.timeout = timeout;
         }
 
@@ -216,7 +216,7 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.AddErr2List();
                     return result.EndTime();
-                } 
+                }
             }
         }
 
@@ -331,6 +331,7 @@ namespace IoTClient.Clients.PLC
                     result.IsSucceed = false;
                     result.Err = tempResult.Err;
                     result.Exception = tempResult.Exception;
+                    result.ErrCode = tempResult.ErrCode;
                 }
 
                 if (tempResult.Value?.Any() ?? false)
@@ -1093,7 +1094,7 @@ namespace IoTClient.Clients.PLC
                         else if (dataPackage[offset] != 0xFF)
                         {
                             result.IsSucceed = false;
-                            result.Err = $"写入{arg[i].Address}失败，异常代码[{offset}]:{dataPackage[offset]}";
+                            result.Err = $"写入{string.Join(",", arg.Select(t => t.Address))}失败，异常代码[{offset}]:{dataPackage[offset]}";
                         }
                     }
                 }
@@ -1132,14 +1133,13 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 分批写入，默认按12个地址打包读取
+        /// 分批写入，默认按10个地址打包读取
         /// </summary>
         /// <param name="addresses">地址集合</param>
         /// <param name="batchNumber">批量读取数量</param>
         /// <returns></returns>
-        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber = 12)
+        public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber = 10)
         {
-            //因为协议报文长度限制，最多只能写入12个
             var result = new Result();
             var batchCount = Math.Ceiling((float)addresses.Count / batchNumber);
             for (int i = 0; i < batchCount; i++)
@@ -1150,6 +1150,7 @@ namespace IoTClient.Clients.PLC
                 {
                     result.IsSucceed = tempResult.IsSucceed;
                     result.Err = tempResult.Err;
+                    result.AddErr2List();
                 }
                 result.Requst = tempResult.Requst;
                 result.Response = tempResult.Response;
@@ -1456,7 +1457,7 @@ namespace IoTClient.Clients.PLC
                         else
                             addressInfo.DbBlock = Convert.ToUInt16(adds[0].Substring(1));
                         //TODO 
-                        addressInfo.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 1));
+                        //addressInfo.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 1));
                         break;
                     case 'T':
                         addressInfo.TypeCode = 0x1D;
@@ -1470,8 +1471,30 @@ namespace IoTClient.Clients.PLC
                         break;
                 }
 
-                if (address[0] != 'D' && address[1] != 'B')
-                    addressInfo.BeginAddress = GetBeingAddress(address.Substring(1));
+                //if (address[0] != 'D' && address[1] != 'B')
+                //    addressInfo.BeginAddress = GetBeingAddress(address.Substring(1));
+
+                //DB块
+                if (address[0] == 'D' && address[1] == 'B')
+                {
+                    //DB1.0.0、DB1.4（非PLC地址）
+                    var indexOfpoint = address.IndexOf('.') + 1;
+                    if (address[indexOfpoint] >= '0' && address[indexOfpoint] <= '9')
+                        addressInfo.BeginAddress = GetBeingAddress(address.Substring(indexOfpoint));
+                    //DB1.DBX0.0、DB1.DBD4（标准PLC地址）
+                    else
+                        addressInfo.BeginAddress = GetBeingAddress(address.Substring(address.IndexOf('.') + 4));
+                }
+                //非DB块
+                else
+                {
+                    //I0.0、V1004的情况（非PLC地址）
+                    if (address[1] >= '0' && address[1] <= '9')
+                        addressInfo.BeginAddress = GetBeingAddress(address.Substring(1));
+                    //VB1004的情况（标准PLC地址）
+                    else
+                        addressInfo.BeginAddress = GetBeingAddress(address.Substring(2));
+                }
                 return addressInfo;
             }
             catch (Exception ex)

@@ -2858,7 +2858,7 @@
         </member>
         <member name="M:IoTClient.Clients.PLC.SiemensClient.BatchWrite(System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32)">
             <summary>
-            分批写入，默认按12个地址打包读取
+            分批写入，默认按10个地址打包读取
             </summary>
             <param name="addresses">地址集合</param>
             <param name="batchNumber">批量读取数量</param>

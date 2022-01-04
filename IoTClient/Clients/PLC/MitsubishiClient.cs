@@ -1265,6 +1265,7 @@ namespace IoTClient.Clients.PLC
                     {
                         result.IsSucceed = tempResult.IsSucceed;
                         result.Exception = tempResult.Exception;
+                        result.ErrCode = tempResult.ErrCode;
                         result.Err = tempResult.Err;
                         return result.EndTime();
                     }
