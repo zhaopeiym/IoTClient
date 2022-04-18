@@ -1106,7 +1106,7 @@ namespace IoTClient.Clients.Modbus
         /// <summary>
         /// 线圈写入
         /// </summary>
-        /// <param name="address">读取地址</param>
+        /// <param name="address">写入地址</param>
         /// <param name="value"></param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
@@ -1159,7 +1159,7 @@ namespace IoTClient.Clients.Modbus
         /// <summary>
         /// 写入
         /// </summary>
-        /// <param name="address">读取地址</param>
+        /// <param name="address">写入地址</param>
         /// <param name="values">批量读取的值</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>

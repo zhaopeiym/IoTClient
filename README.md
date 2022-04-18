@@ -10,7 +10,7 @@ IoTClient
 - This component is based on .NET Standard 2.0 and can be used for cross-platform development of .Net, such as Windows, Linux and even run on Raspberry Pi.
 - This component is open source and free for life, and adopts the most relaxed MIT protocol. You can also modify and use it for commercial use (commercial use please evaluate and test).
 - Development tools：Visual Studio 2019 
-- QQ exchange group：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
+- QQ exchange group：[700324594](https://jq.qq.com/?_wv=1027&k=tIRmmGbt)  
 
 ## Document directory
 <!-- TOC -->

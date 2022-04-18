@@ -10,7 +10,7 @@ IoTClient
 - 本组件基于.NET Standard 2.0，可用于.Net的跨平台开发，如Windows、Linux甚至可运行于树莓派上。
 - 本组件终身开源免费，采用最宽松MIT协议，您也可以随意修改和商业使用（商业使用请做好评估和测试）。  
 - 开发工具：Visual Studio 2019 
-- QQ交流群：[995475200](https://jq.qq.com/?_wv=1027&k=5bz0ne5)  
+- QQ交流群：[700324594](https://jq.qq.com/?_wv=1027&k=tIRmmGbt)  
 
 ## 文档目录
 <!-- TOC -->
@@ -29,6 +29,7 @@ IoTClient
     - [AllenBradleyClient(罗克韦尔)读写操作](#allenbradleyclient%E7%BD%97%E5%85%8B%E9%9F%A6%E5%B0%94%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C)
 - [基于IoTClient库的一些项目](#%E5%9F%BA%E4%BA%8Eiotclient%E5%BA%93%E7%9A%84%E4%B8%80%E4%BA%9B%E9%A1%B9%E7%9B%AE)
     - [IoTClient Tool 桌面程序工具（开源）](#iotclient-tool-%E6%A1%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E5%B7%A5%E5%85%B7%E5%BC%80%E6%BA%90)
+    - [iotgateway（开源）](#iotgateway%E5%BC%80%E6%BA%90)
     - [能源管理系统（商用）](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
         - [能源管理-现场-单项目](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E7%8E%B0%E5%9C%BA-%E5%8D%95%E9%A1%B9%E7%9B%AE)
         - [能源管理-云端-多项目](#%E8%83%BD%E6%BA%90%E7%AE%A1%E7%90%86-%E4%BA%91%E7%AB%AF-%E5%A4%9A%E9%A1%B9%E7%9B%AE)
@@ -370,6 +371,13 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/115138606-c73e0580-a05f-11eb-9ca1-5ece1bae8e71.png)  
 
 ![image](https://user-images.githubusercontent.com/5820324/115138607-c86f3280-a05f-11eb-83f1-d1706331406a.png)  
+
+## iotgateway（开源）
+所属个人：[iioter](https://gitee.com/iioter)  
+
+### [iotgateway](https://gitee.com/iioter/iotgateway)
+![image](https://user-images.githubusercontent.com/29589505/147056511-14611d19-8498-4a3c-bd67-3749ab75462f.gif)
+
 
 ## 能源管理系统（商用）
 所属公司：[擎呐科技](https://qingnakeji.com)   
