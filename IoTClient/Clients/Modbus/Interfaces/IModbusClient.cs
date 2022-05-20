@@ -15,6 +15,11 @@ namespace IoTClient.Clients.Modbus
         LoggerDelegate WarningLog { get; set; }
 
         /// <summary>
+        /// 是否是连接的
+        /// </summary>
+        bool Connected { get; }
+
+        /// <summary>
         /// 打开连接
         /// </summary>
         /// <returns></returns>

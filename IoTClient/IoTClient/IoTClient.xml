@@ -4,6 +4,11 @@
         <name>IoTClient</name>
     </assembly>
     <members>
+        <member name="P:IoTClient.Clients.Modbus.ModbusSerialBase.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
         <member name="P:IoTClient.Clients.Modbus.ModbusSerialBase.WarningLog">
             <summary>
             警告日志委托        
@@ -364,6 +369,11 @@
             <summary>
             警告日志委托
             为了可用性，会对异常网络进行重试。此类日志通过委托接口给出去。
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.Modbus.IModbusClient.Connected">
+            <summary>
+            是否是连接的
             </summary>
         </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.Open">
@@ -775,6 +785,11 @@
             Tcp的方式发送ModbusRtu协议报文 - 客户端
             </summary>
         </member>
+        <member name="P:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.Connected">
+            <summary>
+            是否是连接的
+            </summary>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.#ctor(System.String,System.Int32,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             构造函数
@@ -1131,6 +1146,11 @@
         <member name="T:IoTClient.Clients.Modbus.ModbusTcpClient">
             <summary>
             ModbusTcp协议客户端
+            </summary>
+        </member>
+        <member name="P:IoTClient.Clients.Modbus.ModbusTcpClient.Connected">
+            <summary>
+            是否是连接的
             </summary>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.#ctor(System.Net.IPEndPoint,System.Int32,IoTClient.Enums.EndianFormat,System.Boolean)">

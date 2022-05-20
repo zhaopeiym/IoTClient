@@ -21,6 +21,11 @@ namespace IoTClient.Clients.Modbus
         private bool plcAddresses;
 
         /// <summary>
+        /// 是否是连接的
+        /// </summary>
+        public bool Connected => socket?.Connected ?? false;
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="ipAndPoint"></param>
@@ -1359,7 +1364,7 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetReadCommand(string address, byte stationNumber, byte functionCode, ushort length, byte[] check = null)
         {
             var readAddress = ushort.Parse(address?.Trim());
-            if (plcAddresses) readAddress = Convert.ToUInt16(readAddress % 10000 - 1);
+            if (plcAddresses) readAddress = (ushort)(Convert.ToUInt16(address?.Trim().Substring(1)) - 1);
 
             byte[] buffer = new byte[12];
             buffer[0] = check?[0] ?? 0x19;
@@ -1389,7 +1394,7 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetWriteCommand(string address, byte[] values, byte stationNumber, byte functionCode, byte[] check = null)
         {
             var writeAddress = ushort.Parse(address?.Trim());
-            if (plcAddresses) writeAddress = Convert.ToUInt16(writeAddress % 10000 - 1);
+            if (plcAddresses) writeAddress = (ushort)(Convert.ToUInt16(address?.Trim().Substring(1)) - 1);
 
             byte[] buffer = new byte[13 + values.Length];
             buffer[0] = check?[0] ?? 0x19;
@@ -1419,7 +1424,7 @@ namespace IoTClient.Clients.Modbus
         public byte[] GetWriteCoilCommand(string address, bool value, byte stationNumber, byte functionCode, byte[] check = null)
         {
             var writeAddress = ushort.Parse(address?.Trim());
-            if (plcAddresses) writeAddress = Convert.ToUInt16(writeAddress % 10000 - 1);
+            if (plcAddresses) writeAddress = (ushort)(Convert.ToUInt16(address?.Trim().Substring(1)) - 1);
 
             byte[] buffer = new byte[12];
             buffer[0] = check?[0] ?? 0x19;
