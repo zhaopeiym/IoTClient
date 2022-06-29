@@ -90,6 +90,8 @@ namespace IoTClient.Clients.PLC
             this.timeout = timeout;
         }
 
+        private readonly ManualResetEvent TimeoutObject = new ManualResetEvent(false);
+
         /// <summary>
         /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
@@ -106,7 +108,12 @@ namespace IoTClient.Clients.PLC
                 socket.SendTimeout = timeout;
 
                 //连接
-                socket.Connect(IpEndPoint);
+                //socket.Connect(IpEndPoint);
+                TimeoutObject.Reset();
+                socket.BeginConnect(IpEndPoint, (asyncresult) => { TimeoutObject.Set(); }, socket);
+                //阻塞当前线程           
+                if (!TimeoutObject.WaitOne(timeout, false))
+                    throw new Exception("连接超时");
 
                 var Command1 = SiemensConstant.Command1;
                 var Command2 = SiemensConstant.Command2;

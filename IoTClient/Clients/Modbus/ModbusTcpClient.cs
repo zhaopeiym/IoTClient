@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace IoTClient.Clients.Modbus
 {
@@ -59,6 +60,8 @@ namespace IoTClient.Clients.Modbus
             this.plcAddresses = plcAddresses;
         }
 
+        private readonly ManualResetEvent TimeoutObject = new ManualResetEvent(false);
+
         /// <summary>
         /// 连接
         /// </summary>
@@ -75,7 +78,12 @@ namespace IoTClient.Clients.Modbus
                 socket.SendTimeout = timeout;
 
                 //连接
-                socket.Connect(ipEndPoint);
+                //socket.Connect(ipEndPoint);
+                TimeoutObject.Reset();
+                socket.BeginConnect(ipEndPoint, (asyncresult) => { TimeoutObject.Set(); }, socket);
+                //阻塞当前线程           
+                if (!TimeoutObject.WaitOne(timeout, false))
+                    throw new Exception("连接超时");
             }
             catch (Exception ex)
             {
@@ -1165,7 +1173,7 @@ namespace IoTClient.Clients.Modbus
         /// 写入
         /// </summary>
         /// <param name="address">写入地址</param>
-        /// <param name="values">批量读取的值</param>
+        /// <param name="values">写入字节数组</param>
         /// <param name="stationNumber">站号</param>
         /// <param name="functionCode">功能码</param>
         /// <param name="byteFormatting">大小端设置</param>

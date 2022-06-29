@@ -1589,7 +1589,7 @@
             写入
             </summary>
             <param name="address">写入地址</param>
-            <param name="values">批量读取的值</param>
+            <param name="values">写入字节数组</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
             <param name="byteFormatting">大小端设置</param>

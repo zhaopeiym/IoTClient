@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace IoTClient.Clients.PLC
 {
@@ -80,6 +81,7 @@ namespace IoTClient.Clients.PLC
             this.endianFormat = endianFormat;
         }
 
+        private readonly ManualResetEvent TimeoutObject = new ManualResetEvent(false);
         /// <summary>
         /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
@@ -95,7 +97,12 @@ namespace IoTClient.Clients.PLC
                 socket.ReceiveTimeout = timeout;
                 socket.SendTimeout = timeout;
 
-                socket.Connect(IpEndPoint);
+                //socket.Connect(IpEndPoint);
+                TimeoutObject.Reset();
+                socket.BeginConnect(IpEndPoint, (asyncresult) => { TimeoutObject.Set(); }, socket);
+                //阻塞当前线程           
+                if (!TimeoutObject.WaitOne(timeout, false))
+                    throw new Exception("连接超时");
 
                 BasicCommand[19] = SA1;
                 result.Requst = string.Join(" ", BasicCommand.Select(t => t.ToString("X2")));

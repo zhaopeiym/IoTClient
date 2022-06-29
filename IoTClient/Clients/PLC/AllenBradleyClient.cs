@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace IoTClient.Clients.PLC
 {
@@ -66,6 +67,7 @@ namespace IoTClient.Clients.PLC
             0x00,0x00                               //选项标记（0x0000
         };
 
+        private readonly ManualResetEvent TimeoutObject = new ManualResetEvent(false);
         /// <summary>
         /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
@@ -83,7 +85,12 @@ namespace IoTClient.Clients.PLC
                 socket.SendTimeout = timeout;
 
                 //连接
-                socket.Connect(IpEndPoint);
+                //socket.Connect(IpEndPoint);
+                TimeoutObject.Reset();
+                socket.BeginConnect(IpEndPoint, (asyncresult) => { TimeoutObject.Set(); }, socket);
+                //阻塞当前线程           
+                if (!TimeoutObject.WaitOne(timeout, false))
+                    throw new Exception("连接超时");
 
                 result.Requst = string.Join(" ", RegisteredCommand.Select(t => t.ToString("X2")));
                 socket.Send(RegisteredCommand);

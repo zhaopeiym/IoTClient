@@ -6,9 +6,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/zhaopeiym/IoTClient</PackageProjectUrl>
     <Authors>农码一生 - benny</Authors>
-    <Company>擎呐科技</Company>
+    <Company>农码一生</Company>
     <Product>物联网设备通讯协议实现</Product>
-    <Copyright>Copyright (c) 2019 擎呐科技.  All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2022 农码一生.  All rights reserved.</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zhaopeiym/IoTClient</RepositoryUrl>
     <PackageTags>IoT,物联网,PLC,Modbus,Bacnet</PackageTags>
