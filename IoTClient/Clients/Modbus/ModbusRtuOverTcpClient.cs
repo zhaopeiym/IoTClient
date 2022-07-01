@@ -57,8 +57,6 @@ namespace IoTClient.Clients.Modbus
             this.plcAddresses = plcAddresses;
         }
 
-        private readonly ManualResetEvent TimeoutObject = new ManualResetEvent(false);
-
         protected override Result Connect()
         {
             var result = new Result();
@@ -71,11 +69,11 @@ namespace IoTClient.Clients.Modbus
 
                 //连接
                 //socket.Connect(ipEndPoint);
-                TimeoutObject.Reset();
-                socket.BeginConnect(ipEndPoint, (asyncresult) => { TimeoutObject.Set(); }, socket);
+                IAsyncResult connectResult = socket.BeginConnect(ipEndPoint, null, null);
                 //阻塞当前线程           
-                if (!TimeoutObject.WaitOne(timeout, false))
-                    throw new Exception("连接超时");
+                if (!connectResult.AsyncWaitHandle.WaitOne(timeout))
+                    throw new TimeoutException("连接超时");
+                socket.EndConnect(connectResult);
             }
             catch (Exception ex)
             {

@@ -43,7 +43,7 @@ namespace IoTClient.Clients.PLC
         {
             if (!IPAddress.TryParse(ip, out IPAddress address))
                 address = Dns.GetHostEntry(ip).AddressList?.FirstOrDefault();
-            IpEndPoint = new IPEndPoint(address, port);            
+            IpEndPoint = new IPEndPoint(address, port);
             this.timeout = timeout;
             this.slot = slot;
         }
@@ -67,7 +67,6 @@ namespace IoTClient.Clients.PLC
             0x00,0x00                               //选项标记（0x0000
         };
 
-        private readonly ManualResetEvent TimeoutObject = new ManualResetEvent(false);
         /// <summary>
         /// 打开连接（如果已经是连接状态会先关闭再打开）
         /// </summary>
@@ -86,11 +85,11 @@ namespace IoTClient.Clients.PLC
 
                 //连接
                 //socket.Connect(IpEndPoint);
-                TimeoutObject.Reset();
-                socket.BeginConnect(IpEndPoint, (asyncresult) => { TimeoutObject.Set(); }, socket);
+                IAsyncResult connectResult = socket.BeginConnect(IpEndPoint, null, null);
                 //阻塞当前线程           
-                if (!TimeoutObject.WaitOne(timeout, false))
-                    throw new Exception("连接超时");
+                if (!connectResult.AsyncWaitHandle.WaitOne(timeout))
+                    throw new TimeoutException("连接超时");
+                socket.EndConnect(connectResult);
 
                 result.Requst = string.Join(" ", RegisteredCommand.Select(t => t.ToString("X2")));
                 socket.Send(RegisteredCommand);
@@ -160,7 +159,7 @@ namespace IoTClient.Clients.PLC
                     result.Err = ex.Message;
                     result.AddErr2List();
                     return result.EndTime();
-                } 
+                }
             }
         }
 
@@ -743,7 +742,7 @@ namespace IoTClient.Clients.PLC
             command[11 + 26 + 24 + address_ASCII.Length + value.Length] = slot;
             return command;
 
-        }       
+        }
 
         public Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addresses, int batchNumber)
         {

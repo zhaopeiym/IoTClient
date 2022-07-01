@@ -17,7 +17,7 @@ namespace IoTClient.Tests.PLCTests
         {
             var ip = IPAddress.Parse("SiemensClientIp".GetConfig());
             var port = int.Parse("SiemensClientPort".GetConfig());
-            ip = IPAddress.Parse("127.0.0.1");
+            ip = IPAddress.Parse("127.0.0.1");//20.205.243.166
             port = 102;
             client = new SiemensClient(SiemensVersion.S7_200Smart, new IPEndPoint(ip, port));
         }
