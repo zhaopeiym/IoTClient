@@ -3439,6 +3439,11 @@
             Double
             </summary>
         </member>
+        <member name="F:IoTClient.Enums.DataTypeEnum.String">
+            <summary>
+            String
+            </summary>
+        </member>
         <member name="T:IoTClient.Enums.EndianFormat">
             <summary>
             字节格式

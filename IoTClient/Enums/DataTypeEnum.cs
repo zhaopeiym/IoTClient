@@ -62,5 +62,10 @@ namespace IoTClient.Enums
         /// </summary>
         [Description("Double")]
         Double = 10,
+        /// <summary>
+        /// String
+        /// </summary>
+        [Description("String")]
+        String = 11,
     }
 }

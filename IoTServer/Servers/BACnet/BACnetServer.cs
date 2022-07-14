@@ -23,7 +23,7 @@ namespace IoTServer.Servers.BACnet
         /// <summary>
         /// 启动服务
         /// </summary>
-        public void Start()
+        public void Start(string localEndpointIp = "")
         {
             try
             {
@@ -52,7 +52,7 @@ namespace IoTServer.Servers.BACnet
                 m_storage.ReadOverride += new DeviceStorage.ReadOverrideHandler(m_storage_ReadOverride);
 
                 //create udp service point
-                BacnetIpUdpProtocolTransport udp_transport = new BacnetIpUdpProtocolTransport(47808, false);       //set to true to force "single socket" usage
+                BacnetIpUdpProtocolTransport udp_transport = new BacnetIpUdpProtocolTransport(47808, false, localEndpointIp: localEndpointIp);       //set to true to force "single socket" usage
                 m_ip_server = new BacnetClient(udp_transport);
 
                 m_ip_server.OnWhoIs += new BacnetClient.WhoIsHandler(OnWhoIs);
