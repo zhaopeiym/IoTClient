@@ -14,7 +14,7 @@ namespace IoTClient.Tests.Modbus
         byte stationNumber = 1;//站号
         public ModbusRtuClient_tests()
         {
-            client = new ModbusRtuClient("COM3", 9600, 8, StopBits.One, Parity.None);
+            client = new ModbusRtuClient("COM2", 9600, 8, StopBits.One, Parity.None);
         }
 
         [Fact]

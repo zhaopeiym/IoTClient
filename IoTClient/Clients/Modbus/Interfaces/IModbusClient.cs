@@ -60,6 +60,16 @@ namespace IoTClient.Clients.Modbus
         Result<short> ReadInt16(string address, byte stationNumber = 1, byte functionCode = 3);
 
         /// <summary>
+        /// 按位的方式读取
+        /// </summary>
+        /// <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="left">按位取值从左边开始取</param>
+        /// <returns></returns>
+        Result<short> ReadInt16Bit(string address, byte stationNumber = 1, byte functionCode = 3, bool left = true);
+
+        /// <summary>
         /// 从批量读取的数据字节提取对应的地址数据
         /// </summary>
         /// <param name="beginAddress"></param>
@@ -85,6 +95,16 @@ namespace IoTClient.Clients.Modbus
         /// <param name="values"></param>
         /// <returns></returns>
         Result<ushort> ReadUInt16(string beginAddress, string address, byte[] values);
+
+        /// <summary>
+        /// 按位的方式读取
+        /// </summary>
+        /// <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="left">按位取值从左边开始取</param>
+        /// <returns></returns>
+        Result<ushort> ReadUInt16Bit(string address, byte stationNumber = 1, byte functionCode = 3, bool left = true);
 
         /// <summary>
         /// 读取Int32

@@ -24,6 +24,8 @@ namespace IoTClient.Tests.PLCTests
 
             var reuslt = client.Open();
 
+            client.ReadInt16("D6402");
+
             Random rnd = new Random((int)Stopwatch.GetTimestamp());
 
             short short_number = (short)rnd.Next(short.MinValue, short.MaxValue);
@@ -37,6 +39,11 @@ namespace IoTClient.Tests.PLCTests
 
             client.Write("D300", short_number);
             client.Write("D301", short_number_1);
+            client.Write("D100", (short)100);
+
+            Assert.True(client.ReadInt16("D100").Value == 100);
+            Assert.True(client.ReadInt16("D300").Value == short_number);
+            Assert.True(client.ReadUInt16("D301").Value == short_number_1);
 
             client.Write("D310", int_number);
             client.Write("D312", int_number_1);
@@ -116,6 +123,11 @@ namespace IoTClient.Tests.PLCTests
 
             Assert.True(Convert.ToUInt64(result.Value["D354"]) == Convert.ToUInt64(int_number_1));
             Assert.True(Convert.ToDouble(result.Value["D358"]) == Convert.ToDouble(float_number));
+
+            client.Write("H400.15", false);
+            Assert.True(client.ReadBoolean("H400.15").Value == false);
+            client.Write("H400.15", true);
+            Assert.True(client.ReadBoolean("H400.15").Value == true);
 
             client.Close();
         }

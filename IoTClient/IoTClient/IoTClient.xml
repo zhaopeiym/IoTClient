@@ -53,6 +53,16 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.ReadInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.ReadUInt16(System.String,System.Byte,System.Byte)">
             <summary>
             读取UInt16
@@ -60,6 +70,16 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.ReadUInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusSerialBase.ReadInt32(System.String,System.Byte,System.Byte)">
@@ -415,6 +435,16 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.ReadInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.ReadInt16(System.String,System.String,System.Byte[])">
             <summary>
             从批量读取的数据字节提取对应的地址数据
@@ -440,6 +470,16 @@
             <param name="beginAddress"></param>
             <param name="address"></param>
             <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.IModbusClient.ReadUInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.IModbusClient.ReadInt32(System.String,System.Byte,System.Byte)">
@@ -836,6 +876,16 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.ReadInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.ReadUInt16(System.String,System.Byte,System.Byte)">
             <summary>
             读取UInt16
@@ -843,6 +893,16 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.ReadUInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusRtuOverTcpClient.ReadInt32(System.String,System.Byte,System.Byte)">
@@ -1206,6 +1266,16 @@
             <param name="functionCode">功能码</param>
             <returns></returns>
         </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
+            <returns></returns>
+        </member>
         <!-- Badly formed XML comment ignored for member "M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadInt16(System.Int32,System.Byte,System.Byte)" -->
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadUInt16(System.String,System.Byte,System.Byte)">
             <summary>
@@ -1214,6 +1284,16 @@
             <param name="address">寄存器起始地址</param>
             <param name="stationNumber">站号</param>
             <param name="functionCode">功能码</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadUInt16Bit(System.String,System.Byte,System.Byte,System.Boolean)">
+            <summary>
+            按位的方式读取
+            </summary>
+            <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+            <param name="stationNumber">站号</param>
+            <param name="functionCode">功能码</param>
+            <param name="left">按位取值从左边开始取</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Clients.Modbus.ModbusTcpClient.ReadUInt16(System.Int32,System.Byte,System.Byte)">
@@ -3286,11 +3366,12 @@
             <param name="str"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTClient.Common.Helpers.DataConvert.IntToBinaryArray(System.Int32)">
+        <member name="M:IoTClient.Common.Helpers.DataConvert.IntToBinaryArray(System.Int32,System.Int32)">
             <summary>
             Int转二进制
             </summary>
             <param name="value"></param>
+            <param name="minLength">补0长度</param>
             <returns></returns>
         </member>
         <member name="M:IoTClient.Common.Helpers.DataConvert.BinaryArrayToInt(System.String)">
@@ -3306,6 +3387,15 @@
             </summary>
         </member>
         <member name="M:IoTClient.Common.Helpers.EndianConversion.ByteFormatting(System.Byte[],IoTClient.Enums.EndianFormat,System.Boolean)">
+            <summary>
+            字节格式转换
+            </summary>
+            <param name="value"></param>
+            <param name="format"></param>
+            <param name="reverse">是否经过了反转</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.EndianConversion.ByteFormatting2(System.Byte[],IoTClient.Enums.EndianFormat,System.Boolean)">
             <summary>
             字节格式转换
             </summary>
@@ -3347,6 +3437,26 @@
             </summary>
             <param name="value"></param>
             <returns></returns>
+        </member>
+        <member name="T:IoTClient.Common.Helpers.ModbusHelper">
+            <summary>
+            帮助类
+            </summary>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.ModbusHelper.VerifyFunctionCode(System.Byte,System.Byte)">
+            <summary>
+            是否为异常功能码
+            </summary>
+            <param name="resultCode"></param>
+            <param name="responseCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTClient.Common.Helpers.ModbusHelper.ErrMsg(System.Byte)">
+            <summary>
+            异常码描述
+            https://www.likecs.com/show-204655077.html?sc=5546
+            </summary>
+            <param name="errCode"></param>
         </member>
         <member name="T:IoTClient.Common.Helpers.SocketHelper">
             <summary>

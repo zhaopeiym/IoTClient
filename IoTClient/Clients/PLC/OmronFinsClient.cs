@@ -221,7 +221,7 @@ namespace IoTClient.Clients.PLC
                 Array.Copy(dataPackage, dataPackage.Length - length, responseData, 0, length);
                 result.Response = string.Join(" ", dataPackage.Select(t => t.ToString("X2")));
                 if (setEndian)
-                    result.Value = responseData.ToArray().ByteFormatting(endianFormat, false);
+                    result.Value = responseData.ToArray().ByteFormatting2(endianFormat, false);
                 else
                     result.Value = responseData.ToArray();
             }
@@ -388,7 +388,7 @@ namespace IoTClient.Clients.PLC
             {
                 var interval = (addressInt - startAddressInt) / 2;
                 var offset = (addressInt - startAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
-                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting(endianFormat, false);
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting2(endianFormat, false);
                 return new Result<int>
                 {
                     Value = BitConverter.ToInt32(byteArry, 0)
@@ -424,7 +424,7 @@ namespace IoTClient.Clients.PLC
             {
                 var interval = (addressInt - startAddressInt) / 2;
                 var offset = (addressInt - startAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
-                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting(endianFormat, false);
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting2(endianFormat, false);
                 return new Result<uint>
                 {
                     Value = BitConverter.ToUInt32(byteArry, 0)
@@ -460,7 +460,7 @@ namespace IoTClient.Clients.PLC
             {
                 var interval = (addressInt - startAddressInt) / 4;
                 var offset = (addressInt - startAddressInt) % 4 * 2;
-                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting(endianFormat, false);
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting2(endianFormat, false);
                 return new Result<long>
                 {
                     Value = BitConverter.ToInt64(byteArry, 0)
@@ -496,7 +496,7 @@ namespace IoTClient.Clients.PLC
             {
                 var interval = (addressInt - startAddressInt) / 4;
                 var offset = (addressInt - startAddressInt) % 4 * 2;
-                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting(endianFormat, false);
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting2(endianFormat, false);
                 return new Result<ulong>
                 {
                     Value = BitConverter.ToUInt64(byteArry, 0)
@@ -532,7 +532,7 @@ namespace IoTClient.Clients.PLC
             {
                 var interval = (addressInt - beginAddressInt) / 2;
                 var offset = (addressInt - beginAddressInt) % 2 * 2;//取余 乘以2（每个地址16位，占两个字节）
-                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting(endianFormat, false);
+                var byteArry = values.Skip(interval * 2 * 2 + offset).Take(2 * 2).ToArray().ByteFormatting2(endianFormat, false);
                 return new Result<float>
                 {
                     Value = BitConverter.ToSingle(byteArry, 0)
@@ -568,7 +568,7 @@ namespace IoTClient.Clients.PLC
             {
                 var interval = (addressInt - beginAddressInt) / 4;
                 var offset = (addressInt - beginAddressInt) % 4 * 2;
-                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting(endianFormat, false);
+                var byteArry = values.Skip(interval * 2 * 4 + offset).Take(2 * 4).ToArray().ByteFormatting2(endianFormat, false);
                 return new Result<double>
                 {
                     Value = BitConverter.ToDouble(byteArry, 0)
@@ -607,7 +607,7 @@ namespace IoTClient.Clients.PLC
             Result result = new Result();
             try
             {
-                data = data.Reverse().ToArray().ByteFormatting(endianFormat);
+                data = data.Reverse().ToArray().ByteFormatting2(endianFormat);
                 //发送写入信息
                 var arg = ConvertArg(address, isBit: isBit);
                 byte[] command = GetWriteCommand(arg, data);
@@ -842,7 +842,7 @@ namespace IoTClient.Clients.PLC
                         addressInfo.BitCode = 0x02;
                         addressInfo.WordCode = 0x82;
                         addressInfo.TypeChar = address.Substring(0, 1);
-                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1).Split('.')[0]);
                         break;
                     }
                 case 'C'://CIO区
@@ -850,7 +850,7 @@ namespace IoTClient.Clients.PLC
                         addressInfo.BitCode = 0x30;
                         addressInfo.WordCode = 0xB0;
                         addressInfo.TypeChar = address.Substring(0, 1);
-                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1).Split('.')[0]);
                         break;
                     }
                 case 'W'://WR区
@@ -858,7 +858,7 @@ namespace IoTClient.Clients.PLC
                         addressInfo.BitCode = 0x31;
                         addressInfo.WordCode = 0xB1;
                         addressInfo.TypeChar = address.Substring(0, 1);
-                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1).Split('.')[0]);
                         break;
                     }
                 case 'H'://HR区
@@ -866,7 +866,7 @@ namespace IoTClient.Clients.PLC
                         addressInfo.BitCode = 0x32;
                         addressInfo.WordCode = 0xB2;
                         addressInfo.TypeChar = address.Substring(0, 1);
-                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1).Split('.')[0]);
                         break;
                     }
                 case 'A'://AR区
@@ -874,7 +874,7 @@ namespace IoTClient.Clients.PLC
                         addressInfo.BitCode = 0x33;
                         addressInfo.WordCode = 0xB3;
                         addressInfo.TypeChar = address.Substring(0, 1);
-                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1));
+                        addressInfo.BeginAddress = Convert.ToInt32(address.Substring(1).Split('.')[0]);
                         break;
                     }
                 case 'E':
@@ -1070,9 +1070,11 @@ namespace IoTClient.Clients.PLC
                     switch (tempMax.DataTypeEnum)
                     {
                         case DataTypeEnum.Bool:
+                            throw new Exception("暂时不支持Bool类型批量读取");
                         case DataTypeEnum.Byte:
-                            readLength = tempMax.BeginAddress + 1 - minAddress;
-                            break;
+                            throw new Exception("暂时不支持Byte类型批量读取");
+                        //readLength = tempMax.BeginAddress + 1 - minAddress;
+                        //break;
                         case DataTypeEnum.Int16:
                         case DataTypeEnum.UInt16:
                             readLength = tempMax.BeginAddress * 2 + 2 - minAddress * 2;

@@ -116,5 +116,53 @@ namespace IoTClient.Common.Helpers
             }
             return buffer;
         }
+
+        /// <summary>
+        /// 字节格式转换
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="format"></param>
+        /// <param name="reverse">是否经过了反转</param>
+        /// <returns></returns>
+        public static byte[] ByteFormatting2(this byte[] value, EndianFormat format = EndianFormat.ABCD, bool reverse = true)
+        {
+            if (!reverse)
+            {
+                switch (format)
+                {
+                    case EndianFormat.ABCD:
+                        format = EndianFormat.DCBA;
+                        break;
+                    case EndianFormat.BADC:
+                        format = EndianFormat.CDAB;
+                        break;
+                    case EndianFormat.CDAB:
+                        format = EndianFormat.BADC;
+                        break;
+                    case EndianFormat.DCBA:
+                        format = EndianFormat.ABCD;
+                        break;
+                }
+            }
+
+            byte[] buffer;
+            if (value.Length == 2)
+            {
+                buffer = new byte[2];
+                switch (format)
+                {
+                    case EndianFormat.BADC:
+                        buffer[0] = value[1];
+                        buffer[1] = value[0];
+                        break;
+                    default:
+                        buffer = value;
+                        break;
+                }
+            }
+            else
+                return ByteFormatting(value, format, true);
+            return buffer;
+        }
     }
 }

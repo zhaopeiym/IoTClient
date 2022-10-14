@@ -231,6 +231,38 @@ namespace IoTClient.Clients.Modbus
         }
 
         /// <summary>
+        /// 按位的方式读取
+        /// </summary>
+        /// <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="left">按位取值从左边开始取</param>
+        /// <returns></returns>
+        public Result<short> ReadInt16Bit(string address, byte stationNumber = 1, byte functionCode = 3, bool left = true)
+        {
+            string[] adds = address.Split('.');
+            var readResut = Read(adds[0].Trim(), stationNumber, functionCode);
+            var result = new Result<short>(readResut);
+            if (result.IsSucceed)
+            {
+                result.Value = BitConverter.ToInt16(readResut.Value, 0);
+                if (adds.Length >= 2)
+                {
+                    var index = int.Parse(adds[1].Trim());
+                    var binaryArray = DataConvert.IntToBinaryArray(result.Value, 16);
+                    if (left)
+                    {
+                        var length = binaryArray.Length - 16;
+                        result.Value = short.Parse(binaryArray[length + index].ToString());
+                    }
+                    else
+                        result.Value = short.Parse(binaryArray[binaryArray.Length - 1 - index].ToString());
+                }
+            }
+            return result.EndTime();
+        }
+
+        /// <summary>
         /// 读取UInt16
         /// </summary>
         /// <param name="address">寄存器起始地址</param>
@@ -243,6 +275,38 @@ namespace IoTClient.Clients.Modbus
             var result = new Result<ushort>(readResut);
             if (result.IsSucceed)
                 result.Value = BitConverter.ToUInt16(readResut.Value, 0);
+            return result.EndTime();
+        }
+
+        /// <summary>
+        /// 按位的方式读取
+        /// </summary>
+        /// <param name="address">寄存器地址:如1.00 ... 1.14、1.15</param>
+        /// <param name="stationNumber">站号</param>
+        /// <param name="functionCode">功能码</param>
+        /// <param name="left">按位取值从左边开始取</param>
+        /// <returns></returns>
+        public Result<ushort> ReadUInt16Bit(string address, byte stationNumber = 1, byte functionCode = 3, bool left = true)
+        {
+            string[] adds = address.Split('.');
+            var readResut = Read(adds[0].Trim(), stationNumber, functionCode);
+            var result = new Result<ushort>(readResut);
+            if (result.IsSucceed)
+            {
+                result.Value = BitConverter.ToUInt16(readResut.Value, 0);
+                if (adds.Length >= 2)
+                {
+                    var index = int.Parse(adds[1].Trim());
+                    var binaryArray = DataConvert.IntToBinaryArray(result.Value, 16);
+                    if (left)
+                    {
+                        var length = binaryArray.Length - 16;
+                        result.Value = ushort.Parse(binaryArray[length + index].ToString());
+                    }
+                    else
+                        result.Value = ushort.Parse(binaryArray[binaryArray.Length - 1 - index].ToString());
+                }
+            }
             return result.EndTime();
         }
 

@@ -115,11 +115,12 @@ namespace IoTClient.Common.Helpers
         /// Int转二进制
         /// </summary>
         /// <param name="value"></param>
+        /// <param name="minLength">补0长度</param>
         /// <returns></returns>
-        public static string IntToBinaryArray(this int value)
+        public static string IntToBinaryArray(this int value, int minLength = 0)
         {
             //Convert.ToString(12,2); // 将12转为2进制字符串，结果 “1100”
-            return Convert.ToString(value, 2);
+            return Convert.ToString(value, 2).PadLeft(minLength, '0');
         }
 
         /// <summary>

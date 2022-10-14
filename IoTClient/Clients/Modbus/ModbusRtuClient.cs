@@ -65,6 +65,11 @@ namespace IoTClient.Clients.Modbus
                     result.Err = "响应结果CRC16验证失败";
                     //return result.EndTime();
                 }
+                else if (ModbusHelper.VerifyFunctionCode(functionCode, responsePackage[1]))
+                {
+                    result.IsSucceed = false;
+                    result.Err = ModbusHelper.ErrMsg(responsePackage[2]);
+                }
 
                 byte[] resultData = new byte[responsePackage.Length - 2 - 3];
                 Array.Copy(responsePackage, 3, resultData, 0, resultData.Length);
@@ -123,6 +128,11 @@ namespace IoTClient.Clients.Modbus
                     result.Err = "响应结果CRC16验证失败";
                     //return result.EndTime();
                 }
+                else if (ModbusHelper.VerifyFunctionCode(functionCode, responsePackage[1]))
+                {
+                    result.IsSucceed = false;
+                    result.Err = ModbusHelper.ErrMsg(responsePackage[2]);
+                }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Buffer.BlockCopy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);
                 result.Response = string.Join(" ", responsePackage.Select(t => t.ToString("X2")));
@@ -174,6 +184,11 @@ namespace IoTClient.Clients.Modbus
                     result.IsSucceed = false;
                     result.Err = "响应结果CRC16验证失败";
                     //return result.EndTime();
+                }
+                else if (ModbusHelper.VerifyFunctionCode(functionCode, responsePackage[1]))
+                {
+                    result.IsSucceed = false;
+                    result.Err = ModbusHelper.ErrMsg(responsePackage[2]);
                 }
                 byte[] resultBuffer = new byte[responsePackage.Length - 2];
                 Array.Copy(responsePackage, 0, resultBuffer, 0, resultBuffer.Length);

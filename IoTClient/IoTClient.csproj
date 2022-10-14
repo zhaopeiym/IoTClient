@@ -12,7 +12,7 @@
     <Copyright>Copyright (c) 2022 农码一生.  All rights reserved.</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zhaopeiym/IoTClient</RepositoryUrl>
-    <PackageTags>IoT,物联网,PLC,Modbus,Bacnet</PackageTags>
+    <PackageTags>Modbus,Bacnet,PLC,S7,ModbusTcp,三菱,西门子,欧姆龙,IoT,物联网,边缘计算</PackageTags>
     <PackageIconUrl>https://user-images.githubusercontent.com/5820324/66972725-12bccf80-f0c8-11e9-9468-3cfc57915dc9.png</PackageIconUrl>
   </PropertyGroup>
 

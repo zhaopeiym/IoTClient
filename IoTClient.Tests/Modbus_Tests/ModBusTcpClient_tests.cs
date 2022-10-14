@@ -1,4 +1,5 @@
 ﻿using IoTClient.Clients.Modbus;
+using IoTClient.Common.Helpers;
 using IoTClient.Enums;
 using IoTClient.Models;
 using System;
@@ -22,9 +23,18 @@ namespace IoTClient.Tests.Modbus
             client = new ModbusTcpClient(new IPEndPoint(ip, port));
         }
 
+        public bool ShortToBit(int value, int index)
+        {
+            var binaryArray = DataConvert.IntToBinaryArray(value, 16);
+            var length = binaryArray.Length - 16;
+            return binaryArray[length + index].ToString() == "1";
+        }
+
         [Fact]
         public async Task 短连接自动开关()
         {
+            var aa1 = client.ReadUInt16Bit("0.1").Value;
+
             Random rnd = new Random((int)Stopwatch.GetTimestamp());
             for (int i = 0; i < 10; i++)
             {
@@ -129,7 +139,7 @@ namespace IoTClient.Tests.Modbus
 
         [Fact]
         public void 批量读取()
-        {            
+        {
             var result1 = client.ReadInt16("12");
 
             client.WarningLog = (msg, ex) =>
