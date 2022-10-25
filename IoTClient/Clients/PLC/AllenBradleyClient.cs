@@ -177,7 +177,7 @@ namespace IoTClient.Clients.PLC
             var result = new Result<byte[]>();
             try
             {
-                var command = GetReadCommand(address, 1);
+                var command = GetReadCommand(address, length);
                 result.Requst = string.Join(" ", command.Select(t => t.ToString("X2")));
                 //发送命令 并获取响应报文
                 var sendResult = SendPackageReliable(command);
