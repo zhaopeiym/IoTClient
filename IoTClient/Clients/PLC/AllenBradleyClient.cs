@@ -756,7 +756,21 @@ namespace IoTClient.Clients.PLC
 
         public Result<string> ReadString(string address)
         {
-            throw new NotImplementedException();
+            var readResut = Read(address, 4);
+            var result = new Result<string>(readResut);
+            if (result.IsSucceed)
+            {
+                if (readResut.Value.Length >= 7)
+                {
+                    int len = BitConverter.ToInt32(readResut.Value, 2);
+                    if (len > 0)
+                    {
+                        string val = System.Text.Encoding.Default.GetString(readResut.Value.Skip(6).Take(len).ToArray());
+                        result.Value = val;
+                    }
+                }
+            }
+            return result.EndTime();
         }
 
         public Result Write(string address, byte[] data, bool isBit = false)
