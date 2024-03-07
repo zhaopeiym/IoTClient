@@ -66,12 +66,12 @@ namespace IoTClient.Clients.PLC
         private byte DA1 { get; set; } = 0x01;
 
         /// <summary>
-        /// 
+        /// 构造函数
         /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endianFormat"></param>
+        /// <param name="ip">主机地址</param>
+        /// <param name="port">端口</param>
+        /// <param name="timeout">超时时间，默认1500毫秒</param>
+        /// <param name="endianFormat">字节序格式</param>
         public OmronFinsClient(string ip, int port = 9600, int timeout = 1500, EndianFormat endianFormat = EndianFormat.CDAB)
         {
             if (!IPAddress.TryParse(ip, out IPAddress address))
@@ -144,7 +144,7 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 发送报文，并获取响应报文（建议使用SendPackageReliable，如果异常会自动重试一次）
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="command">指令集</param>
         /// <returns></returns>
         public override Result<byte[]> SendPackageSingle(byte[] command)
         {
@@ -190,8 +190,8 @@ namespace IoTClient.Clients.PLC
         /// 读取数据
         /// </summary>
         /// <param name="address">地址</param>
-        /// <param name="length"></param>
-        /// <param name="isBit"></param>
+        /// <param name="length">长度</param>
+        /// <param name="isBit">类型</param>
         /// <param name="setEndian">返回值是否设置大小端</param>
         /// <returns></returns>
         public Result<byte[]> Read(string address, ushort length, bool isBit = false, bool setEndian = true)
@@ -289,9 +289,9 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 读取byte
+        /// 读取Byte
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">地址</param>
         /// <returns></returns>
         public Result<byte> ReadByte(string address)
         {
@@ -301,7 +301,7 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 读取Int16
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">地址</param>
         /// <returns></returns>
         public Result<short> ReadInt16(string address)
         {
@@ -823,9 +823,9 @@ namespace IoTClient.Clients.PLC
         /// <summary>
         /// 地址信息解析
         /// </summary>
-        /// <param name="address"></param>        
-        /// <param name="dataType"></param> 
-        /// <param name="isBit"></param> 
+        /// <param name="address">地址</param>        
+        /// <param name="dataType">类型</param> 
+        /// <param name="isBit">值</param> 
         /// <returns></returns>
         private OmronFinsAddress ConvertArg(string address, DataTypeEnum dataType = DataTypeEnum.None, bool isBit = false)
         {
