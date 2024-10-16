@@ -41,7 +41,6 @@ IoTClient
     - [电表监控系统（商用）](#%E7%94%B5%E8%A1%A8%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E5%95%86%E7%94%A8)
     - [人造板行业生产管理软件（商用）](#%E4%BA%BA%E9%80%A0%E6%9D%BF%E8%A1%8C%E4%B8%9A%E7%94%9F%E4%BA%A7%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E5%95%86%E7%94%A8)
 - [友情链接](#%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5)
-    - [YuebonCore](#yueboncore)
     - [iotgateway](#iotgateway)
 
 <!-- /TOC -->
@@ -427,13 +426,6 @@ var value4 = result.Value;
 ![image](https://user-images.githubusercontent.com/5820324/127763055-068ec3a4-4959-47fd-928b-6bfa12ef7ed7.png)  
 
 # 友情链接
-
-## YuebonCore
-开源地址：  
-https://gitee.com/yuebon/YuebonNetCore  
-
-概述：  
-YuebonCore是基于.Net5.0开发的权限管理及快速开发框架，整合应用最新技术包括Asp.NetCore MVC、Dapper、WebAPI、Swagger、EF、Vue等，核心模块包括：组织机构、角色用户、权限授权、多系统、多应用管理、定时任务、业务单据编码规则、代码生成器等。它的架构易于扩展，规范了一套业务实现的代码结构与操作流程，使YuebonCore框架更易于应用到实际项目开发中。  
 
 ## iotgateway
 开源地址：  

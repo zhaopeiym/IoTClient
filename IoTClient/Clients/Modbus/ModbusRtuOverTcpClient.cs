@@ -846,10 +846,10 @@ namespace IoTClient.Clients.Modbus
             return result.EndTime();
         }
 
-        private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
+        private Result<Dictionary<int, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
         {
-            var result = new Result<Dictionary<string, object>>();
-            result.Value = new Dictionary<string, object>();
+            var result = new Result<Dictionary<int, object>>();
+            result.Value = new Dictionary<int, object>();
 
             var addresses = addressList.Select(t => new KeyValuePair<int, DataTypeEnum>(int.Parse(t.Key), t.Value)).ToList();
 
@@ -942,7 +942,7 @@ namespace IoTClient.Clients.Modbus
                             throw new Exception("Err BatchRead 未定义类型 -3");
                     }
 
-                    result.Value.Add(item.Key.ToString(), tempVaue);
+                    result.Value.Add(item.Key, tempVaue);
                 }
                 minAddress = minAddress + readLength;
 
