@@ -928,13 +928,13 @@ namespace IoTClient.Clients.PLC
         public Result<string> ReadString(string address)
         {
             //先获取字符串的长度
-            var readResut1 = ReadString(address, 1);
+            var readResut1 = ReadString(address, 2);
             if (readResut1.IsSucceed)
             {
-                var readResut2 = ReadString(address, (ushort)(readResut1.Value[0] + 1));
+                var readResut2 = ReadString(address, (ushort)(readResut1.Value[1] + 2));
                 var result = new Result<string>(readResut2);
                 if (result.IsSucceed)
-                    result.Value = Encoding.ASCII.GetString(readResut2.Value, 1, readResut1.Value[0]);
+                    result.Value = Encoding.UTF8.GetString(readResut2.Value, 2, readResut1.Value[1]);
                 return result.EndTime();
             }
             else
@@ -942,7 +942,7 @@ namespace IoTClient.Clients.PLC
                 var result = new Result<string>(readResut1);
                 return result.EndTime();
             }
-            //return Encoding.ASCII.GetString(, 1, length[0]);
+            //return Encoding.UTF8.GetString(, 1, length[0]);
         }
 
         /// <summary>
@@ -1371,10 +1371,10 @@ namespace IoTClient.Clients.PLC
         /// <returns></returns>
         public Result Write(string address, string value)
         {
-            var valueBytes = Encoding.ASCII.GetBytes(value);
-            var bytes = new byte[valueBytes.Length + 1];
-            bytes[0] = (byte)valueBytes.Length;
-            valueBytes.CopyTo(bytes, 1);
+            var valueBytes = Encoding.UTF8.GetBytes(value);
+            var bytes = new byte[valueBytes.Length + 2];
+            bytes[1] = (byte)valueBytes.Length;
+            valueBytes.CopyTo(bytes, 2);
             Array.Reverse(bytes);
             return Write(address, bytes);
         }

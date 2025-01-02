@@ -25,6 +25,11 @@ namespace IoTClient.Tests.PLCTests
         [Fact]
         public void 短连接自动开关()
         {
+            var string_value = "V100啊啊";
+            client.Write("V100", string_value);
+            var str_value = client.ReadString("V100").Value;
+            Assert.True(str_value == string_value);
+
             Random rnd = new Random((int)Stopwatch.GetTimestamp());
             for (int i = 0; i < 100; i++)
             {
@@ -308,7 +313,7 @@ namespace IoTClient.Tests.PLCTests
         [Fact]
         public void 定时更新()
         {
-            client.ReadInt16("V100", (value,isSucceed,err) =>
+            client.ReadInt16("V100", (value, isSucceed, err) =>
             {
                 Debug.WriteLine($"V100:{value}  err:{err}");
             });
