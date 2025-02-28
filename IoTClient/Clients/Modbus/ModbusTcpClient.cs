@@ -1071,12 +1071,11 @@ namespace IoTClient.Clients.Modbus
             return result;
         }
 
-        private Result<Dictionary<int, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
+        private Result<Dictionary<string, object>> BatchRead(Dictionary<string, DataTypeEnum> addressList, byte stationNumber, byte functionCode)
         {
-            var result = new Result<Dictionary<int, object>>();
-            result.Value = new Dictionary<int, object>();
-
-            var addresses = addressList.Select(t => new KeyValuePair<int, DataTypeEnum>(int.Parse(t.Key), t.Value)).ToList();
+            var result = new Result<Dictionary<string, object>>();
+            result.Value = new Dictionary<string, object>();
+            var addresses = addressList.Select(m => new { Key = m.Key.Contains('.') ? m.Key.Split('.')[0] : m.Key, Value = m.Key.Contains('.') ? DataTypeEnum.Int16 : m.Value }).GroupBy(m => (m.Key, m.Value)).Select(t => new KeyValuePair<int, DataTypeEnum>(int.Parse(t.Key.Key), t.Key.Value)).ToList();
 
             var minAddress = addresses.Select(t => t.Key).Min();
             var maxAddress = addresses.Select(t => t.Key).Max();
@@ -1167,14 +1166,70 @@ namespace IoTClient.Clients.Modbus
                             throw new Exception("Err BatchRead 未定义类型 -3");
                     }
 
-                    result.Value.Add(item.Key, tempVaue);
+                    result.Value.Add(item.Key.ToString(), tempVaue);
                 }
                 minAddress = minAddress + readLength;
 
                 if (addresses.Any(t => t.Key >= minAddress))
                     minAddress = addresses.Where(t => t.Key >= minAddress).OrderBy(t => t.Key).FirstOrDefault().Key;
                 else
-                    return result.EndTime();
+                {
+                    var xx = result.Value;
+                    var newResult = new Result<Dictionary<string, object>>();
+                    newResult.Value = new Dictionary<string, object>();
+                    foreach (var c in addressList)
+                    {
+                        if (c.Key.Contains('.'))
+                        {
+                            int bit = int.Parse(c.Key.Split('.')[1]);
+                            int address = int.Parse(c.Key.Split('.')[0]);
+                            Int16 value = (Int16)result.Value[address.ToString()];
+                            var binaryArray = DataConvert.IntToBinaryArray(value, 16);
+                            var realvalue = int.Parse(binaryArray[15 - bit].ToString());
+                            switch (c.Value)
+                            {
+                                case DataTypeEnum.Bool:
+                                    newResult.Value.Add(c.Key, Convert.ToBoolean(realvalue));
+                                    break;
+                                case DataTypeEnum.Byte:
+                                    throw new Exception("Err BatchRead 未定义类型 -2");
+                                case DataTypeEnum.Int16:
+                                    newResult.Value.Add(c.Key, Convert.ToInt16(realvalue));
+                                    break;
+                                case DataTypeEnum.UInt16:
+                                    newResult.Value.Add(c.Key, Convert.ToUInt16(realvalue));
+                                    break;
+                                case DataTypeEnum.Int32:
+                                    newResult.Value.Add(c.Key, Convert.ToInt32(realvalue));
+                                    break;
+                                case DataTypeEnum.UInt32:
+                                    newResult.Value.Add(c.Key, Convert.ToUInt32(realvalue));
+                                    break;
+                                case DataTypeEnum.Int64:
+                                    newResult.Value.Add(c.Key, Convert.ToInt64(realvalue));
+                                    break;
+                                case DataTypeEnum.UInt64:
+                                    newResult.Value.Add(c.Key, Convert.ToUInt64(realvalue));
+                                    break;
+                                case DataTypeEnum.Float:
+                                    newResult.Value.Add(c.Key, Convert.ToSingle(realvalue));
+                                    break;
+                                case DataTypeEnum.Double:
+                                    newResult.Value.Add(c.Key, Convert.ToDouble(realvalue));
+                                    break;
+                                default:
+                                    throw new Exception("Err BatchRead 未定义类型 -3");
+                            }
+
+                        }
+                        else
+                        {
+                            newResult.Value.Add(c.Key, result.Value[c.Key]);
+                        }
+                    }
+                    return newResult.EndTime();
+                }
+                return result.EndTime();
             }
             return result.EndTime();
         }

@@ -9,7 +9,7 @@ namespace IoTClient.Models
         /// <summary>
         /// 地址
         /// </summary>
-        public int Address { get; set; }
+        public string Address { get; set; }
         /// <summary>
         /// 站号
         /// </summary>

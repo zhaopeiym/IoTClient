@@ -827,7 +827,7 @@ namespace IoTClient.Clients.Modbus
                         {
                             result.Value.Add(new ModbusOutput()
                             {
-                                Address = item.Key,
+                                Address = item.Key.ToString(),
                                 FunctionCode = functionCode,
                                 StationNumber = stationNumber,
                                 Value = item.Value
