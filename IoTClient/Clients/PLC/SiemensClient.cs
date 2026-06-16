@@ -536,9 +536,9 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 
+        /// 读取Byte
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">地址</param>
         /// <returns></returns>
         public Result<byte> ReadByte(string address)
         {
@@ -1014,7 +1014,7 @@ namespace IoTClient.Clients.PLC
         /// 批量写入
         /// TODO 可以重构后面的Write 都走BatchWrite
         /// </summary>
-        /// <param name="addresses"></param>
+        /// <param name="addresses">地址和值</param>
         /// <returns></returns>
         private Result BatchWrite(Dictionary<string, object> addresses)
         {
@@ -1138,10 +1138,10 @@ namespace IoTClient.Clients.PLC
         }
 
         /// <summary>
-        /// 分批写入，默认按10个地址打包读取
+        /// 分批写入，默认按10个地址打包写入
         /// </summary>
         /// <param name="addresses">地址集合</param>
-        /// <param name="batchNumber">批量读取数量</param>
+        /// <param name="batchNumber">批量写入的数量</param>
         /// <returns></returns>
         public Result BatchWrite(Dictionary<string, object> addresses, int batchNumber = 10)
         {
