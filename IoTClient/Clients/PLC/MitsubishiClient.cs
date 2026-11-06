@@ -348,7 +348,7 @@ namespace IoTClient.Clients.PLC
                 var values = new List<KeyValuePair<string, short>>();
                 for (int i = 0; i < readNumber; i++)
                 {
-                    values.Add(new KeyValuePair<string, short>($"{dbType}{dbAddress + i * length}", BitConverter.ToInt16(readResut.Value, (readNumber - 1 - i) * length)));
+                    values.Add(new KeyValuePair<string, short>($"{dbType}{dbAddress + i}", BitConverter.ToInt16(readResut.Value, i * length)));
                 }
                 result.Value = values;
             }
